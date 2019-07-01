@@ -368,7 +368,7 @@ suite('Command Handler', () => {
             try {
                 await handler.debugServer(ProtocolStubs.unknownServerState);
             } catch (err) {
-                expect(err).equals(`Vscode-Adapters doesn't support debugging with c# language at this time.`);
+                expect(err).equals(`vscode-rsp-ui doesn't support debugging with c# language at this time.`);
             }
         });
 

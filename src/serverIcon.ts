@@ -25,7 +25,7 @@ export class ServerIcon {
         } else if (serverType.id.startsWith('org.jboss.ide.eclipse.as.wildfly.')) {
             return 'wildfly_icon.svg';
         } else if (serverType.id.startsWith('org.jboss.ide.eclipse.as.eap.')) {
-            return 'producticons_1017_RGB_EAP_color.png';
+            return 'rsp_ui_icon.png';
         } else if (serverType.id.startsWith('org.jboss.tools.openshift.cdk.server.type')) {
             return 'Logotype_RH_OpenShift.svg';
         } else {

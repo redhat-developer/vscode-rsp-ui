@@ -67,7 +67,7 @@ suite('Extension Tests', () => {
     });
 
     test('Extension should be present', () => {
-        assert.ok(vscode.extensions.getExtension('redhat.vscode-server-connector'));
+        assert.ok(vscode.extensions.getExtension('redhat.vscode-rsp-ui'));
     });
 
     test('Server is started at extension activation time', async () => {
