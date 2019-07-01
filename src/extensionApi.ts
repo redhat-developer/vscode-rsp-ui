@@ -535,7 +535,7 @@ export class CommandHandler {
         }
 
         if (!debugInfo.isJavaType()) {
-            return `Vscode-Adapters doesn\'t support debugging with ${debugInfo.getType()} language at this time.`;
+            return `vscode-rsp-ui doesn\'t support debugging with ${debugInfo.getType()} language at this time.`;
         }
 
         if (this.hasJavaDebugExtension()) {

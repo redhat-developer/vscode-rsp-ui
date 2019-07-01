@@ -1,7 +1,7 @@
 {
-  "name": "vscode-server-connector",
-  "displayName": "Server Connector",
-  "description": "Connects vscode with different server adapters and runtimes",
+  "name": "vscode-rsp-ui",
+  "displayName": "Remote Server Protocol UI",
+  "description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
   "version": "0.16.0",
   "license": "SEE LICENSE IN LICENSE",
   "publisher": "redhat",
@@ -9,9 +9,9 @@
   "preview": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/redhat-developer/vscode-adapters.git"
+    "url": "https://github.com/redhat-developer/vscode-rsp-ui.git"
   },
-  "bugs": "https://github.com/redhat-developer/vscode-adapters/issues/",
+  "bugs": "https://github.com/redhat-developer/vscode-rsp-ui/issues/",
   "engines": {
     "vscode": "^1.25.0"
   },
@@ -21,11 +21,10 @@
   "keywords": [
     "server",
     "runtimes",
-    "middleware",
-    "minishift",
-    "adapters"
+    "adapters",
+    "RSP"
   ],
-  "icon": "images/producticons_1017_RGB_EAP_color.png",
+  "icon": "images/rsp_ui_icon.png",
   "activationEvents": [
     "onCommand:server.createServer",
     "onCommand:server.addLocation",
