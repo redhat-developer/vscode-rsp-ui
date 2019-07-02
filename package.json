@@ -328,8 +328,8 @@
     "portfinder": "^1.0.20",
     "rsp-client": "^0.16.0",
     "tmp": "^0.1.0",
-    "vscode-jsonrpc": "^4.0.0",
     "vscode-languageclient": "^5.1.0",
+    "vscode-server-connector-api": "^0.1.1",
     "wait-on": "^3.0.1"
   }
 }

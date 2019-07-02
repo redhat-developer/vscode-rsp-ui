@@ -1,8 +1,7 @@
-import { API } from '../contract/api';
 import { available } from '../implementation/apiUtils';
-import { RSPProviderAPI, RSPServer } from '../contract/rspProviderAPI';
 import { RSPProperties, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
+import { API, RSPProviderAPI, RSPServer } from 'vscode-server-connector-api';
 
 export function api(): API<RSPProviderAPI> {
     return available(impl());
