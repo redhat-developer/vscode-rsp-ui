@@ -329,7 +329,7 @@
     "rsp-client": "^0.16.0",
     "tmp": "^0.1.0",
     "vscode-languageclient": "^5.1.0",
-    "vscode-server-connector-api": "^0.1.1",
+    "vscode-server-connector-api": "^0.1.3",
     "wait-on": "^3.0.1"
   }
 }

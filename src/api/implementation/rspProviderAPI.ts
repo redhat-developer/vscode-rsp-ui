@@ -1,17 +1,17 @@
 import { available } from '../implementation/apiUtils';
 import { RSPProperties, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
-import { API, RSPProviderAPI, RSPServer } from 'vscode-server-connector-api';
+import { API, RSPModel, RSPServer } from 'vscode-server-connector-api';
 
-export function api(): API<RSPProviderAPI> {
+export function api(): API<RSPModel> {
     return available(impl());
 }
 
-export function impl(): RSPProviderAPI {
+export function impl(): RSPModel {
     return new RSPProviderAPIImpl();
 }
 
-class RSPProviderAPIImpl implements RSPProviderAPI {
+class RSPProviderAPIImpl implements RSPModel {
     constructor() {}
 
     public async registerRSPProvider(rsp: RSPServer): Promise<void> {

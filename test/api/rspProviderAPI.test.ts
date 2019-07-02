@@ -1,7 +1,7 @@
 // The module 'assert' provides assertion methods from node
 import * as chai from 'chai';
 import { ProtocolStubs } from '../protocolstubs';
-import { RSPProviderAPI, RSPServer } from 'vscode-server-connector-api';
+import { RSPModel, RSPServer } from 'vscode-server-connector-api';
 import { impl } from '../../src/api/implementation/rspProviderAPI';
 import { ServerExplorer } from '../../src/serverExplorer';
 import * as sinon from 'sinon';
@@ -15,7 +15,7 @@ chai.use(sinonChai);
 suite('RSPProviderAPI Tests', () => {
     let sandbox: sinon.SinonSandbox;
     let serverExplorer: ServerExplorer;
-    let rspProviderImpl: RSPProviderAPI;
+    let rspProviderImpl: RSPModel;
 
     const rspServer: RSPServer = {
         state: 0,

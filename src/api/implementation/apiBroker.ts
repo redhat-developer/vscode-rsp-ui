@@ -1,9 +1,9 @@
 import { api } from './rspProviderAPI';
-import { API, APIBroker, RSPProviderAPI } from 'vscode-server-connector-api';
+import { API, APIBroker, RSPModel } from 'vscode-server-connector-api';
 
 export function apiBroker(): APIBroker {
     return {
-        get(): API<RSPProviderAPI> {
+        get(): API<RSPModel> {
             return api();
         }
     };

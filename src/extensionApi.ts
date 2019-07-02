@@ -14,10 +14,10 @@ import { ServerAPI, ServerInfo } from './rsp/server';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
 import * as vscode from 'vscode';
-import { API, RSPProviderAPI } from 'vscode-server-connector-api';
+import { API, RSPModel } from 'vscode-server-connector-api';
 
 export interface ExtensionAPI {
-    get(): API<RSPProviderAPI>;
+    get(): API<RSPModel>;
 }
 
 export class CommandHandler {
