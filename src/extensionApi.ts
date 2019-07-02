@@ -5,17 +5,16 @@
 
 'use strict';
 
-import { API } from './api/contract/api';
 import { initClient } from './rsp/client';
 import { DebugInfo } from './debug/debugInfo';
 import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
-import { RSPProviderAPI } from './api/contract/rspProviderAPI';
 import { ServerAPI, ServerInfo } from './rsp/server';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
 import * as vscode from 'vscode';
+import { API, RSPProviderAPI } from 'vscode-server-connector-api';
 
 export interface ExtensionAPI {
     get(): API<RSPProviderAPI>;

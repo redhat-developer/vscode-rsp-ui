@@ -3,7 +3,8 @@
  *  Licensed under the EPL v2.0 License. See LICENSE file in the project root for license information.
  *-----------------------------------------------------------------------------------------------*/
 import { Protocol, ServerState } from 'rsp-client';
-import { DeployableStateNode, RSPProperties, RSPState, RSPType, ServerStateNode } from '../src/serverExplorer';
+import { DeployableStateNode, RSPProperties, RSPState, ServerStateNode } from '../src/serverExplorer';
+import { RSPType } from 'vscode-server-connector-api';
 
 export class ProtocolStubs {
 

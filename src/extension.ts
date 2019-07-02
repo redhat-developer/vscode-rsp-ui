@@ -4,13 +4,13 @@
  *-----------------------------------------------------------------------------------------------*/
 
 'use strict';
-import { APIBroker } from './api/contract/api';
 import { apiBroker } from './api/implementation/apiBroker';
 import { CommandHandler } from './extensionApi';
 import { RSPClient, ServerState } from 'rsp-client';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer, ServerStateNode } from './serverExplorer';
 import * as vscode from 'vscode';
+import { APIBroker } from 'vscode-server-connector-api';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;

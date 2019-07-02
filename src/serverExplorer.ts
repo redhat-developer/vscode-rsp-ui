@@ -29,6 +29,7 @@ import {
 } from 'rsp-client';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerIcon } from './serverIcon';
+import { RSPType } from 'vscode-server-connector-api';
 
 enum deploymentStatus {
     file = 'File',
@@ -50,11 +51,6 @@ export interface ServerStateNode {
     publishState: number;
     runMode: string;
     deployableStates: DeployableStateNode[];
-}
-
-export interface RSPType {
-    id: string;
-    visibilename: string;
 }
 
 export interface RSPState {
