@@ -458,18 +458,18 @@ export class CommandHandler {
     private async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: {}): Promise<boolean> {
         const prompt = item.label + (item.content ? `\n${item.content}` : '');
         let userInput: any = null;
-        if (item.responseType === 'none') {
+        if (item.prompt == null || item.prompt.responseType === 'none') {
             userInput = await vscode.window.showQuickPick(['Continue...'],
                 { placeHolder: prompt, ignoreFocusOut: true });
         } else {
-            if (item.responseType === 'bool') {
+            if (item.prompt.responseType === 'bool') {
                 const oneProp = await vscode.window.showQuickPick(['True', 'False'],
                     { placeHolder: prompt, ignoreFocusOut: true });
                 userInput = (oneProp === 'True');
             } else {
                 const oneProp = await vscode.window.showInputBox(
-                    { prompt: prompt, ignoreFocusOut: true, password: item.responseSecret });
-                if (item.responseType === 'int') {
+                    { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
+                if (item.prompt.responseType === 'int') {
                     userInput = +oneProp;
                 } else {
                     userInput = oneProp;

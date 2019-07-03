@@ -230,7 +230,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                         return;
                     }
                     if (answer === 'Yes') {
-                        const optionMap: Protocol.Attributes = await client.getOutgoingHandler().listDeploymentOptions(state.server);
+                        const deployOptionsResponse:Protocol.ListDeploymentOptionsResponse = 
+                            await client.getOutgoingHandler().listDeploymentOptions(state.server);
+                        const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
                         for (const key in optionMap.attributes) {
                             if (key) {
                                 const attribute = optionMap.attributes[key];
