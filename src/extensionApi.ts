@@ -30,8 +30,9 @@ export class CommandHandler {
 
     public async startRSP(context?: RSPState): Promise<void> {
         if (context === undefined) {
-            const rsp = await this.selectRSP('Select RSP provider you want to start');
-            if (!rsp || !rsp.id) return null;
+            const filterRSPPredicate = serverR => serverR.state.state === ServerState.STOPPED || serverR.state.state === ServerState.UNKNOWN;
+            const rsp = await this.selectRSP('Select RSP provider you want to start', filterRSPPredicate);
+            if (!rsp || !rsp.id) return;
             context = this.explorer.RSPServersStatus.get(rsp.id).state;
         }
 
@@ -63,7 +64,15 @@ export class CommandHandler {
 
     public async stopRSP(forced: boolean, context?: RSPState): Promise<void> {
         if (context === undefined) {
-            const rsp = await this.selectRSP('Select RSP provider you want to start');
+            let filterRSPPredicate;
+            if (!forced) {
+                filterRSPPredicate = serverR => serverR.state.state === ServerState.STARTED;
+            } else {
+                filterRSPPredicate = serverR => serverR.state.state === ServerState.STARTED ||
+                                             serverR.state.state === ServerState.STARTING ||
+                                             serverR.state.state === ServerState.STOPPING;
+            }
+            const rsp = await this.selectRSP('Select RSP provider you want to start', filterRSPPredicate);
             if (!rsp || !rsp.id) return null;
             context = this.explorer.RSPServersStatus.get(rsp.id).state;
         }
@@ -430,15 +439,18 @@ export class CommandHandler {
         outputChannel.appendLine(`Server Description: ${selectedServerType.visibleName}`);
     }
 
-    private async selectRSP(message: string): Promise<{ label: string; id: string; }> {
-        const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).map(rsp => {
-            return {
-                label: (!rsp.state.type.visibilename ?
-                        rsp.state.type.id :
-                        rsp.state.type.visibilename),
-                id: rsp.state.type.id
-            };
-        });
+    private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
+        const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).
+                                filter(predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED).
+                                map(rsp => {
+                                    return {
+                                        label: (!rsp.state.type.visibilename ?
+                                                rsp.state.type.id :
+                                                rsp.state.type.visibilename),
+                                        id: rsp.state.type.id
+                                    };
+                                });
+
         if (rspProviders.length < 1) {
             return Promise.reject('There are no RSP providers to choose from.');
         }
