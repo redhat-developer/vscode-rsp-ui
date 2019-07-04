@@ -328,7 +328,7 @@
     "rsp-client": "^0.20.0",
     "tmp": "^0.1.0",
     "vscode-languageclient": "^5.1.0",
-    "vscode-server-connector-api": "^0.1.3",
+    "vscode-server-connector-api": "file:../../redhat-developer/vscode-server-connector-api",
     "wait-on": "^3.0.1"
   }
 }
