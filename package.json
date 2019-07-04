@@ -67,37 +67,37 @@
       },
       {
         "command": "server.startRSP",
-        "title": "Start",
+        "title": "Start RSP Provider",
         "category": "Servers"
       },
       {
         "command": "server.stopRSP",
-        "title": "Stop",
+        "title": "Stop RSP Provider",
         "category": "Servers"
       },
       {
         "command": "server.terminateRSP",
-        "title": "Terminate",
+        "title": "Terminate RSP Provider",
         "category": "Servers"
       },
       {
         "command": "server.start",
-        "title": "Start",
+        "title": "Start Server",
         "category": "Servers"
       },
       {
         "command": "server.debug",
-        "title": "Debug",
+        "title": "Debug Server",
         "category": "Servers"
       },
       {
         "command": "server.stop",
-        "title": "Stop",
+        "title": "Stop Server",
         "category": "Servers"
       },
       {
         "command": "server.terminate",
-        "title": "Terminate",
+        "title": "Terminate Server",
         "category": "Servers"
       },
       {
@@ -112,7 +112,7 @@
       },
       {
         "command": "server.remove",
-        "title": "Remove",
+        "title": "Remove Server",
         "category": "Servers"
       },
       {
