@@ -11,12 +11,13 @@ import { DebugInfoProvider } from '../src/debugInfoProvider';
 import { CommandHandler } from '../src/extensionApi';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
+import { ServerEditorAdapter } from '../src/serverEditorAdapter';
 import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import * as vscode from 'vscode';
-import { ServerInfo, RSPController } from 'vscode-server-connector-api';
 import { Utils } from '../src/utils/utils';
+import * as vscode from 'vscode';
+import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -687,6 +688,87 @@ suite('Command Handler', () => {
             } catch (err) {
                 expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
             }
+        });
+    });
+
+    suite('editServer', () => {
+        let serverJsonResponseStub: sinon.SinonStub;
+
+        test('errors if server explorer is not initialized', async () => {
+            const nullHandler = new CommandHandler(null);
+
+            try {
+                await nullHandler.editServer(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+            }
+        });
+
+        test('error if RSPClient is undefined', async () => {
+            const getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(undefined);
+
+            try {
+                await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
+                expect(getClientStub).calledOnce();
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Unable to contact the RSP server id.');
+            }
+
+        });
+
+        test('error if server properties object is undefined', async () => {
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
+                return undefined;
+            });
+
+            try {
+                await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
+                expect(serverJsonResponseStub).calledOnce();
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Could not load server properties for server id');
+            }
+
+        });
+
+        test('error if serverJson property of server properties object is undefined', async () => {
+            const serverJsonResponse: Protocol.GetServerJsonResponse = {
+                serverHandle: ProtocolStubs.serverHandle,
+                serverJson: undefined,
+                status: ProtocolStubs.okStatus
+            };
+
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
+                return serverJsonResponse;
+            });
+
+            try {
+                await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
+                expect(serverJsonResponseStub).calledOnce();
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Could not load server properties for server id');
+            }
+
+        });
+
+        test('check showServerJsonResponse is called with right params if no error occurred', async () => {
+            const showStub = sandbox.stub(ServerEditorAdapter.getInstance(serverExplorer), 'showServerJsonResponse');
+            const serverJsonResponse: Protocol.GetServerJsonResponse = {
+                serverHandle: ProtocolStubs.serverHandle,
+                serverJson: `{ test: 'test'}`,
+                status: ProtocolStubs.okStatus
+            };
+
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
+                return serverJsonResponse;
+            });
+
+            await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
+            expect(showStub).calledOnceWith('id', serverJsonResponse);
+
         });
     });
 

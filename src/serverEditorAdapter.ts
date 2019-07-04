@@ -10,7 +10,7 @@ import { ServerExplorer } from './serverExplorer';
 import * as tmp from 'tmp';
 import * as vscode from 'vscode';
 
-interface ServerProperties {
+export interface ServerProperties {
     server: string;
     file: string;
 }
@@ -18,7 +18,7 @@ interface ServerProperties {
 export class ServerEditorAdapter {
 
     private static instance: ServerEditorAdapter;
-    private RSPServerProperties: Map<string, ServerProperties[]> = new Map<string, ServerProperties[]>();
+    public RSPServerProperties: Map<string, ServerProperties[]> = new Map<string, ServerProperties[]>();
     private readonly PREFIX_TMP = 'tmpServerConnector';
 
     private constructor(private explorer: ServerExplorer) {
@@ -54,7 +54,7 @@ export class ServerEditorAdapter {
         const rspExists: boolean = this.RSPServerProperties.has(rspId);
         if (rspExists) {
             const serverProps: ServerProperties = this.RSPServerProperties.get(rspId).find(prop => prop.server === content.serverHandle.id);
-            if (!serverProps) {
+            if (serverProps) {
                 return this.saveAndShowEditor(
                     serverProps.file,
                     content.serverJson
@@ -95,6 +95,11 @@ export class ServerEditorAdapter {
         if (!doc) {
             return Promise.reject('Unable to save server properties');
         }
+
+        if (!doc.uri || !doc.uri.fsPath) {
+            return Promise.reject('Unable to save server properties - Uri is invalid');
+        }
+
         if (await this.isTmpServerPropsFile(doc.fileName)) {
             let rspId: string;
             let serverId: string;

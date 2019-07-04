@@ -228,7 +228,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                         return;
                     }
                     if (answer === 'Yes') {
-                        const deployOptionsResponse:Protocol.ListDeploymentOptionsResponse = 
+                        const deployOptionsResponse: Protocol.ListDeploymentOptionsResponse =
                             await client.getOutgoingHandler().listDeploymentOptions(state.server);
                         const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
                         for (const key in optionMap.attributes) {
@@ -349,7 +349,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     public async editServer(rspId: string, server: Protocol.ServerHandle): Promise<void> {
         const client: RSPClient = this.getClientByRSP(rspId);
         if (!client) {
-            return Promise.reject('Unable to contact the RSP server.');
+            return Promise.reject(`Unable to contact the RSP server ${rspId}.`);
         }
         const serverProperties = await client.getOutgoingHandler().getServerAsJson(server);
 
@@ -361,8 +361,11 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     }
 
     public async saveServerProperties(rspId: string, serverhandle: Protocol.ServerHandle, content: string): Promise<Protocol.Status> {
-        if (!serverhandle || !content) {
-            throw new Error(`Unable to update server properties for server ${serverhandle.id}`);
+        if (!serverhandle) {
+            return Promise.reject('Unable to update server properties - Invalid server');
+        }
+        if (!content) {
+            return Promise.reject(`Unable to update server properties for server ${serverhandle.id} - Invalid content`);
         }
         const client: RSPClient = this.getClientByRSP(rspId);
         if (!client) {
