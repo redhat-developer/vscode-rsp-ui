@@ -16,6 +16,7 @@ import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import * as vscode from 'vscode';
+import { window } from 'vscode';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -698,6 +699,47 @@ suite('Command Handler', () => {
             } catch (err) {
                 expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
             }
+        });
+
+        test('check if new channel is created if it doesn\'t already exist in map', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            const createChannelStub = sandbox.stub(window, 'createOutputChannel').returns(output);
+            await handler.infoServer(ProtocolStubs.unknownServerState);
+            expect(createChannelStub).calledOnceWith('Properties: id');
+        });
+
+        test('check if already existing channel is taken if it exist in map', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            handler.serverPropertiesChannel.set('id', output);
+            const getChannelStub = sandbox.stub(handler.serverPropertiesChannel, 'get').returns(output);
+            await handler.infoServer(ProtocolStubs.unknownServerState);
+            expect(getChannelStub).calledOnceWith('id');
+        });
+
+        test('check if already existing channel is cleared', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            handler.serverPropertiesChannel.set('id', output);
+            const clearChannelStub = sandbox.stub(output, 'clear');
+            await handler.infoServer(ProtocolStubs.unknownServerState);
+            expect(clearChannelStub).calledOnce;
+        });
+
+        test('check if channel is shown', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            handler.serverPropertiesChannel.set('id', output);
+            const showChannelStub = sandbox.stub(output, 'show');
+            await handler.infoServer(ProtocolStubs.unknownServerState);
+            expect(showChannelStub).calledOnce;
+        });
+
+        test('check if appendLine is called thrice after showing channel', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            handler.serverPropertiesChannel.set('id', output);
+            const showChannelStub = sandbox.stub(output, 'show');
+            const appendLineStub = sandbox.stub(output, 'appendLine');
+            await handler.infoServer(ProtocolStubs.unknownServerState);
+            expect(appendLineStub).calledAfter(showChannelStub);
+            expect(appendLineStub).calledThrice;
         });
     });
 });
