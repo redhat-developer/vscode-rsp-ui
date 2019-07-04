@@ -16,7 +16,6 @@ import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import * as vscode from 'vscode';
-import { window } from 'vscode';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -703,7 +702,7 @@ suite('Command Handler', () => {
 
         test('check if new channel is created if it doesn\'t already exist in map', async () => {
             const output = vscode.window.createOutputChannel('Properties');
-            const createChannelStub = sandbox.stub(window, 'createOutputChannel').returns(output);
+            const createChannelStub = sandbox.stub(vscode.window, 'createOutputChannel').returns(output);
             await handler.infoServer(ProtocolStubs.unknownServerState);
             expect(createChannelStub).calledOnceWith('Properties: id');
         });
