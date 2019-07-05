@@ -453,7 +453,7 @@ export class CommandHandler {
         if (stateFilter) {
             servers = servers.filter(stateFilter);
         }
-        if (servers.length < 1) {
+        if (!servers || servers.length < 1) {
             return Promise.reject('There are no servers to choose from.');
         }
 

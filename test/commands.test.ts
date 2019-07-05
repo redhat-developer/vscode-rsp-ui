@@ -700,6 +700,42 @@ suite('Command Handler', () => {
             }
         });
     });
+
+    suite('selectServer', () => {
+
+        test('getServerStatesByRSP called with correct rspId', async () => {
+            const getStateStub = sandbox.stub(serverExplorer, 'getServerStatesByRSP');
+            const selectServerWithHandlerInjected = Reflect.get(handler, 'selectServer').bind(handler);
+            try {
+                await selectServerWithHandlerInjected('id', 'test', undefined);
+                expect(getStateStub).calledOnceWith('id');
+            } catch (err) {
+
+            }
+
+        });
+
+        test('error if filter for STOPPED status is passed but map contains only server with STARTED state', async () => {
+            try {
+                const selectServerWithHandlerInjected = Reflect.get(handler, 'selectServer').bind(handler);
+                const filter = server => server.state.state === ServerState.STOPPED;
+                await selectServerWithHandlerInjected('id', '', filter);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('There are no servers to choose from.');
+            }
+        });
+
+        test('showQuickPick called with original map if filtering is not passed', async () => {
+            serverExplorer.RSPServersStatus.get('id').state.serverStates = [ProtocolStubs.startedServerState];
+            const servers = serverExplorer.getServerStatesByRSP('id').map(server => server.server.id);
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
+            const selectServerWithHandlerInjected = Reflect.get(handler, 'selectServer').bind(handler);
+            await selectServerWithHandlerInjected('id', 'test', undefined);
+            expect(quickPickStub).calledOnceWith(servers, { placeHolder: 'test' });
+
+        });
+    });
 });
 
 function givenServerStarted(sandbox: sinon.SinonSandbox, handler: CommandHandler, responseStub = createServerStartedResponse()) {
