@@ -700,6 +700,32 @@ suite('Command Handler', () => {
             }
         });
     });
+
+    suite('selectRSP', () => {
+
+        test('error if no filter is added and map contains only server with stopped state', async () => {
+            try {
+                const selectRSPWithHandlerInjected = Reflect.get(handler, 'selectRSP').bind(handler);
+                await selectRSPWithHandlerInjected('');
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('There are no RSP providers to choose from.');
+            }
+        });
+
+        test('showQuickPick called with 1 server if filtering for stopped state', async () => {
+            const unknownServer = {
+                label: 'the type',
+                id: 'id'
+            };
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
+            const selectRSPWithHandlerInjected = Reflect.get(handler, 'selectRSP').bind(handler);
+            const filter = server => server.state.state === ServerState.STOPPED;
+            await selectRSPWithHandlerInjected('test', filter);
+            expect(quickPickStub).calledOnceWith([unknownServer], { placeHolder: 'test' });
+
+        });
+    });
 });
 
 function givenServerStarted(sandbox: sinon.SinonSandbox, handler: CommandHandler, responseStub = createServerStartedResponse()) {
