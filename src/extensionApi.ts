@@ -548,10 +548,9 @@ export class CommandHandler {
             return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
         }
         const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
-        if (!rsp || !rsp.id) return null;
-        // if rsp is stopped maybe we should start it automatically after picked
+        if (!rsp || !rsp.id) return;
         const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
-        if (!serverId) return null;
+        if (!serverId) return;
         const context = this.explorer.getServerStateById(rsp.id, serverId);
 
         await this.explorer.addDeployment([uri], context);

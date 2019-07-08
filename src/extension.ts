@@ -69,6 +69,10 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to run war file')),
         vscode.commands.registerCommand('server.war.debug',
             context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to debug war file')),
+        vscode.commands.registerCommand('server.exploded.run',
+            context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to run war file')),
+        vscode.commands.registerCommand('server.exploded.debug',
+            context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to debug war file')),
         vscode.workspace.onDidSaveTextDocument(onDidSaveTextDocument),
         vscode.workspace.onDidCloseTextDocument(onDidCloseTextDocument)
     ];
