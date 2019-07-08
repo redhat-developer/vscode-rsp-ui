@@ -283,7 +283,7 @@ export class CommandHandler {
         }
 
         if (this.explorer) {
-            return this.explorer.addDeployment(context);
+            return this.explorer.selectAndAddDeployment(context);
         } else {
             return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
         }
@@ -544,6 +544,35 @@ export class CommandHandler {
         }
     }
 
+    public async runOnServer(uri: vscode.Uri, mode?: string): Promise<void> {
+        if (!this.explorer) {
+            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+        }
+        const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
+        if (!rsp || !rsp.id) return;
+        const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
+        if (!serverId) return;
+        const context = this.explorer.getServerStateById(rsp.id, serverId);
+
+        await this.explorer.addDeployment([uri], context);
+        await this.explorer.publish(rsp.id, context.server, ServerState.PUBLISH_FULL);
+        if (context.state === ServerState.STOPPED ||
+            context.state === ServerState.UNKNOWN) {
+            if (mode === ServerState.RUN_MODE_RUN) {
+                await this.startServer(mode, context);
+            } else {
+                await this.debugServer(context);
+            }
+        } else if (context.state === ServerState.STARTED) {
+            if (!(context.runMode === ServerState.RUN_MODE_RUN &&
+                mode === ServerState.RUN_MODE_RUN)) {
+                await this.restartServer(mode, context);
+            }
+        } else {
+            return Promise.reject(`Unable to add deployment and run it on server ${context.server.id}. Stop/start the server and try again.`);
+        }
+    }
+
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
         const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).
                                 filter(predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED).
@@ -555,7 +584,6 @@ export class CommandHandler {
                                         id: rsp.state.type.id
                                     };
                                 });
-
         if (rspProviders.length < 1) {
             return Promise.reject('There are no RSP providers to choose from.');
         }

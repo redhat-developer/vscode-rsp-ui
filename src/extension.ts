@@ -65,6 +65,10 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.serverActions, commandHandler, context, 'Unable to execute action')),
         vscode.commands.registerCommand('server.editServer',
             context => executeCommand(commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
+        vscode.commands.registerCommand('server.application.run',
+            context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to deploy and run application')),
+        vscode.commands.registerCommand('server.application.debug',
+            context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to deploy and debug application')),
         vscode.workspace.onDidSaveTextDocument(onDidSaveTextDocument),
         vscode.workspace.onDidCloseTextDocument(onDidCloseTextDocument)
     ];

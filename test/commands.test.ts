@@ -798,7 +798,7 @@ suite('Command Handler', () => {
         let addDeploymentStub: sinon.SinonStub;
 
         setup(() => {
-            addDeploymentStub = sandbox.stub(serverExplorer, 'addDeployment');
+            addDeploymentStub = sandbox.stub(serverExplorer, 'selectAndAddDeployment');
         });
 
         test('addDeployment called with right context if context passed as param', async () => {

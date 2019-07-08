@@ -43,6 +43,7 @@
     "onCommand:server.add",
     "onCommand:server.publishFull",
     "onCommand:server.publishIncremental",
+    "onCommand:server.actions",
     "onView:servers",
     "onLanguage:plaintext"
   ],
@@ -150,6 +151,16 @@
         "command": "server.editServer",
         "title": "Edit Server",
         "category": "Servers"
+      },
+      {
+        "command": "server.application.run",
+        "title": "Run on Server",
+        "category": "Application"
+      },
+      {
+        "command": "server.application.debug",
+        "title": "Debug on Server",
+        "category": "Application"
       }
     ],
     "views": {
@@ -166,6 +177,16 @@
           "command": "server.createServer",
           "when": "view == servers",
           "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "server.application.run",
+          "when": "never"
+        },
+        {
+          "command": "server.application.debug",
+          "when": "never"
         }
       ],
       "view/item/context": [
@@ -263,6 +284,21 @@
           "command": "server.actions",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@1"
+        },
+        {
+          "command": "server.editServer",
+          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+          "group": "6_server-info@2"
+	}
+      ],
+      "explorer/context": [
+        {
+          "command": "server.application.run",
+          "group": "1_server-application@1"
+        },
+        {
+          "command": "server.application.debug",
+          "group": "1_server-application@2"
         }
       ]
     },
