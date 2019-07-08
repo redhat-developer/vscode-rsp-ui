@@ -15,6 +15,7 @@ import {
     TreeItem,
     TreeItemCollapsibleState,
     TreeView,
+    Uri,
     window,
     workspace
 } from 'vscode';
@@ -214,51 +215,55 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         this.viewer.reveal(data, { focus: true, select: true });
     }
 
-    public async addDeployment(state: ServerStateNode): Promise<Protocol.Status> {
-        const client: RSPClient = this.RSPServersStatus.get(state.rsp).client;
+    public async selectAndAddDeployment(state: ServerStateNode): Promise<Protocol.Status> {
         return this.createOpenDialogOptions()
             .then(options => window.showOpenDialog(options))
-            .then(async file => {
-                if (file && file.length === 1) {
+            .then(async file => this.addDeployment(file, state));
+    }
 
-                    const answer = await window.showQuickPick(['No', 'Yes'], {placeHolder:
-                        'Do you want to edit optional deployment parameters?'});
-                    const options = {};
-                    if (!answer) {
-                        return;
-                    }
-                    if (answer === 'Yes') {
-                        const deployOptionsResponse: Protocol.ListDeploymentOptionsResponse =
-                            await client.getOutgoingHandler().listDeploymentOptions(state.server);
-                        const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
-                        for (const key in optionMap.attributes) {
-                            if (key) {
-                                const attribute = optionMap.attributes[key];
-                                const val = await window.showInputBox({prompt: attribute.description,
-                                    value: attribute.defaultVal, password: attribute.secret});
-                                if (val) {
-                                    options[key] = val;
-                                }
-                            }
+    public async addDeployment(file: Uri[], state: ServerStateNode): Promise<Protocol.Status> {
+        const client: RSPClient = this.RSPServersStatus.get(state.rsp).client;
+        if (client && file && file.length === 1) {
+
+            const answer = await window.showQuickPick(['No', 'Yes'], {placeHolder:
+                'Do you want to edit optional deployment parameters?'});
+            const options = {};
+            if (!answer) {
+                return;
+            }
+            if (answer === 'Yes') {
+                const deployOptionsResponse:Protocol.ListDeploymentOptionsResponse = 
+                    await client.getOutgoingHandler().listDeploymentOptions(state.server);
+                const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
+                for (const key in optionMap.attributes) {
+                    if (key) {
+                        const attribute = optionMap.attributes[key];
+                        const val = await window.showInputBox({prompt: attribute.description,
+                            value: attribute.defaultVal, password: attribute.secret});
+                        if (val) {
+                            options[key] = val;
                         }
                     }
-
-                    const deployableRef: Protocol.DeployableReference = {
-                        label: file[0].fsPath,
-                        path: file[0].fsPath,
-                        options: options
-                    };
-                    const req: Protocol.ServerDeployableReference = {
-                        server: state.server,
-                        deployableReference : deployableRef
-                    };
-                    const status = await client.getOutgoingHandler().addDeployable(req);
-                    if (!StatusSeverity.isOk(status)) {
-                        return Promise.reject(status.message);
-                    }
-                    return status;
                 }
-            });
+            }
+
+            // var fileUrl = require('file-url');
+            // const filePath : string = fileUrl(file[0].fsPath);
+            const deployableRef: Protocol.DeployableReference = {
+                label: file[0].fsPath,
+                path: file[0].fsPath,
+                options: options
+            };
+            const req: Protocol.ServerDeployableReference = {
+                server: state.server,
+                deployableReference : deployableRef
+            };
+            const status = await client.getOutgoingHandler().addDeployable(req);
+            if (!StatusSeverity.isOk(status)) {
+                return Promise.reject(status.message);
+            }
+            return status;
+        }
     }
 
     private async createOpenDialogOptions(): Promise<OpenDialogOptions> {

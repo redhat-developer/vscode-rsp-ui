@@ -436,7 +436,7 @@ suite('Server explorer', () => {
                 openLabel: `Select File Deployment`
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
-            await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const filePickerResult = stubDialog.getCall(0).args[0];
             expect(JSON.stringify(filePickerResult)).equals(JSON.stringify(filePickerResponseWindows));
@@ -455,7 +455,7 @@ suite('Server explorer', () => {
                 openLabel: `Select Exploded Deployment`
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
-            await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const folderPickerResult = stubDialog.getCall(0).args[0];
             expect(JSON.stringify(folderPickerResult)).equals(JSON.stringify(folderPickerResponseWindows));
@@ -474,7 +474,7 @@ suite('Server explorer', () => {
                 openLabel: `Select File Deployment`
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
-            await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const filePickerResult = stubDialog.getCall(0).args[0];
             expect(JSON.stringify(filePickerResult)).equals(JSON.stringify(filePickerResponseLinux));
@@ -493,7 +493,7 @@ suite('Server explorer', () => {
                 openLabel: `Select Exploded Deployment`
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
-            await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const folderPickerResult = stubDialog.getCall(0).args[0];
             expect(JSON.stringify(folderPickerResult)).equals(JSON.stringify(folderPickerResponseLinux));
@@ -512,7 +512,7 @@ suite('Server explorer', () => {
                 openLabel: `Select file or exploded Deployment`
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
-            await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const pickerResult = stubDialog.getCall(0).args[0];
             expect(JSON.stringify(pickerResult)).equals(JSON.stringify(pickerResponseDialog));
@@ -522,7 +522,7 @@ suite('Server explorer', () => {
             sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(undefined);
 
             try {
-                await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+                await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
                 expect.fail();
             } catch (err) {
                 expect(err).equals(undefined);
@@ -531,14 +531,14 @@ suite('Server explorer', () => {
 
         test('check if user doesn\'t choose any file from dialog', async () => {
             sandbox.stub(window, 'showOpenDialog').resolves(undefined);
-            const result = await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            const result = await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
             expect(result).equals(undefined);
         });
 
         test('check if user terminate before adding optional deployment parameters', async () => {
             sandbox.stub(window, 'showOpenDialog').resolves([userSelectedPath]);
             sandbox.stub(window, 'showQuickPick').resolves(undefined);
-            const result = await serverExplorer.addDeployment(ProtocolStubs.startedServerState);
+            const result = await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
             expect(result).equals(undefined);
         });
     });
