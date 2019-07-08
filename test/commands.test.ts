@@ -11,11 +11,11 @@ import { DebugInfoProvider } from '../src/debugInfoProvider';
 import { CommandHandler } from '../src/extensionApi';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
-import { ServerAPI, ServerInfo } from '../src/rsp/server';
 import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import * as vscode from 'vscode';
+import { ServerInfo, RSPController } from 'vscode-server-connector-api';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -63,7 +63,7 @@ suite('Command Handler', () => {
 
     suite('startRSP', () => {
         let serverInfo: ServerInfo;
-        let rspProvider: ServerAPI;
+        let rspProvider: RSPController;
         setup(() => {
             serverInfo = {
                 host: 'localhost',
@@ -72,6 +72,7 @@ suite('Command Handler', () => {
             rspProvider = {
                 getHost: () => 'localhost',
                 getPort: () => 8080,
+                getImage: (type: string) => vscode.Uri.parse('path'),
                 onRSPServerStateChanged: () => {},
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
@@ -132,7 +133,7 @@ suite('Command Handler', () => {
     suite('stopRSP', async () => {
 
         let serverInfo: ServerInfo;
-        let rspProvider: ServerAPI;
+        let rspProvider: RSPController;
         setup(() => {
             serverInfo = {
                 host: 'localhost',
@@ -141,6 +142,7 @@ suite('Command Handler', () => {
             rspProvider = {
                 getHost: () => 'localhost',
                 getPort: () => 8080,
+                getImage: (type: string) => vscode.Uri.parse('path'),
                 onRSPServerStateChanged: () => {},
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()

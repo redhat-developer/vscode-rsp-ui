@@ -5,7 +5,6 @@
 
 'use strict';
 
-import * as path from 'path';
 import {
     Event,
     EventEmitter,
@@ -16,7 +15,6 @@ import {
     TreeItem,
     TreeItemCollapsibleState,
     TreeView,
-    Uri,
     window,
     workspace
 } from 'vscode';
@@ -28,7 +26,7 @@ import {
     StatusSeverity
 } from 'rsp-client';
 import { ServerEditorAdapter } from './serverEditorAdapter';
-import { ServerIcon } from './serverIcon';
+import { Utils } from './utils/utils';
 import { RSPType } from 'vscode-server-connector-api';
 
 enum deploymentStatus {
@@ -534,7 +532,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const serverState = `${this.runStateEnum.get(state.state)}`;
             const depStr = `${id1} (${serverState})`;
             return { label: `${depStr}`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: Utils.getIcon(state.type.id, state.type.id),
                 contextValue: `RSP${serverState}`,
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
@@ -549,7 +547,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const pubState: string = this.publishStateEnum.get(state.publishState);
             const depStr = `${id1} (${serverState}) (${pubState})`;
             return { label: `${depStr}`,
-                iconPath: ServerIcon.get(handle.type),
+                iconPath: Utils.getIcon(state.rsp, handle.type.id),
                 contextValue: serverState,
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
@@ -560,7 +558,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const pubState: string = this.publishStateEnum.get(state.publishState);
             const depStr = `${id1} (${serverState}) (${pubState})`;
             return { label: `${depStr}`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: Utils.getIcon(state.rsp, state.server.type.id),
                 contextValue: pubState,
                 collapsibleState: TreeItemCollapsibleState.None
             };

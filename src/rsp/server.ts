@@ -1,16 +1,3 @@
-export interface ServerInfo {
-    host: string;
-    port: number;
-}
-
-export interface ServerAPI {
-    startRSP(stdoutCallback: (data: string) => void, stderrCallback: (data: string) => void ): Promise<ServerInfo>;
-    stopRSP(): Promise<void>;
-    onRSPServerStateChanged(listener: (state: number) => void): void;
-    getHost(): string;
-    getPort(): number;
-}
-
 export interface Extension<T> {
 
     /**
