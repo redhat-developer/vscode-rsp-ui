@@ -151,6 +151,26 @@
         "command": "server.editServer",
         "title": "Edit Server",
         "category": "Servers"
+      },
+      {
+        "command": "server.war.run",
+        "title": "Run on Server",
+        "category": "War"
+      },
+      {
+        "command": "server.war.debug",
+        "title": "Debug on Server",
+        "category": "War"
+      },
+      {
+        "command": "server.exploded.run",
+        "title": "Run Exploded War on Server",
+        "category": "War"
+      },
+      {
+        "command": "server.exploded.debug",
+        "title": "Debug Exploded War on Server",
+        "category": "War"
       }
     ],
     "views": {
@@ -167,6 +187,24 @@
           "command": "server.createServer",
           "when": "view == servers",
           "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "server.war.run",
+          "when": "never"
+        },
+        {
+          "command": "server.war.debug",
+          "when": "never"
+        },
+        {
+          "command": "server.exploded.run",
+          "when": "never"
+        },
+        {
+          "command": "server.exploded.debug",
+          "when": "never"
         }
       ],
       "view/item/context": [
@@ -269,6 +307,28 @@
           "command": "server.editServer",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "server.war.run",
+          "when": "!explorerResourceIsFolder && resourceExtname == .war",
+          "group": "1_server-war@1"
+        },
+        {
+          "command": "server.war.debug",
+          "when": "!explorerResourceIsFolder && resourceExtname == .war",
+          "group": "1_server-war@2"
+        },
+        {
+          "command": "server.exploded.run",
+          "when": "explorerResourceIsFolder",
+          "group": "1_server-exploded@1"
+        },
+        {
+          "command": "server.exploded.debug",
+          "when": "explorerResourceIsFolder",
+          "group": "1_server-exploded@2"
         }
       ]
     },
