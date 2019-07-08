@@ -544,15 +544,15 @@ export class CommandHandler {
     }
 
     public async runOnServer(uri: vscode.Uri, mode?: string): Promise<void> {
+        if (!this.explorer) {
+            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+        }
         const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
         if (!rsp || !rsp.id) return null;
         // if rsp is stopped maybe we should start it automatically after picked
         const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
         if (!serverId) return null;
         const context = this.explorer.getServerStateById(rsp.id, serverId);
-        if (!this.explorer) {
-            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
-        }
 
         await this.explorer.addDeployment([uri], context);
         if (context.state === ServerState.STOPPED ||
@@ -568,7 +568,7 @@ export class CommandHandler {
                 await this.restartServer(mode, context);
             }
         } else {
-            return Promise.reject(`Unable to add war to server ${context.server.id}. Stop/start the server and try again.`);
+            return Promise.reject(`Unable to add war and run it on server ${context.server.id}. Stop/start the server and try again.`);
         }
     }
 
