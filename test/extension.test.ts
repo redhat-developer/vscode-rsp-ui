@@ -99,7 +99,11 @@ suite('Extension Tests', () => {
                 'server.addLocation',
                 'server.downloadRuntime',
                 'server.actions',
-                'server.editServer'
+                'server.editServer',
+                'server.war.run',
+                'server.war.debug',
+                'server.exploded.run',
+                'server.exploded.debug'
             ];
             const foundServerCommands = commands.filter(value => {
                 return SERVER_COMMANDS.indexOf(value) >= 0 || value.startsWith('server.');
