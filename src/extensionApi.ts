@@ -10,15 +10,11 @@ import { DebugInfo } from './debug/debugInfo';
 import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
-import { ServerAPI, ServerInfo } from './rsp/server';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
+import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
-import { API, RSPModel } from 'vscode-server-connector-api';
-
-export interface ExtensionAPI {
-    get(): API<RSPModel>;
-}
+import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 
 export class CommandHandler {
 
@@ -43,7 +39,7 @@ export class CommandHandler {
             return Promise.reject(`The RSP server ${context.type.visibilename} is already running.`);
         }
 
-        const rspProvider: ServerAPI = await this.activateExternalExtension(context.type.id);
+        const rspProvider: RSPController = await Utils.activateExternalProvider(context.type.id);
         this.setRSPListener(context.type.id, rspProvider);
         const serverInfo: ServerInfo = await rspProvider.startRSP(
             (out: string) => this.onStdoutData(context.type.id, out),
@@ -83,7 +79,7 @@ export class CommandHandler {
                 }
                 client.shutdownServer();
             } else {
-                const rspProvider: ServerAPI = await this.activateExternalExtension(context.type.id);
+                const rspProvider: RSPController = await Utils.activateExternalProvider(context.type.id);
                 await rspProvider.stopRSP().catch(err => {
                     // if stopRSP fails, server is still running
                     this.explorer.updateRSPServer(context.type.id, ServerState.STARTED);
@@ -563,19 +559,7 @@ export class CommandHandler {
         }
     }
 
-    private async activateExternalExtension(id: string): Promise<ServerAPI> {
-        const extension = await vscode.extensions.getExtension<ServerAPI>(id);
-        if (!extension) {
-            return Promise.reject(`Failed to retrieve ${id} extension`);
-        }
-        const rspProvider: ServerAPI = await extension.activate();
-        if (!rspProvider) {
-            return Promise.reject(`Failed to activate ${id} extension`);
-        }
-        return rspProvider;
-    }
-
-    public async setRSPListener(rspId: string, rspProvider: ServerAPI): Promise<void> {
+    public async setRSPListener(rspId: string, rspProvider: RSPController): Promise<void> {
         rspProvider.onRSPServerStateChanged(state => {
             this.explorer.updateRSPServer(rspId, state);
         });

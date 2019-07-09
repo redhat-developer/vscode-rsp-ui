@@ -4,22 +4,22 @@
  *-----------------------------------------------------------------------------------------------*/
 
 'use strict';
-import { apiBroker } from './api/implementation/apiBroker';
 import { CommandHandler } from './extensionApi';
 import { RSPClient, ServerState } from 'rsp-client';
+import { getAPI } from './api/implementation/rspProviderAPI';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer, ServerStateNode } from './serverExplorer';
 import * as vscode from 'vscode';
-import { APIBroker } from 'vscode-server-connector-api';
+import { RSPModel } from 'vscode-server-connector-api';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;
 
-export async function activate(context: vscode.ExtensionContext): Promise<APIBroker> {
+export async function activate(context: vscode.ExtensionContext): Promise<RSPModel> {
     serversExplorer = ServerExplorer.getInstance();
     commandHandler = new CommandHandler(serversExplorer);
     registerCommands(commandHandler, context);
-    return apiBroker();
+    return getAPI();
 }
 
 function registerCommands(commandHandler: CommandHandler, context: vscode.ExtensionContext) {

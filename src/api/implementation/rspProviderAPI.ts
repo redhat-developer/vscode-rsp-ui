@@ -1,13 +1,8 @@
-import { available } from '../implementation/apiUtils';
 import { RSPProperties, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
-import { API, RSPModel, RSPServer } from 'vscode-server-connector-api';
+import { RSPModel, RSPServer } from 'vscode-server-connector-api';
 
-export function api(): API<RSPModel> {
-    return available(impl());
-}
-
-export function impl(): RSPModel {
+export function getAPI(): RSPModel {
     return new RSPProviderAPIImpl();
 }
 

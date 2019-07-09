@@ -5,7 +5,6 @@
 
 'use strict';
 
-import * as path from 'path';
 import {
     Event,
     EventEmitter,
@@ -16,7 +15,6 @@ import {
     TreeItem,
     TreeItemCollapsibleState,
     TreeView,
-    Uri,
     window,
     workspace
 } from 'vscode';
@@ -28,7 +26,7 @@ import {
     StatusSeverity
 } from 'rsp-client';
 import { ServerEditorAdapter } from './serverEditorAdapter';
-import { ServerIcon } from './serverIcon';
+import { Utils } from './utils/utils';
 import { RSPType } from 'vscode-server-connector-api';
 
 enum deploymentStatus {
@@ -527,14 +525,15 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         return 'file or exploded';
     }
 
-    public getTreeItem(item: RSPState | ServerStateNode |  DeployableStateNode): TreeItem {
+    public async getTreeItem(item: RSPState | ServerStateNode |  DeployableStateNode): Promise<TreeItem> {
         if (this.isRSPElement(item)) {
             const state: RSPState = item as RSPState;
             const id1: string = state.type.visibilename;
             const serverState = `${this.runStateEnum.get(state.state)}`;
             const depStr = `${id1} (${serverState})`;
+            const icon = await Utils.getIcon(state.type.id, state.type.id);
             return { label: `${depStr}`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: icon,
                 contextValue: `RSP${serverState}`,
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
@@ -548,8 +547,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                                     this.runStateEnum.get(state.state);
             const pubState: string = this.publishStateEnum.get(state.publishState);
             const depStr = `${id1} (${serverState}) (${pubState})`;
+            const icon = await Utils.getIcon(state.rsp, handle.type.id);
             return { label: `${depStr}`,
-                iconPath: ServerIcon.get(handle.type),
+                iconPath: icon,
                 contextValue: serverState,
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
@@ -559,8 +559,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const serverState: string = this.runStateEnum.get(state.state);
             const pubState: string = this.publishStateEnum.get(state.publishState);
             const depStr = `${id1} (${serverState}) (${pubState})`;
+            const icon = await Utils.getIcon(state.rsp, state.server.type.id);
             return { label: `${depStr}`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: icon,
                 contextValue: pubState,
                 collapsibleState: TreeItemCollapsibleState.None
             };

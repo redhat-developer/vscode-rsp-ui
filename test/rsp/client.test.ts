@@ -4,9 +4,9 @@ import { initClient } from '../../src/rsp/client';
 import { ClientStubs } from '../clientstubs';
 import { JobProgress } from '../../src/jobprogress';
 import { RSPClient } from 'rsp-client';
-import { ServerInfo } from '../../src/rsp/server';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
+import { ServerInfo } from 'vscode-server-connector-api';
 
 const expect = chai.expect;
 chai.use(sinonChai);

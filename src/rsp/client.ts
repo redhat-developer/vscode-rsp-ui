@@ -1,7 +1,7 @@
 import { JobProgress } from '../jobprogress';
 import { RSPClient } from 'rsp-client';
-import { ServerInfo } from './server';
 import * as vscode from 'vscode';
+import { ServerInfo } from 'vscode-server-connector-api';
 
 const PROTOCOL_VERSION = '0.14.0';
 
