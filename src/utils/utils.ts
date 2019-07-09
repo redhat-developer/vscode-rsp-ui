@@ -19,7 +19,16 @@ export class Utils {
         if (!rspId) {
             return null;
         }
-        const rspProvider = await this.activateExternalProvider(rspId);
-        return rspProvider.getImage(serverType);
+        return await this.activateExternalProvider(rspId).then(rspProvider => {
+            const imageUri: vscode.Uri = rspProvider.getImage(serverType);
+            if (imageUri && imageUri.fsPath) {
+                return imageUri.fsPath;
+            } else {
+                return null;
+            }
+        }).catch(error => {
+            vscode.window.showErrorMessage(error);
+            return null;
+        });
     }
 }
