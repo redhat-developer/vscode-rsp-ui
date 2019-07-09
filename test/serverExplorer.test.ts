@@ -13,6 +13,7 @@ import { RSPProperties, RSPState, ServerExplorer, ServerStateNode } from '../src
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import { EventEmitter, OpenDialogOptions, OutputChannel, TreeItemCollapsibleState, Uri, window } from 'vscode';
+import { Utils } from '../src/utils/utils';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -34,6 +35,18 @@ suite('Server explorer', () => {
         name: 'fake'
     };
 
+    const iconPath: Uri = {
+        fsPath: '/home/luca/Public/github.com/redhat-developer/vscode-rsp-ui/images/server-light.png',
+        authority: '',
+        fragment: '',
+        path: '/home/luca/Public/github.com/redhat-developer/vscode-rsp-ui/images/server-light.png',
+        query: '',
+        scheme: 'file',
+        toJSON: undefined,
+        toString: undefined,
+        with: undefined
+    };
+
     setup(() => {
         sandbox = sinon.createSandbox();
 
@@ -45,6 +58,8 @@ suite('Server explorer', () => {
         serverExplorer.serverOutputChannels.set('id', fakeChannel);
         getStub = sandbox.stub(serverExplorer.serverOutputChannels, 'get').returns(fakeChannel);
         serverExplorer.RSPServersStatus.set('id', ProtocolStubs.rspProperties);
+
+        sandbox.stub(Utils, 'getIcon').resolves(iconPath);
     });
 
     teardown(() => {
@@ -211,39 +226,39 @@ suite('Server explorer', () => {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: `id (Stopped) (Unknown)`,
             contextValue: 'Stopped',
-            iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png'))
+            iconPath: iconPath
         };
 
         const serverStart = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Started) (Unknown)',
             contextValue: 'Started',
-            iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png'))
+            iconPath: iconPath
         };
 
         const serverDebugging = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Debugging) (undefined)',
             contextValue: 'Debugging',
-            iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png'))
+            iconPath: iconPath
         };
 
         const serverUnknown = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Unknown) (Unknown)',
             contextValue: 'Unknown',
-            iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png'))
+            iconPath: iconPath
         };
 
         setup(() => {
             findStatusStub = serverExplorer.RSPServersStatus.get('id').state.serverStates.findIndex = sandbox.stub();
         });
 
-        test('call should update server state to received in state change event (Stopped)', () => {
+        test('call should update server state to received in state change event (Stopped)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Stopped');
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
-            const treeItem = serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
+            const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
 
             serverExplorer.updateServer('id', stateChangeStopping);
             serverExplorer.updateServer('id', stateChangeStopped);
@@ -254,11 +269,11 @@ suite('Server explorer', () => {
             expect(treeItem).deep.equals(serverStop);
         });
 
-        test('call should update server state to received in state change event (Started)', () => {
+        test('call should update server state to received in state change event (Started)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Started');
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
-            const treeItem = serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
+            const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
 
             serverExplorer.updateServer('id', stateChangeStarting);
             serverExplorer.updateServer('id', stateChangeStarted);
@@ -269,9 +284,9 @@ suite('Server explorer', () => {
             expect(treeItem).deep.equals(serverStart);
         });
 
-        test('call should update server state to received in state change event (Debugging)', () => {
+        test('call should update server state to received in state change event (Debugging)', async () => {
             const children = serverExplorer.getChildren();
-            const treeItem = serverExplorer.getTreeItem(ProtocolStubs.serverDebuggingState);
+            const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.serverDebuggingState);
 
             serverExplorer.updateServer('id', stateChangeDebuggingStarting);
             serverExplorer.updateServer('id', stateChangeDebugging);
@@ -280,11 +295,11 @@ suite('Server explorer', () => {
             expect(treeItem).deep.equals(serverDebugging);
         });
 
-        test('call should update server state to received in state change event (Unknown)', () => {
+        test('call should update server state to received in state change event (Unknown)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Unknown');
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
-            const treeItem = serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
+            const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
 
             serverExplorer.updateServer('id', stateChangeUnknown);
 
@@ -632,42 +647,42 @@ suite('Server explorer', () => {
                 serverStates: []
             };
 
-            const result = serverExplorer.getTreeItem(rsp);
+            const result = await serverExplorer.getTreeItem(rsp);
             expect(result).equals(undefined);
         });
 
         test('return valid node if RSPState is passed', async () => {
             const nodeResult = {
                 label: `the type (Stopped)`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: iconPath,
                 contextValue: `RSPStopped`,
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
 
-            const result = serverExplorer.getTreeItem(ProtocolStubs.rspState);
+            const result = await serverExplorer.getTreeItem(ProtocolStubs.rspState);
             expect(result).deep.equals(nodeResult);
         });
 
         test('return valid node if ServerStateNode is passed', async () => {
             const nodeResult = { label: `id (Unknown) (Unknown)`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: iconPath,
                 contextValue: 'Unknown',
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
 
-            const result = serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
+            const result = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
             expect(result).deep.equals(nodeResult);
         });
 
         test('return valid node if DeployableStateNode is passed', async () => {
 
             const nodeResult = { label: `fake (Started) (Unknown)`,
-                iconPath: Uri.file(path.join(__dirname, '../../images/server-light.png')),
+                iconPath: iconPath,
                 contextValue: 'Unknown',
                 collapsibleState: TreeItemCollapsibleState.None
             };
 
-            const result = serverExplorer.getTreeItem(ProtocolStubs.deployableStateNode);
+            const result = await serverExplorer.getTreeItem(ProtocolStubs.deployableStateNode);
             expect(result).deep.equals(nodeResult);
         });
     });

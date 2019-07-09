@@ -16,6 +16,7 @@ import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import * as vscode from 'vscode';
 import { ServerInfo, RSPController } from 'vscode-server-connector-api';
+import { Utils } from '../src/utils/utils';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -88,13 +89,13 @@ suite('Command Handler', () => {
             }
         });
 
-        test('check if activateExternalExtension is called with right id', async () => {
-            const activateExtStub = sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+        test('check if activateExternalProvider is called with right id', async () => {
+            const activateExtStub = sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             await handler.startRSP(ProtocolStubs.rspState);
             expect(activateExtStub).calledOnceWith('id');
         });
 
-        test('error if activateExternalExtension receive id of an extension not installed', async () => {
+        test('error if activateExternalProvider receive id of an extension not installed', async () => {
             sandbox.stub(vscode.extensions, 'getExtension').resolves(undefined);
             try {
                 await handler.startRSP(ProtocolStubs.rspState);
@@ -105,14 +106,14 @@ suite('Command Handler', () => {
         });
 
         test('check if setRSPListener is called with right params', async () => {
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             const listenerStub = sandbox.stub(handler, 'setRSPListener').resolves(undefined);
             await handler.startRSP(ProtocolStubs.rspState);
             expect(listenerStub).calledOnceWith('id', rspProvider);
         });
 
         test('error if rspProvider.startRSP returns not valid response', async () => {
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             rspProvider.startRSP = (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(undefined);
             try {
                 await handler.startRSP(ProtocolStubs.rspState);
@@ -124,7 +125,7 @@ suite('Command Handler', () => {
 
         test('check refreshTree is called once', async () => {
             const initRSPNodeStub = sandbox.stub(serverExplorer, 'initRSPNode');
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             await handler.startRSP(ProtocolStubs.rspState);
             expect(initRSPNodeStub).calledOnce;
         });
@@ -188,14 +189,14 @@ suite('Command Handler', () => {
         });
 
         test('check if external rsp provider is called if stop is forced', async () => {
-            const activateExtStub = sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            const activateExtStub = sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             await handler.stopRSP(true, ProtocolStubs.rspStateStarted);
             expect(activateExtStub).calledOnceWith('id');
         });
 
         test('error if external rsp provider stopRSP method returns an error', async () => {
             rspProvider.stopRSP = () => Promise.reject('error');
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             try {
                 await handler.stopRSP(true, ProtocolStubs.rspStateStarted);
                 expect.fail();
@@ -207,7 +208,7 @@ suite('Command Handler', () => {
         test('check if updateState is called three times if forced and error occured', async () => {
             const updateStub = sandbox.stub(serverExplorer, 'updateRSPServer');
             rspProvider.stopRSP = () => Promise.reject('error');
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             try {
                 await handler.stopRSP(true, ProtocolStubs.rspStateStarted);
                 expect(updateStub).calledThrice;
@@ -219,7 +220,7 @@ suite('Command Handler', () => {
 
         test('check if disposeRSp is called with right param', async () => {
             const disposeRSPStub = sandbox.stub(serverExplorer, 'disposeRSPProperties');
-            sandbox.stub(handler, 'activateExternalExtension' as any).resolves(rspProvider);
+            sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             await handler.stopRSP(true, ProtocolStubs.rspStateStarted);
             expect(disposeRSPStub).calledOnceWith('id');
         });
