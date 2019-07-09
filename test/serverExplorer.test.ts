@@ -6,14 +6,13 @@
 
 import * as chai from 'chai';
 import { ClientStubs } from './clientstubs';
-import * as path from 'path';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
 import { RSPProperties, RSPState, ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import { EventEmitter, OpenDialogOptions, OutputChannel, TreeItemCollapsibleState, Uri, window } from 'vscode';
 import { Utils } from '../src/utils/utils';
+import { EventEmitter, OpenDialogOptions, OutputChannel, TreeItemCollapsibleState, Uri, window } from 'vscode';
 
 const expect = chai.expect;
 chai.use(sinonChai);
