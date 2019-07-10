@@ -2,6 +2,12 @@ import { RSPProperties, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel, RSPServer } from 'vscode-server-connector-api';
 
+interface RSPProviderSetting {
+    id: string;
+    name: string;
+    startOnActivation: boolean;
+}
+
 export function getAPI(): RSPModel {
     return new RSPProviderAPIImpl();
 }
@@ -33,7 +39,45 @@ class RSPProviderAPIImpl implements RSPModel {
         };
         const serversExplorer = ServerExplorer.getInstance();
         serversExplorer.RSPServersStatus.set(rsp.type.id, rspProperties);
+        await this.updateRSPActivationSettings(rsp, serversExplorer);
         serversExplorer.refresh();
+    }
+
+    private async updateRSPActivationSettings(rsp: RSPServer, explorer: ServerExplorer) {
+        const settingServer: RSPProviderSetting = {
+            id: rsp.type.id,
+            name: rsp.type.visibilename,
+            startOnActivation: true
+        };
+
+        let existingSettings: RSPProviderSetting[] = vscode.workspace.
+                                                            getConfiguration('rsp-ui').
+                                                            get<[RSPProviderSetting]>(`enableStartServerOnActivation`);
+        // unfortunately it seems that the get method (above) works with some cache because
+        // if i try to register two or more providers at once for the first time it always return an empty array,
+        // it means that the first provider will be overwritten by the second and so on...
+        // to prevent this, if an empty array is returned but the RSPServersStatus contains more than one element
+        // i'll get the servers already registered from there
+        if (!existingSettings || existingSettings.length < 1) {
+            if (explorer.RSPServersStatus.size < 2) {
+                existingSettings = [settingServer];
+            } else {
+                existingSettings = Array.from(explorer.RSPServersStatus.values()).
+                                        map(server => {
+                                            return {
+                                                id: server.state.type.id,
+                                                name: server.state.type.visibilename,
+                                                startOnActivation: true
+                                            } as RSPProviderSetting;
+                                        });
+            }
+        } else {
+            const rspAlreadyRegistered = existingSettings.find(setting => setting.id === rsp.type.id);
+            if (!rspAlreadyRegistered) {
+                existingSettings.push(settingServer);
+            }
+        }
+        vscode.workspace.getConfiguration('rsp-ui').update(`enableStartServerOnActivation`, existingSettings, true);
     }
 
     public async deregisterRSPProvider(id: string): Promise<void> {
