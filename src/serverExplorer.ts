@@ -243,8 +243,6 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                         }
                     }
 
-                    // var fileUrl = require('file-url');
-                    // const filePath : string = fileUrl(file[0].fsPath);
                     const deployableRef: Protocol.DeployableReference = {
                         label: file[0].fsPath,
                         path: file[0].fsPath,
