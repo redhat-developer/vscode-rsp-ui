@@ -103,7 +103,7 @@ function onDidCloseTextDocument(doc: vscode.TextDocument) {
     ServerEditorAdapter.getInstance(serversExplorer).onDidCloseTextDocument(doc);
 }
 
-function executeCommand(command: (...args: any[]) => Promise<any>, thisArg: any, ...params: any[]) {
+export function executeCommand(command: (...args: any[]) => Promise<any>, thisArg: any, ...params: any[]) {
     const commandErrorLabel = typeof params[params.length - 1] === 'string' ? params[params.length - 1] : '';
     return command.call(thisArg, ...params).catch((err: string | Error) => {
         const error = typeof err === 'string' ? new Error(err) : err;

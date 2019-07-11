@@ -1,4 +1,6 @@
-import { RSPProperties, ServerExplorer } from '../../serverExplorer';
+import { executeCommand } from '../../extension';
+import { CommandHandler } from '../../extensionApi';
+import { RSPProperties, RSPState, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel, RSPServer } from 'vscode-server-connector-api';
 
@@ -31,19 +33,25 @@ class RSPProviderAPIImpl implements RSPModel {
 
         const rspserverstdout = vscode.window.createOutputChannel(`${rsp.type.visibilename} (stdout)`);
         const rspserverstderr = vscode.window.createOutputChannel(`${rsp.type.visibilename} (stderr)`);
+        const rspState: RSPState = { ...rsp, serverStates: undefined };
         const rspProperties: RSPProperties = {
-            state: { ...rsp, serverStates: undefined },
+            state: rspState,
             client: undefined,
             rspserverstderr: rspserverstderr,
             rspserverstdout: rspserverstdout
         };
         const serversExplorer = ServerExplorer.getInstance();
         serversExplorer.RSPServersStatus.set(rsp.type.id, rspProperties);
-        await this.updateRSPActivationSettings(rsp, serversExplorer);
         serversExplorer.refresh();
+        const startRSP = await this.updateRSPActivationSetting(rsp, serversExplorer);
+        if (startRSP) {
+            const commandHandler = new CommandHandler(serversExplorer);
+            executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+        }
     }
 
-    private async updateRSPActivationSettings(rsp: RSPServer, explorer: ServerExplorer) {
+    private async updateRSPActivationSetting(rsp: RSPServer, explorer: ServerExplorer): Promise<boolean> {
+        let startRSP = true;
         let existingSettings: RSPProviderSetting[] = vscode.workspace.
                                                             getConfiguration('rsp-ui').
                                                             get<[RSPProviderSetting]>(`enableStartServerOnActivation`);
@@ -69,9 +77,12 @@ class RSPProviderAPIImpl implements RSPModel {
                     startOnActivation: true
                 };
                 existingSettings.push(settingServer);
+            } else {
+                startRSP = rspAlreadyRegistered.startOnActivation;
             }
         }
         await vscode.workspace.getConfiguration('rsp-ui').update(`enableStartServerOnActivation`, existingSettings, true);
+        return startRSP;
     }
 
     public async deregisterRSPProvider(id: string): Promise<void> {

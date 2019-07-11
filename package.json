@@ -281,22 +281,22 @@
         "rsp-ui.enableStartServerOnActivation": {
           "type": "array",
           "items": {
-              "type": "object",
-              "title": "List RSP Servers",
-              "properties": {
-                  "id": {
-                    "type": "string",
-                    "description": "Id external RSP Provider"
-                  },
-                  "name": {
-                      "type": "string",
-                      "description": "Name of external RSP Provider (as seen in Tree View)"
-                  },
-                  "startOnActivation": {
-                      "type": "boolean",
-                      "description": "Enable automatic start of RSP Server during activation"
-                  }
+            "type": "object",
+            "title": "List RSP Servers",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Id external RSP Provider"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of external RSP Provider (as seen in Tree View)"
+              },
+              "startOnActivation": {
+                "type": "boolean",
+                "description": "Enable automatic start of RSP Server during activation"
               }
+            }
           },
           "description": "Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu"
         }
