@@ -73,6 +73,11 @@ export class ProtocolStubs {
         status: ProtocolStubs.okStatus
     };
 
+    public static readonly errorStartServerResponse: Protocol.StartServerResponse = {
+        details: ProtocolStubs.cmdDetails,
+        status: ProtocolStubs.errorStatus
+    };
+
     public static readonly unknownServerState: ServerStateNode =  {
         server: ProtocolStubs.serverHandle,
         deployableStates: [],
