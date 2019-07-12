@@ -926,6 +926,46 @@ suite('Command Handler', () => {
 
     });
 
+    suite('createServer', () => {
+
+        test('check if runtime method is called if user picks Yes answer with context passed as param', async () => {
+            const downloadRuntimeStub = sandbox.stub(handler, 'downloadRuntime');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves('Yes');
+            await handler.createServer(ProtocolStubs.rspState);
+            expect(downloadRuntimeStub).calledOnceWith('id');
+        });
+
+        test('check if addLocation method is called if user picks No answer with context passed as param', async () => {
+            const addLocationStub = sandbox.stub(handler, 'addLocation');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves('No');
+            await handler.createServer(ProtocolStubs.rspState);
+            expect(addLocationStub).calledOnceWith('id');
+        });
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.createServer(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if runtime method is called if user picks Yes answer without context passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const downloadRuntimeStub = sandbox.stub(handler, 'downloadRuntime');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves('Yes');
+            await handler.createServer(undefined);
+            expect(downloadRuntimeStub).calledOnceWith('id');
+        });
+
+        test('check if addLocation method is called if user picks No answer without context passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const addLocationStub = sandbox.stub(handler, 'addLocation');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves('No');
+            await handler.createServer(undefined);
+            expect(addLocationStub).calledOnceWith('id');
+        });
+
+    });
+
     suite('addLocation', () => {
 
         test('calls addLocation from server explorer', async () => {
@@ -961,6 +1001,28 @@ suite('Command Handler', () => {
 
     suite('editServer', () => {
         let serverJsonResponseStub: sinon.SinonStub;
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.editServer(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.editServer(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server you want to retrieve info about');
+        });
+
+        test('check if editServer called with right context if nothing is passed as param', async () => {
+            const editServerStub = sandbox.stub(serverExplorer, 'editServer');
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            await handler.editServer(undefined);
+            expect(editServerStub).calledOnceWith('id', ProtocolStubs.serverHandle);
+        });
 
         test('errors if server explorer is not initialized', async () => {
             const nullHandler = new CommandHandler(null);
@@ -1041,6 +1103,29 @@ suite('Command Handler', () => {
     });
 
     suite('infoServer', () => {
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.infoServer(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.infoServer(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server you want to retrieve info about');
+        });
+
+        test('check if createOutputChannel called with right context if nothing is passed as param', async () => {
+            const output = vscode.window.createOutputChannel('Properties');
+            const createChannelStub = sandbox.stub(vscode.window, 'createOutputChannel').returns(output);
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            await handler.infoServer(undefined);
+            expect(createChannelStub).calledOnceWith('Properties: id');
+        });
 
         test('errors if server explorer is not initialized', async () => {
             const nullHandler = new CommandHandler(null);
