@@ -461,6 +461,9 @@ export class CommandHandler {
         if (rspProviders.length < 1) {
             return Promise.reject('There are no RSP providers to choose from.');
         }
+        if (rspProviders.length === 1) {
+            return rspProviders[0];
+        }
         return await vscode.window.showQuickPick(rspProviders, { placeHolder: message });
     }
 
