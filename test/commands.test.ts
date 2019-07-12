@@ -839,16 +839,28 @@ suite('Command Handler', () => {
             }
         });
 
-        test('showQuickPick called with 1 server if filtering for stopped state', async () => {
+        test('showQuickPick not called with 1 server if filtering for stopped state', async () => {
+
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
+            const selectRSPWithHandlerInjected = Reflect.get(handler, 'selectRSP').bind(handler);
+            const filter = server => server.state.state === ServerState.STOPPED;
+            await selectRSPWithHandlerInjected('test', filter);
+            sandbox.assert.notCalled(quickPickStub);
+
+        });
+
+        test('showQuickPick called with 2 server after filtering', async () => {
+            serverExplorer.RSPServersStatus.set('id2', ProtocolStubs.rspProperties);
             const unknownServer = {
                 label: 'the type',
                 id: 'id'
             };
             const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
             const selectRSPWithHandlerInjected = Reflect.get(handler, 'selectRSP').bind(handler);
-            const filter = server => server.state.state === ServerState.STOPPED;
+            const filter = server => server.state.state !== ServerState.STARTING;
             await selectRSPWithHandlerInjected('test', filter);
-            expect(quickPickStub).calledOnceWith([unknownServer], { placeHolder: 'test' });
+            expect(quickPickStub).calledOnceWith([unknownServer, unknownServer], { placeHolder: 'test' });
+            serverExplorer.RSPServersStatus.delete('id2');
 
         });
     });
