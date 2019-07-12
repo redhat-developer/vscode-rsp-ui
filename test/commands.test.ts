@@ -7,7 +7,7 @@ import * as chai from 'chai';
 import * as chaipromise from 'chai-as-promised';
 import { ClientStubs } from './clientstubs';
 import { DebugInfo } from '../src/debug/debugInfo';
-import { DebugInfoProvider } from '../src/debugInfoProvider';
+import { DebugInfoProvider } from '../src/debug/debugInfoProvider';
 import { CommandHandler } from '../src/extensionApi';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
