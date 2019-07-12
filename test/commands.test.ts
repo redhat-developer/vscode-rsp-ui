@@ -12,12 +12,13 @@ import { CommandHandler } from '../src/extensionApi';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
 import { ServerEditorAdapter } from '../src/serverEditorAdapter';
-import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
+import { ServerExplorer, ServerStateNode, RSPProperties } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { JavaDebugSession } from '../src/debug/javaDebugSession';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -79,6 +80,12 @@ suite('Command Handler', () => {
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
             };
+        });
+
+        test('check if selectRSP method is called if context is undefined', async () => {
+            const selectRSPStub = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.startRSP(undefined);
+            expect(selectRSPStub).calledOnce;
         });
 
         test('error if state is different from STOPPED and UNKNOWN', async () => {
@@ -149,6 +156,20 @@ suite('Command Handler', () => {
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
             };
+        });
+
+        test('check if selectRSP method is called with right params if context is undefined and forced is true', async () => {
+            const message = 'Select RSP provider you want to start';
+            const selectRSPStub = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.stopRSP(true, undefined);
+            expect(selectRSPStub).calledOnceWith(message, sinon.match.func);
+        });
+
+        test('check if selectRSP method is called with right params if context is undefined and forced is false', async () => {
+            const message = 'Select RSP provider you want to start';
+            const selectRSPStub = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.stopRSP(false, undefined);
+            expect(selectRSPStub).calledWithMatch(message, sinon.match.func);
         });
 
         test('error if state is STOPPED or UNKNOWN', async () => {
@@ -230,11 +251,12 @@ suite('Command Handler', () => {
 
     suite('startServer', () => {
         let statusStub: sinon.SinonStub;
+        let getClientStub: sinon.SinonStub;
         let startStub: sinon.SinonStub;
 
         setup(() => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             startStub = sandbox.stub().resolves(ProtocolStubs.okStartServerResponse);
             stubs.outgoing.startServerAsync = startStub;
         });
@@ -297,6 +319,18 @@ suite('Command Handler', () => {
             }
         });
 
+        test('error if client doesn\'t exist', async () => {
+            getClientStub.reset();
+            getClientStub.returns(undefined);
+
+            try {
+                await handler.startServer('run', ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Failed to contact the RSP server.');
+            }
+        });
+
         test('throws any errors coming from the rsp client', async () => {
             const result: Protocol.StartServerResponse = {
                 details: ProtocolStubs.cmdDetails,
@@ -315,6 +349,7 @@ suite('Command Handler', () => {
 
     suite('debugServer', () => {
         let startStub: sinon.SinonStub;
+        let getClientStub : sinon.SinonStub;
 
         const cmdDetails: Protocol.CommandLineDetails = {
             cmdLine: [''],
@@ -332,9 +367,21 @@ suite('Command Handler', () => {
 
         setup(() => {
             startStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             startStub = sandbox.stub().resolves(response);
             stubs.outgoing.startServerAsync = startStub;
+        });
+
+        test('error if client doesn\'t exist', async () => {
+            getClientStub.reset();
+            getClientStub.returns(undefined);
+
+            try {
+                await handler.debugServer(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Failed to contact the RSP server.');
+            }
         });
 
         test('display error if no debugInfo passed', async () => {
@@ -356,9 +403,8 @@ suite('Command Handler', () => {
             try {
                 await handler.debugServer(ProtocolStubs.unknownServerState);
                 expect(retrieveStub).calledOnceWith(ProtocolStubs.serverHandle, stubs.client);
-                expect.fail();
             } catch (err) {
-                expect(err).equals('Could not find server debug info.');
+
             }
         });
 
@@ -408,11 +454,12 @@ suite('Command Handler', () => {
 
     suite('stopServer', () => {
         let statusStub: sinon.SinonStub;
+        let getClientStub: sinon.SinonStub;
         let stopStub: sinon.SinonStub;
 
         setup(() => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.startedServerState);
-            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = stubs.outgoing.stopServerAsync = sandbox.stub().resolves(ProtocolStubs.okStatus);
             sandbox.stub(vscode.window, 'showQuickPick').resolves('id');
         });
@@ -449,6 +496,38 @@ suite('Command Handler', () => {
                 expect.fail();
             } catch (err) {
                 expect(err).equals('The server is already stopped.');
+            }
+        });
+
+        test('error if client doesn\'t exist', async () => {
+            getClientStub.reset();
+            getClientStub.returns(undefined);
+
+            try {
+                await handler.stopServer(false, ProtocolStubs.startedServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Failed to contact the RSP server.');
+            }
+        });
+
+        test('check if debugSession.Stop is called if debugger already started', async () => {
+            const debugSession: JavaDebugSession = Reflect.get(handler, 'debugSession');
+            sandbox.stub(debugSession, 'isDebuggerStarted').returns(true);
+            const stopDebug = sandbox.stub(debugSession, 'stop');
+
+            await handler.stopServer(false, ProtocolStubs.startedServerState);
+            expect(stopDebug).calledOnce;
+        });
+
+        test('error if stopServerAsync fails', async () => {
+            stopStub.reset();
+            stopStub.resolves(ProtocolStubs.errorStatus);
+            try {
+                await handler.stopServer(false, ProtocolStubs.startedServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Critical Error');
             }
         });
 
@@ -597,6 +676,40 @@ suite('Command Handler', () => {
         });
     });
 
+    suite('showServerOutput', () => {
+        let showOutputStub: sinon.SinonStub;
+
+        setup(() => {
+            showOutputStub = sandbox.stub(serverExplorer, 'showOutput');
+        });
+
+        test('check if showOutput called with context passed as param', async () => {
+            await handler.showServerOutput(ProtocolStubs.unknownServerState);
+            expect(showOutputStub).calledOnceWith(ProtocolStubs.unknownServerState);
+        });
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.showServerOutput(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.showServerOutput(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server to show output channel');
+        });
+
+        test('check if showOutput called with right context if nothing is passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            await handler.showServerOutput(undefined);
+            expect(showOutputStub).calledOnceWith(ProtocolStubs.unknownServerState);
+        });
+    });
+
     suite('restartServer', () => {
         let startStub: sinon.SinonStub;
         let stopStub: sinon.SinonStub;
@@ -631,6 +744,15 @@ suite('Command Handler', () => {
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
             expect(startStub).calledAfter(stopStub);
             expect(startStub).calledOnceWith('run', ProtocolStubs.startedServerState);
+        });
+
+        test('error if mode doesn\'t contains a valid value', async () => {
+            try {
+                await handler.restartServer('fakeMode', ProtocolStubs.startedServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Could not restart server: unknown mode fakeMode');
+            }
         });
     });
 
@@ -671,6 +793,139 @@ suite('Command Handler', () => {
         });
     });
 
+    suite('addDeployment', () => {
+        let addDeploymentStub: sinon.SinonStub;
+
+        setup(() => {
+            addDeploymentStub = sandbox.stub(serverExplorer, 'addDeployment');
+        });
+
+        test('addDeployment called with right context if context passed as param', async () => {
+            await handler.addDeployment(ProtocolStubs.unknownServerState);
+            expect(addDeploymentStub).calledOnceWith(ProtocolStubs.unknownServerState);
+        });
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.addDeployment(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.addDeployment(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server to deploy to');
+        });
+
+        test('check if addDeployment called with right context if nothing is passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            await handler.addDeployment(undefined);
+            expect(addDeploymentStub).calledOnceWith(ProtocolStubs.unknownServerState);
+        });
+
+        test('error if explorer has not been initialized', async () => {
+            const nullHandler = new CommandHandler(null);
+
+            try {
+                await nullHandler.addDeployment(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+            }
+        });
+    });
+
+    suite('removeDeployment', () => {
+        let removeDeploymentStub: sinon.SinonStub;
+
+        setup(() => {
+            removeDeploymentStub = sandbox.stub(serverExplorer, 'removeDeployment');
+        });
+
+        test('removedDeployment called with right context if context passed as param', async () => {
+            await handler.removeDeployment(ProtocolStubs.deployableStateNode);
+            expect(removeDeploymentStub).calledOnceWith('id', ProtocolStubs.serverHandle, ProtocolStubs.deployableReference);
+        });
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.removeDeployment(undefined);
+            expect(selectRSP).calledOnceWith(sinon.match.string);
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.removeDeployment(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server to remove deployment from', sinon.match.func);
+        });
+
+        test('check if showQuickPick is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.startedServerState);
+            const deployable = {
+                label: 'fake',
+                deployable: ProtocolStubs.deployableStateNode
+            };
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
+            await handler.removeDeployment(undefined);
+            expect(quickPickStub).calledOnceWith([deployable], { placeHolder: 'Select deployment to remove' });
+        });
+
+        test('removedDeployment called with right context if no context is passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.startedServerState);
+            const deployable = {
+                label: 'fake',
+                deployable: ProtocolStubs.deployableStateNode
+            };
+            sandbox.stub(vscode.window, 'showQuickPick').resolves(deployable);
+            await handler.removeDeployment(ProtocolStubs.deployableStateNode);
+            expect(removeDeploymentStub).calledOnceWith('id', ProtocolStubs.serverHandle, ProtocolStubs.deployableReference);
+        });
+
+    });
+
+    suite('fullPublishServer', () => {
+        let publishStub: sinon.SinonStub;
+
+        setup(() => {
+            publishStub = sandbox.stub(serverExplorer, 'publish');
+        });
+
+        test('publishServer called with right context if context passed as param', async () => {
+            await handler.fullPublishServer(ProtocolStubs.unknownServerState);
+            expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
+        });
+
+        test('check if selectRSP is called if no context is passed', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.fullPublishServer(undefined);
+            expect(selectRSP).calledOnceWith('Select RSP provider you want to retrieve servers');
+        });
+
+        test('check if selectServer is called if no context is passed', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.fullPublishServer(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server to publish');
+        });
+
+        test('check if publishServer called with right context if nothing is passed as param', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            await handler.fullPublishServer(undefined);
+            expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
+        });
+
+    });
+
     suite('addLocation', () => {
 
         test('calls addLocation from server explorer', async () => {
@@ -688,6 +943,19 @@ suite('Command Handler', () => {
             } catch (err) {
                 expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
             }
+        });
+
+        test('check if selectRSP is called if no rspId is passed as param', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.addLocation(undefined);
+            expect(selectRSP).calledOnceWith('Select RSP provider you want to use');
+        });
+
+        test('check if addLocation is called with correct rspId if no rspId is passed as param', async () => {
+            const addLocationStub = sandbox.stub(serverExplorer, 'addLocation').resolves(undefined);
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'fakeId', label: 'rsp'});
+            await handler.addLocation(undefined);
+            expect(addLocationStub).calledOnceWith('fakeId');
         });
     });
 
