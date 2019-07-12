@@ -9,16 +9,16 @@ import { ClientStubs } from './clientstubs';
 import { DebugInfo } from '../src/debug/debugInfo';
 import { DebugInfoProvider } from '../src/debug/debugInfoProvider';
 import { CommandHandler } from '../src/extensionApi';
+import { JavaDebugSession } from '../src/debug/javaDebugSession';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
 import { ServerEditorAdapter } from '../src/serverEditorAdapter';
-import { ServerExplorer, ServerStateNode, RSPProperties } from '../src/serverExplorer';
+import { ServerExplorer, ServerStateNode } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
-import { JavaDebugSession } from '../src/debug/javaDebugSession';
 
 const expect = chai.expect;
 chai.use(sinonChai);
