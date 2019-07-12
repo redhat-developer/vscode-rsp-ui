@@ -25,6 +25,7 @@ This extension supports a number of commands for interacting with supported serv
    * `Remove Deployment from Server` - Remove a deployment from the server.
    * `Publish Server (Full)` - Publish the server, synchronizing the content of deployments from your workspace to the server.
    * `Show Output Channel` - Select a particular server from the list to show its output channel in the editor.
+   * `Edit Server` - View a JSON representation of your server in an editor, and submit changes to key properties back to the RSP. 
 
 ### Supported Servers
    * This extension has no built-in support for any specific server type
