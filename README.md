@@ -7,6 +7,14 @@
 
 A Visual Studio Code extension that provides a unified UI for any RSP (Runtime Server Protocol) provider to contribute their RSP implementation to. 
 
+## Warning: Not a standalone extension
+
+This extension on its own provides no support for any specific runtimes. If you install only this extension, 
+the views and actions may appear not to function. 
+
+To be used properly, this extension requires other contributing extensions that provide implementations
+that start or stop specific RSP instances and are capable of managing specific server or runtime types.
+
 ## Commands and features
 
 ![ screencast ](https://raw.githubusercontent.com/redhat-developer/vscode-rsp-ui/master/screencast/vscode-rsp-ui.gif)
