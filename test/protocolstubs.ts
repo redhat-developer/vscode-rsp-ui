@@ -175,4 +175,13 @@ export class ProtocolStubs {
         validation: ProtocolStubs.createResponseOK
     };
 
+    public static readonly serverStateWithoutHandle: ServerStateNode =  {
+        server: undefined,
+        deployableStates: [],
+        publishState: 0,
+        runMode: undefined,
+        state: 0,
+        rsp: 'id'
+    };
+
 }
