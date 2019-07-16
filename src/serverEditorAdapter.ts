@@ -127,7 +127,7 @@ export class ServerEditorAdapter {
 
     public async onDidCloseTextDocument(doc: vscode.TextDocument): Promise<void> {
         if (!doc) {
-            return Promise.reject();
+            return Promise.reject('Error closing document - document is invalid');
         }
         if (await this.isTmpServerPropsFile(doc.fileName)) {
             fs.unlink(doc.uri.fsPath, error => {
