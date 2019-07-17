@@ -1197,6 +1197,92 @@ suite('Command Handler', () => {
 
     });
 
+    suite('handleWorkflow', () => {
+        let handleWorkflow;
+        const item: Protocol.WorkflowResponseItem = {
+            content: 'test\ntest',
+            id: 'id',
+            itemType: 'type',
+            label: 'label',
+            prompt: null,
+            properties: null
+        };
+        const infoResponse: Protocol.WorkflowResponse = {
+            status: ProtocolStubs.infoStatus,
+            items: [],
+            jobId: 'id',
+            requestId: 1
+        };
+
+        setup(() => {
+            handleWorkflow = Reflect.get(handler, 'handleWorkflow').bind(handler);
+        });
+
+        test('check if Promise resolve if ok status is passed as param', async () => {
+            const response: Protocol.WorkflowResponse = {
+                status: ProtocolStubs.okStatus,
+                items: undefined,
+                jobId: 'id',
+                requestId: 1
+            };
+
+            const result = await handleWorkflow(response);
+            expect(result).equals(ProtocolStubs.okStatus);
+        });
+
+        test('check if Promise rejects if errorStatus is passed as param', async () => {
+            const response: Protocol.WorkflowResponse = {
+                status: ProtocolStubs.errorStatus,
+                items: undefined,
+                jobId: 'id',
+                requestId: 1
+            };
+
+            try {
+                await handleWorkflow(response);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals(ProtocolStubs.errorStatus);
+            }
+
+        });
+
+        test('check if isMultilineText is not called if the response does not contain any item', async () => {
+            const isMultilineTextStub = sandbox.stub(handler, 'isMultilineText' as any);
+            await handleWorkflow(infoResponse);
+            expect(isMultilineTextStub).not.called;
+        });
+
+        test('check if Promise resolved if info Status is passed as param', async () => {
+            const result = await handleWorkflow(infoResponse);
+            expect(result).equals(ProtocolStubs.infoStatus);
+        });
+
+        test('check if isMultilineText is called correctly if info status is passed', async () => {
+            infoResponse.items = [item];
+            const isMultilineTextStub = sandbox.stub(handler, 'isMultilineText' as any);
+            sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
+            await handleWorkflow(infoResponse);
+            expect(isMultilineTextStub).calledOnceWith('test\ntest');
+        });
+
+        test('check if ServerEditorAdapter is called if file has multilineText', async () => {
+            infoResponse.items = [item];
+            const editorStub = sandbox.stub(ServerEditorAdapter.getInstance(serverExplorer), 'showEditor').resolves(undefined);
+            sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
+            await handleWorkflow(infoResponse);
+            expect(editorStub).calledOnce;
+        });
+
+        test('check if promptUser is called with correct params', async () => {
+            infoResponse.items = [item];
+            const promptUserStub = sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
+            await handleWorkflow(infoResponse);
+            expect(promptUserStub).calledOnceWith(item, {});
+        });
+
+    });
+
     suite('editServer', () => {
         let serverJsonResponseStub: sinon.SinonStub;
 
