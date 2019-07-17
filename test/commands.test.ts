@@ -19,6 +19,7 @@ import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { hasMagic } from 'glob';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -996,6 +997,98 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'fakeId', label: 'rsp'});
             await handler.addLocation(undefined);
             expect(addLocationStub).calledOnceWith('fakeId');
+        });
+    });
+
+    suite('serverActions', () => {
+        test('check if error thrown if serverexplorer has not been initialized', async () => {
+            const nullHandler = new CommandHandler(null);
+
+            try {
+                await nullHandler.serverActions(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err.message).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+            }
+        });
+
+        test('check if selectRSP is called correctly if context passed is undefined', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(selectRSP).calledOnceWith('Select RSP provider you want to retrieve servers');
+        });
+
+        test('check if selectServer is not called if user does not choose a rsp server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any);
+            await handler.serverActions(undefined);
+            expect(selectServerStub).not.called;
+        });
+
+        test('check if selectServer is called with right params if user choose a rsp server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server you want to retrieve info about');
+        });
+
+        test('check if getServerStateById is not called if user does not choose a server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            const getServerStateStub = sandbox.stub(serverExplorer, 'getServerStateById');
+            await handler.serverActions(undefined);
+            expect(getServerStateStub).not.called;
+        });
+
+        test('check if getServerStateById is called with right params if user choose a server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            const getServerStateStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(getServerStateStub).calledOnceWith('id', 'id');
+        });
+
+        test('check if getClientByRSP is called if context contains valid value', async () => {
+            const getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(getClientStub).calledOnceWith('id');
+        });
+
+        test('check if error is displayed if client has not been initialized for current rsp', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(undefined);
+
+            try {
+                await handler.serverActions(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Failed to contact the RSP server id.');
+            }
+        });
+
+        test('check if chooseServerActions method is called with right param', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            const chooseActionStub = sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(chooseActionStub).calledOnceWith(ProtocolStubs.serverHandle, stubs.client);
+        });
+
+        test('check if executeServerAction is not called if no action has been chosen by user', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(executeActionStub).not.called;
+        });
+
+        test('check if correct action is executed after user chose that', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves('action');
+            const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any).resolves(ProtocolStubs.okStatus);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(executeActionStub).calledOnceWith('action', 'id', stubs.client);
         });
     });
 

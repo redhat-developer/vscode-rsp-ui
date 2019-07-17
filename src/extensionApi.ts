@@ -435,8 +435,8 @@ export class CommandHandler {
     private async executeServerAction(action: string, server: string, client: RSPClient): Promise<Protocol.Status> {
         const actionRequest: Protocol.ServerActionRequest = {
             actionId: action,
-            data: undefined,
-            requestId: 0,
+            data: null,
+            requestId: null,
             serverId: server
         };
 
