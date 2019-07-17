@@ -19,7 +19,6 @@ import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
-import { hasMagic } from 'glob';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -1090,6 +1089,112 @@ suite('Command Handler', () => {
             await handler.serverActions(ProtocolStubs.unknownServerState);
             expect(executeActionStub).calledOnceWith('action', 'id', stubs.client);
         });
+    });
+
+    suite('chooseServerActions', () => {
+        let chooseServerActions;
+        const serverActionWorkflow: Protocol.ServerActionWorkflow = {
+            actionId: 'id',
+            actionLabel: 'label',
+            actionWorkflow: undefined
+        };
+        const listResponse: Protocol.ListServerActionResponse = {
+            status: ProtocolStubs.okStatus,
+            workflows: []
+        };
+
+        setup(() => {
+            chooseServerActions = Reflect.get(handler, 'chooseServerActions').bind(handler);
+        });
+
+        test('check if listServerActions is called correctly', async () => {
+            const listServerActions = stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(listServerActions).calledOnceWith(ProtocolStubs.serverHandle);
+        });
+
+        test('display message if there are no actions to be displayed', async () => {
+            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            const infoMessageStub = sandbox.stub(vscode.window, 'showInformationMessage');
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(infoMessageStub).calledOnceWith('there are no additional actions for this server');
+        });
+
+        test('check if quickpick is called with right params if there are actions to be displayed', async () => {
+            listResponse.workflows = [serverActionWorkflow];
+            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(quickPickStub).calledOnceWith([{
+                label: 'label',
+                id: 'id'
+            }], { placeHolder: 'Please choose the action you want to execute.' });
+        });
+    });
+
+    suite('executeServerAction', () => {
+        let executeServerAction;
+        let executeServerStub: sinon.SinonStub;
+        const actionRequest: Protocol.ServerActionRequest = {
+            actionId: 'action',
+            data: null,
+            requestId: null,
+            serverId: 'id'
+        };
+        const response: Protocol.WorkflowResponse = {
+            status: ProtocolStubs.okStatus,
+            items: undefined,
+            jobId: 'id',
+            requestId: 1
+        };
+
+        setup(() => {
+            executeServerAction = Reflect.get(handler, 'executeServerAction').bind(handler);
+            executeServerStub = stubs.outgoing.executeServerAction = sandbox.stub().resolves(response);
+        });
+
+        test('check if executeServerAction method is called with right param', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', 'id', stubs.client);
+            expect(executeServerStub).calledOnceWith(actionRequest);
+        });
+
+        test('check if handleWorkflow is called with right param', async () => {
+            const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', 'id', stubs.client);
+            expect(handleWorkflowStub).calledOnceWith(response, {});
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is undefined', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', 'id', stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is OK', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.okStatus);
+            await executeServerAction('action', 'id', stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is Error', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.errorStatus);
+            await executeServerAction('action', 'id', stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is called second time with right params', async () => {
+            const actionRequest: Protocol.ServerActionRequest = {
+                actionId: 'action',
+                data: {},
+                requestId: 1,
+                serverId: 'id'
+            };
+            sandbox.stub(handler, 'handleWorkflow' as any).onFirstCall().resolves(ProtocolStubs.infoStatus).onSecondCall().resolves(undefined);
+            await executeServerAction('action', 'id', stubs.client);
+            executeServerStub.secondCall.calledWith(actionRequest);
+        });
+
     });
 
     suite('editServer', () => {
