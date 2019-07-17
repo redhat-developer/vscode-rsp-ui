@@ -61,6 +61,8 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.addLocation, commandHandler, context, 'Unable to detect any server: ')),
         vscode.commands.registerCommand('server.downloadRuntime',
             context => executeCommand(commandHandler.downloadRuntime, commandHandler, context, 'Unable to detect any runtime: ')),
+        vscode.commands.registerCommand('server.actions',
+            context => executeCommand(commandHandler.serverActions, commandHandler, context, 'Unable to retrieve list of actions')),
         vscode.commands.registerCommand('server.editServer',
             context => executeCommand(commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
         vscode.commands.registerCommand('server.infoServer',

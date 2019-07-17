@@ -399,6 +399,87 @@ export class CommandHandler {
         }
     }
 
+    public async serverActions(context?: ServerStateNode): Promise<Protocol.Status> {
+        this.assertExplorerExists();
+        if (context === undefined) {
+            const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
+            if (!rsp || !rsp.id) return null;
+            const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
+            if (!serverId) return null;
+            context = this.explorer.getServerStateById(rsp.id, serverId);
+        }
+
+        const client: RSPClient = this.explorer.getClientByRSP(context.rsp);
+        if (!client) {
+            return Promise.reject(`Failed to contact the RSP server ${context.rsp}.`);
+        }
+
+        const action: string = await this.chooseServerActions(context.server, client);
+        if (!action) {
+            return;
+        }
+        return await this.executeServerAction(action, context.server.id, client);
+    }
+
+    private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<string> {
+        const actionsList = await client.getOutgoingHandler().listServerActions(server)
+            .then((response: Protocol.ListServerActionResponse) => {
+                return response.workflows.map(action => {
+                    return {
+                        label: action.actionLabel,
+                        id: action.actionId
+                    };
+                });
+            });
+
+        if (actionsList.length === 0) {
+            vscode.window.showInformationMessage('there are no additional actions for this server');
+        }
+
+        const answer = await vscode.window.showQuickPick(actionsList,
+            { placeHolder: 'Please choose the action you want to execute.' });
+        if (!answer) {
+            return;
+        } else {
+            return answer.id;
+        }
+    }
+
+    private async executeServerAction(action: string, server: string, client: RSPClient): Promise<Protocol.Status> {
+        const actionRequest: Protocol.ServerActionRequest = {
+            actionId: action,
+            data: undefined,
+            requestId: 0,
+            serverId: server
+        };
+
+        let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
+        while (true) {
+            if (StatusSeverity.isOk(response.status)) {
+                return Promise.resolve(response.status);
+            } else if (StatusSeverity.isError(response.status)
+                        || StatusSeverity.isCancel(response.status)) {
+                // error
+                return Promise.reject(response.status);
+            }
+
+            // not complete, not an error.
+            const workflowMap = {};
+            for (const item of response.items) {
+                if (this.isMultilineText(item.content) ) {
+                    await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
+                }
+
+                const canceled: boolean = await this.promptUser(item, workflowMap);
+                if (canceled) {
+                    return;
+                }
+            }
+            // Now we have a data map
+            response = await client.getOutgoingHandler().executeServerAction(actionRequest);
+        }
+    }
+
     public async editServer(context?: ServerStateNode): Promise<void> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
