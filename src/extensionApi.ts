@@ -421,6 +421,7 @@ export class CommandHandler {
 
         if (actionsList.length === 0) {
             vscode.window.showInformationMessage('there are no additional actions for this server');
+            return;
         }
 
         const answer = await vscode.window.showQuickPick(actionsList,
@@ -442,12 +443,16 @@ export class CommandHandler {
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
         while (true) {
-            const status = await this.handleWorkflow(response);
+            const workflowMap = {};
+            const status = await this.handleWorkflow(response, workflowMap);
             if (!status) {
                 return;
             } else if (!StatusSeverity.isInfo(status)) {
                 return status;
             }
+
+            actionRequest.requestId = response.requestId;
+            actionRequest.data = workflowMap;
             // Now we have a data map
             response = await client.getOutgoingHandler().executeServerAction(actionRequest);
         }
