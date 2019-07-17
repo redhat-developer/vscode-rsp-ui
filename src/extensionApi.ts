@@ -374,25 +374,12 @@ export class CommandHandler {
         }
         let response: Protocol.WorkflowResponse = await this.initEmptyDownloadRuntimeRequest(rtId, client);
         while (true) {
-            if (StatusSeverity.isOk(response.status)) {
-                return Promise.resolve(response.status);
-            } else if (StatusSeverity.isError(response.status)
-                        || StatusSeverity.isCancel(response.status)) {
-                // error
-                return Promise.reject(response.status);
-            }
-
-            // not complete, not an error.
             const workflowMap = {};
-            for (const item of response.items) {
-                if (this.isMultilineText(item.content) ) {
-                    await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
-                }
-
-                const canceled: boolean = await this.promptUser(item, workflowMap);
-                if (canceled) {
-                    return;
-                }
+            const status = await this.handleWorkflow(response, workflowMap);
+            if (!status) {
+                return;
+            } else if (!StatusSeverity.isInfo(status)) {
+                return status;
             }
             // Now we have a data map
             response = await this.initDownloadRuntimeRequest(rtId, workflowMap, response.requestId, client);
@@ -455,29 +442,42 @@ export class CommandHandler {
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
         while (true) {
-            if (StatusSeverity.isOk(response.status)) {
-                return Promise.resolve(response.status);
-            } else if (StatusSeverity.isError(response.status)
-                        || StatusSeverity.isCancel(response.status)) {
-                // error
-                return Promise.reject(response.status);
-            }
-
-            // not complete, not an error.
-            const workflowMap = {};
-            for (const item of response.items) {
-                if (this.isMultilineText(item.content) ) {
-                    await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
-                }
-
-                const canceled: boolean = await this.promptUser(item, workflowMap);
-                if (canceled) {
-                    return;
-                }
+            const status = await this.handleWorkflow(response);
+            if (!status) {
+                return;
+            } else if (!StatusSeverity.isInfo(status)) {
+                return status;
             }
             // Now we have a data map
             response = await client.getOutgoingHandler().executeServerAction(actionRequest);
         }
+    }
+
+    private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
+        if (StatusSeverity.isOk(response.status)) {
+            return Promise.resolve(response.status);
+        } else if (StatusSeverity.isError(response.status)
+                    || StatusSeverity.isCancel(response.status)) {
+            // error
+            return Promise.reject(response.status);
+        }
+
+        // not complete, not an error.
+        if (!workflowMap) {
+            workflowMap = {};
+        }
+        for (const item of response.items) {
+            if (this.isMultilineText(item.content) ) {
+                await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
+            }
+
+            const canceled: boolean = await this.promptUser(item, workflowMap);
+            if (canceled) {
+                return;
+            }
+        }
+
+        return Promise.resolve(response.status);
     }
 
     public async editServer(context?: ServerStateNode): Promise<void> {
