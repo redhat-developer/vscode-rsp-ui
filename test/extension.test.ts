@@ -94,6 +94,7 @@ suite('Extension Tests', () => {
                 `server.addDeployment`,
                 'server.removeDeployment',
                 'server.publishFull',
+                'server.publishIncremental',
                 'server.createServer',
                 'server.addLocation',
                 'server.downloadRuntime',
