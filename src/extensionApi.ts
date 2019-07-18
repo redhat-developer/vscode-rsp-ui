@@ -321,7 +321,7 @@ export class CommandHandler {
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
-        return this.explorer.publish(context.rsp, context.server, publishType); // TODO use constant? Where is it?
+        return this.explorer.publish(context.rsp, context.server, publishType);
     }
 
     public async createServer(context?: RSPState): Promise<Protocol.Status> {
