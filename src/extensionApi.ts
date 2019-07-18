@@ -554,6 +554,7 @@ export class CommandHandler {
         const context = this.explorer.getServerStateById(rsp.id, serverId);
 
         await this.explorer.addDeployment([uri], context);
+        await this.explorer.publish(rsp.id, context.server, ServerState.PUBLISH_FULL);
         if (context.state === ServerState.STOPPED ||
             context.state === ServerState.UNKNOWN) {
             if (mode === ServerState.RUN_MODE_RUN) {
@@ -567,7 +568,7 @@ export class CommandHandler {
                 await this.restartServer(mode, context);
             }
         } else {
-            return Promise.reject(`Unable to add war and run it on server ${context.server.id}. Stop/start the server and try again.`);
+            return Promise.reject(`Unable to add distribution and run it on server ${context.server.id}. Stop/start the server and try again.`);
         }
     }
 

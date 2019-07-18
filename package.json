@@ -153,24 +153,24 @@
         "category": "Servers"
       },
       {
-        "command": "server.war.run",
+        "command": "server.distribution.run",
         "title": "Run on Server",
-        "category": "War"
+        "category": "Distribution"
       },
       {
-        "command": "server.war.debug",
+        "command": "server.distribution.debug",
         "title": "Debug on Server",
-        "category": "War"
+        "category": "Distribution"
       },
       {
         "command": "server.exploded.run",
-        "title": "Run Exploded War on Server",
-        "category": "War"
+        "title": "Run Exploded Distribution on Server",
+        "category": "Distribution"
       },
       {
         "command": "server.exploded.debug",
-        "title": "Debug Exploded War on Server",
-        "category": "War"
+        "title": "Debug Exploded Distribution on Server",
+        "category": "Distribution"
       }
     ],
     "views": {
@@ -191,11 +191,11 @@
       ],
       "commandPalette": [
         {
-          "command": "server.war.run",
+          "command": "server.distribution.run",
           "when": "never"
         },
         {
-          "command": "server.war.debug",
+          "command": "server.distribution.debug",
           "when": "never"
         },
         {
@@ -311,14 +311,14 @@
       ],
       "explorer/context": [
         {
-          "command": "server.war.run",
+          "command": "server.distribution.run",
           "when": "!explorerResourceIsFolder && resourceExtname == .war",
-          "group": "1_server-war@1"
+          "group": "1_server-distribution@1"
         },
         {
-          "command": "server.war.debug",
+          "command": "server.distribution.debug",
           "when": "!explorerResourceIsFolder && resourceExtname == .war",
-          "group": "1_server-war@2"
+          "group": "1_server-distribution@2"
         },
         {
           "command": "server.exploded.run",
