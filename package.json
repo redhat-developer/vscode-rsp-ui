@@ -41,7 +41,8 @@
     "onCommand:server.remove",
     "onCommand:server.output",
     "onCommand:server.add",
-    "onCommand:server.publish",
+    "onCommand:server.publishFull",
+    "onCommand:server.publishIncremental",
     "onView:servers",
     "onLanguage:plaintext"
   ],
@@ -128,6 +129,11 @@
       {
         "command": "server.removeDeployment",
         "title": "Remove Deployment from Server",
+        "category": "Servers"
+      },
+      {
+        "command": "server.publishIncremental",
+        "title": "Publish Server (Incremental)",
         "category": "Servers"
       },
       {
@@ -219,9 +225,14 @@
           "group": "2_server-remove@1"
         },
         {
-          "command": "server.publishFull",
+          "command": "server.publishIncremental",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
           "group": "3_server-deployments@6"
+        },
+        {
+          "command": "server.publishFull",
+          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+          "group": "3_server-deployments@7"
         },
         {
           "command": "server.addDeployment",
