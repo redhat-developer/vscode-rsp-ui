@@ -891,7 +891,7 @@ suite('Command Handler', () => {
 
     });
 
-    suite('fullPublishServer', () => {
+    suite('publishServer', () => {
         let publishStub: sinon.SinonStub;
 
         setup(() => {
@@ -899,20 +899,20 @@ suite('Command Handler', () => {
         });
 
         test('publishServer called with right context if context passed as param', async () => {
-            await handler.fullPublishServer(ProtocolStubs.unknownServerState);
+            await handler.publishServer(ServerState.PUBLISH_FULL, ProtocolStubs.unknownServerState);
             expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
         });
 
         test('check if selectRSP is called if no context is passed', async () => {
             const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(selectRSP).calledOnceWith('Select RSP provider you want to retrieve servers');
         });
 
         test('check if selectServer is called if no context is passed', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(selectServerStub).calledOnceWith('id', 'Select server to publish');
         });
 
@@ -920,7 +920,7 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
         });
 
