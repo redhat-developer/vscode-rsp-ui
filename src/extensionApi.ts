@@ -407,7 +407,7 @@ export class CommandHandler {
         if (!action) {
             return;
         }
-        return await this.executeServerAction(action, context.server.id, client);
+        return await this.executeServerAction(action, context, client);
     }
 
     private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<string> {
@@ -435,14 +435,14 @@ export class CommandHandler {
         }
     }
 
-    private async executeServerAction(action: string, server: string, client: RSPClient): Promise<Protocol.Status> {
+    private async executeServerAction(action: string, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
         const actionRequest: Protocol.ServerActionRequest = {
             actionId: action,
             data: {
-                'ShowInBrowserActionHandler.selection.id': server
+                'ShowInBrowserActionHandler.selection.id': context.deployableStates[0].reference.label
             },
             requestId: null,
-            serverId: server
+            serverId: context.server.id
         };
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
@@ -463,9 +463,10 @@ export class CommandHandler {
     }
 
     private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
-        if (StatusSeverity.isOk(response.status)) {
-            return Promise.resolve(response.status);
-        } else if (StatusSeverity.isError(response.status)
+        // if (StatusSeverity.isOk(response.status)) {
+        //     return Promise.resolve(response.status);
+        // } else
+        if (StatusSeverity.isError(response.status)
                     || StatusSeverity.isCancel(response.status)) {
             // error
             return Promise.reject(response.status);
@@ -475,11 +476,13 @@ export class CommandHandler {
         if (!workflowMap) {
             workflowMap = {};
         }
-        for (const item of response.items) {
-            const strategy: WorkflowStrategy = new WorkflowStrategyManager().getStrategy(item.itemType);
-            const canceled: boolean = await strategy.handler(item, workflowMap);
-            if (canceled) {
-                return;
+        if (response.items) {
+            for (const item of response.items) {
+                const strategy: WorkflowStrategy = new WorkflowStrategyManager().getStrategy(item.itemType);
+                const canceled: boolean = await strategy.handler(item, workflowMap);
+                if (canceled) {
+                    return;
+                }
             }
         }
 

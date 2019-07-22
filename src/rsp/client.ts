@@ -6,7 +6,7 @@ import { ServerInfo } from 'vscode-server-connector-api';
 const PROTOCOL_VERSION = '0.14.0';
 
 export async function initClient(serverInfo: ServerInfo): Promise<RSPClient> {
-    const client = new RSPClient('localhost', serverInfo.port);
+    const client = new RSPClient('localhost', 27511); // serverInfo.port);
     await client.connect();
 
     client.getIncomingHandler().onPromptString(event => {
