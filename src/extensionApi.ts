@@ -10,11 +10,13 @@ import { DebugInfo } from './debug/debugInfo';
 import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
-import { ServerEditorAdapter } from './serverEditorAdapter';
+//import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
 import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { WorkflowStrategyManager } from './workflow/workflowStrategyManager';
+import { WorkflowStrategy } from './workflow/workflowStrategy';
 
 export class CommandHandler {
 
@@ -436,7 +438,9 @@ export class CommandHandler {
     private async executeServerAction(action: string, server: string, client: RSPClient): Promise<Protocol.Status> {
         const actionRequest: Protocol.ServerActionRequest = {
             actionId: action,
-            data: null,
+            data: {
+                'ShowInBrowserActionHandler.selection.id': server
+            },
             requestId: null,
             serverId: server
         };
@@ -472,11 +476,8 @@ export class CommandHandler {
             workflowMap = {};
         }
         for (const item of response.items) {
-            if (this.isMultilineText(item.content) ) {
-                await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
-            }
-
-            const canceled: boolean = await this.promptUser(item, workflowMap);
+            const strategy: WorkflowStrategy = new WorkflowStrategyManager().getStrategy(item.itemType);
+            const canceled: boolean = await strategy.handler(item, workflowMap);
             if (canceled) {
                 return;
             }
@@ -566,35 +567,35 @@ export class CommandHandler {
         return vscode.window.showQuickPick(servers.map(server => server.server.id), { placeHolder: message });
     }
 
-    private async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: {}): Promise<boolean> {
-        const prompt = item.label + (item.content ? `\n${item.content}` : '');
-        let userInput: any = null;
-        if (item.prompt == null || item.prompt.responseType === 'none') {
-            userInput = await vscode.window.showQuickPick(['Continue...'],
-                { placeHolder: prompt, ignoreFocusOut: true });
-        } else {
-            if (item.prompt.responseType === 'bool') {
-                const oneProp = await vscode.window.showQuickPick(['True', 'False'],
-                    { placeHolder: prompt, ignoreFocusOut: true });
-                userInput = (oneProp === 'True');
-            } else {
-                const oneProp = await vscode.window.showInputBox(
-                    { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
-                if (item.prompt.responseType === 'int') {
-                    userInput = +oneProp;
-                } else {
-                    userInput = oneProp;
-                }
-            }
-        }
+    // private async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: {}): Promise<boolean> {
+    //     const prompt = item.label + (item.content ? `\n${item.content}` : '');
+    //     let userInput: any = null;
+    //     if (item.prompt == null || item.prompt.responseType === 'none') {
+    //         userInput = await vscode.window.showQuickPick(['Continue...'],
+    //             { placeHolder: prompt, ignoreFocusOut: true });
+    //     } else {
+    //         if (item.prompt.responseType === 'bool') {
+    //             const oneProp = await vscode.window.showQuickPick(['True', 'False'],
+    //                 { placeHolder: prompt, ignoreFocusOut: true });
+    //             userInput = (oneProp === 'True');
+    //         } else {
+    //             const oneProp = await vscode.window.showInputBox(
+    //                 { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
+    //             if (item.prompt.responseType === 'int') {
+    //                 userInput = +oneProp;
+    //             } else {
+    //                 userInput = oneProp;
+    //             }
+    //         }
+    //     }
 
-        workflowMap[item.id] = userInput;
-        return userInput === undefined;
-    }
+    //     workflowMap[item.id] = userInput;
+    //     return userInput === undefined;
+    // }
 
-    private isMultilineText(content: string) {
-        return content && content.indexOf('\n') !== -1;
-    }
+    // private isMultilineText(content: string) {
+    //     return content && content.indexOf('\n') !== -1;
+    // }
 
     private async initDownloadRuntimeRequest(id: string, data1: {[index: string]: any}, reqId: number, client: RSPClient):
         Promise<Protocol.WorkflowResponse> {
