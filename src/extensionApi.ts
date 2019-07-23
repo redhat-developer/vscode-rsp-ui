@@ -10,13 +10,12 @@ import { DebugInfo } from './debug/debugInfo';
 import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
-//import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
 import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
-import { WorkflowStrategyManager } from './workflow/workflowStrategyManager';
-import { WorkflowStrategy } from './workflow/workflowStrategy';
+import { WorkflowRequestFactory } from './workflow/request/workflowRequestFactory';
+import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
 
 export class CommandHandler {
 
@@ -375,6 +374,9 @@ export class CommandHandler {
             return;
         }
         let response: Protocol.WorkflowResponse = await this.initEmptyDownloadRuntimeRequest(rtId, client);
+        if (!response) {
+            return;
+        }
         while (true) {
             const workflowMap = {};
             const status = await this.handleWorkflow(response, workflowMap);
@@ -436,16 +438,12 @@ export class CommandHandler {
     }
 
     private async executeServerAction(action: string, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
-        const actionRequest: Protocol.ServerActionRequest = {
-            actionId: action,
-            data: {
-                'ShowInBrowserActionHandler.selection.id': context.deployableStates[0].reference.label
-            },
-            requestId: null,
-            serverId: context.server.id
-        };
+        const actionRequest: Protocol.ServerActionRequest = WorkflowRequestFactory.createWorkflowRequest(action, context);
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
+        if (!response) {
+            return;
+        }
         while (true) {
             const workflowMap = {};
             const status = await this.handleWorkflow(response, workflowMap);
@@ -463,9 +461,6 @@ export class CommandHandler {
     }
 
     private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
-        // if (StatusSeverity.isOk(response.status)) {
-        //     return Promise.resolve(response.status);
-        // } else
         if (StatusSeverity.isError(response.status)
                     || StatusSeverity.isCancel(response.status)) {
             // error
@@ -478,7 +473,7 @@ export class CommandHandler {
         }
         if (response.items) {
             for (const item of response.items) {
-                const strategy: WorkflowStrategy = new WorkflowStrategyManager().getStrategy(item.itemType);
+                const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy(item.itemType);
                 const canceled: boolean = await strategy.handler(item, workflowMap);
                 if (canceled) {
                     return;

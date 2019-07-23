@@ -1,9 +1,9 @@
 import { Protocol } from 'rsp-client';
-import { ServerEditorAdapter } from '../serverEditorAdapter';
-import { ServerExplorer } from '../serverExplorer';
-import { Utils } from '../utils/utils';
+import { ServerEditorAdapter } from '../../serverEditorAdapter';
+import { ServerExplorer } from '../../serverExplorer';
+import { Utils } from '../../utils/utils';
 
-export class WorkflowStrategyPromptSmall {
+export class WorkflowResponseStrategyPromptSmall {
     public async doAction(item: Protocol.WorkflowResponseItem, workflowMap?: { [index: string]: any } ): Promise<boolean> {
         const explorer = ServerExplorer.getInstance();
         let canceled = false;
