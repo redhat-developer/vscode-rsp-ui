@@ -5,12 +5,10 @@
 import * as chai from 'chai';
 import * as chaipromise from 'chai-as-promised';
 import { ProtocolStubs } from '../../protocolstubs';
-import { Protocol } from 'rsp-client';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import { ShowInBrowserAction } from '../../../src/workflow/request/workflowRequestActions';
-import { WorkflowRequestFactory } from '../../../src/workflow/request/workflowRequestFactory';
 import { window } from 'vscode';
+import { ShowInBrowserAction } from '../../../src/workflow/request/workflowRequestActions';
 
 const expect = chai.expect;
 chai.use(sinonChai);
