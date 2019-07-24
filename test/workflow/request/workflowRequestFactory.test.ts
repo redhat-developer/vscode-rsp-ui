@@ -4,14 +4,12 @@
  *-----------------------------------------------------------------------------------------------*/
 import * as chai from 'chai';
 import * as chaipromise from 'chai-as-promised';
-import * as sinon from 'sinon';
-import * as sinonChai from 'sinon-chai';
-import * as vscode from 'vscode';
-import { RSPController } from 'vscode-server-connector-api';
-import { WorkflowRequestFactory } from '../../../src/workflow/request/workflowRequestFactory';
 import { ProtocolStubs } from '../../protocolstubs';
 import { Protocol } from 'rsp-client';
+import * as sinon from 'sinon';
+import * as sinonChai from 'sinon-chai';
 import { ShowInBrowserAction } from '../../../src/workflow/request/workflowRequestActions';
+import { WorkflowRequestFactory } from '../../../src/workflow/request/workflowRequestFactory';
 
 const expect = chai.expect;
 chai.use(sinonChai);
