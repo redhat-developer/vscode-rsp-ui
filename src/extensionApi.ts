@@ -438,7 +438,10 @@ export class CommandHandler {
     }
 
     private async executeServerAction(action: string, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
-        const actionRequest: Protocol.ServerActionRequest = WorkflowRequestFactory.createWorkflowRequest(action, context);
+        const actionRequest: Protocol.ServerActionRequest = await WorkflowRequestFactory.createWorkflowRequest(action, context);
+        if (!actionRequest) {
+            return;
+        }
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
         if (!response) {

@@ -7,10 +7,19 @@ export class WorkflowRequestFactory {
     private static actionsAvailable: Map<string, any> = new Map<string, any>()
         .set('ShowInBrowserActionHandler.actionId', ShowInBrowserAction);
 
-    public static createWorkflowRequest(action: string, context: ServerStateNode): Protocol.ServerActionRequest {
+    public static async createWorkflowRequest(action: string, context: ServerStateNode): Promise<Protocol.ServerActionRequest> {
+        if (!context) {
+            return Promise.reject(`Unable to create request for action ${action} - context is undefined`);
+        }
+
+        const data = await WorkflowRequestFactory.getData(action, context);
+        if (data === undefined) {
+            return;
+        }
+
         const actionRequest: Protocol.ServerActionRequest = {
             actionId: action,
-            data: WorkflowRequestFactory.getData(action, context),
+            data: data,
             requestId: null,
             serverId: context.server.id
         };
@@ -18,7 +27,7 @@ export class WorkflowRequestFactory {
         return actionRequest;
     }
 
-    private static getData(action: string, context: ServerStateNode): { [index: string]: any } {
+    private static async getData(action: string, context: ServerStateNode): Promise<{ [index: string]: any }> {
         if (!WorkflowRequestFactory.actionsAvailable.has(action)) {
             return null;
         }
