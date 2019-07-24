@@ -19,6 +19,7 @@ import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { WorkflowResponseStrategyManager } from '../src/workflow/response/workflowResponseStrategyManager';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -1087,7 +1088,7 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'chooseServerActions' as any).resolves('action');
             const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any).resolves(ProtocolStubs.okStatus);
             await handler.serverActions(ProtocolStubs.unknownServerState);
-            expect(executeActionStub).calledOnceWith('action', 'id', stubs.client);
+            expect(executeActionStub).calledOnceWith('action', ProtocolStubs.unknownServerState, stubs.client);
         });
     });
 
@@ -1155,31 +1156,31 @@ suite('Command Handler', () => {
 
         test('check if executeServerAction method is called with right param', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnceWith(actionRequest);
         });
 
         test('check if handleWorkflow is called with right param', async () => {
             const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(handleWorkflowStub).calledOnceWith(response, {});
         });
 
         test('check if executeServerAction is not called second time if status returned by handleWorkflow method is undefined', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnce;
         });
 
         test('check if executeServerAction is not called second time if status returned by handleWorkflow method is OK', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.okStatus);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnce;
         });
 
         test('check if executeServerAction is not called second time if status returned by handleWorkflow method is Error', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.errorStatus);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnce;
         });
 
@@ -1191,7 +1192,7 @@ suite('Command Handler', () => {
                 serverId: 'id'
             };
             sandbox.stub(handler, 'handleWorkflow' as any).onFirstCall().resolves(ProtocolStubs.infoStatus).onSecondCall().resolves(undefined);
-            await executeServerAction('action', 'id', stubs.client);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             executeServerStub.secondCall.calledWith(actionRequest);
         });
 
@@ -1199,10 +1200,11 @@ suite('Command Handler', () => {
 
     suite('handleWorkflow', () => {
         let handleWorkflow;
+        let workflowResponseManager: WorkflowResponseStrategyManager;
         const item: Protocol.WorkflowResponseItem = {
             content: 'test\ntest',
             id: 'id',
-            itemType: 'type',
+            itemType: 'workflow.prompt.small',
             label: 'label',
             prompt: null,
             properties: null
@@ -1216,6 +1218,7 @@ suite('Command Handler', () => {
 
         setup(() => {
             handleWorkflow = Reflect.get(handler, 'handleWorkflow').bind(handler);
+            workflowResponseManager = new WorkflowResponseStrategyManager();
         });
 
         test('check if Promise resolve if ok status is passed as param', async () => {
@@ -1247,38 +1250,15 @@ suite('Command Handler', () => {
 
         });
 
-        test('check if isMultilineText is not called if the response does not contain any item', async () => {
-            const isMultilineTextStub = sandbox.stub(handler, 'isMultilineText' as any);
+        test('check if getStrategy is not called if the response does not contain any item', async () => {
+            const getStrategyStub = sandbox.stub(workflowResponseManager, 'getStrategy');
             await handleWorkflow(infoResponse);
-            expect(isMultilineTextStub).not.called;
+            expect(getStrategyStub).not.called;
         });
 
         test('check if Promise resolved if info Status is passed as param', async () => {
             const result = await handleWorkflow(infoResponse);
             expect(result).equals(ProtocolStubs.infoStatus);
-        });
-
-        test('check if isMultilineText is called correctly if info status is passed', async () => {
-            infoResponse.items = [item];
-            const isMultilineTextStub = sandbox.stub(handler, 'isMultilineText' as any);
-            sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
-            await handleWorkflow(infoResponse);
-            expect(isMultilineTextStub).calledOnceWith('test\ntest');
-        });
-
-        test('check if ServerEditorAdapter is called if file has multilineText', async () => {
-            infoResponse.items = [item];
-            const editorStub = sandbox.stub(ServerEditorAdapter.getInstance(serverExplorer), 'showEditor').resolves(undefined);
-            sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
-            await handleWorkflow(infoResponse);
-            expect(editorStub).calledOnce;
-        });
-
-        test('check if promptUser is called with correct params', async () => {
-            infoResponse.items = [item];
-            const promptUserStub = sandbox.stub(handler, 'promptUser' as any).resolves(undefined);
-            await handleWorkflow(infoResponse);
-            expect(promptUserStub).calledOnceWith(item, {});
         });
 
     });

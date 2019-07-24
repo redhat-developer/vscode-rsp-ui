@@ -8,6 +8,10 @@ export class WorkflowRequestFactory {
         .set('ShowInBrowserActionHandler.actionId', ShowInBrowserAction);
 
     public static async createWorkflowRequest(action: string, context: ServerStateNode): Promise<Protocol.ServerActionRequest> {
+        if (!action) {
+            return Promise.reject(`Unable to create request - action is undefined`);
+        }
+
         if (!context) {
             return Promise.reject(`Unable to create request for action ${action} - context is undefined`);
         }
