@@ -4,8 +4,11 @@ import { ServerExplorer } from '../../serverExplorer';
 
 export class WorkflowResponseStrategyEditor {
     public async doAction(item: Protocol.WorkflowResponseItem): Promise<boolean> {
-        const explorer = ServerExplorer.getInstance();
+        if (!item) {
+            return true;
+        }
         let canceled = false;
+        const explorer = ServerExplorer.getInstance();
         await ServerEditorAdapter.getInstance(explorer).showEditor(item.id, item.content)
                 .catch(() => canceled = true);
         return canceled;
