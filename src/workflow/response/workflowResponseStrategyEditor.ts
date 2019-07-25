@@ -3,7 +3,7 @@ import { ServerEditorAdapter } from '../../serverEditorAdapter';
 import { ServerExplorer } from '../../serverExplorer';
 
 export class WorkflowResponseStrategyEditor {
-    public async doAction(item: Protocol.WorkflowResponseItem): Promise<boolean> {
+    public static async doAction(item: Protocol.WorkflowResponseItem): Promise<boolean> {
         if (!item) {
             return true;
         }

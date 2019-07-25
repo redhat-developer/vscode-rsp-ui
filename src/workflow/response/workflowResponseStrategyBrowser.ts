@@ -2,7 +2,7 @@ import { Protocol } from 'rsp-client';
 import * as vscode from 'vscode';
 
 export class WorkflowResponseStrategyBrowser {
-    public async doAction(item: Protocol.WorkflowResponseItem): Promise<boolean> {
+    public static async doAction(item: Protocol.WorkflowResponseItem): Promise<boolean> {
         if (!item) {
             return true;
         }

@@ -13,19 +13,19 @@ export class WorkflowResponseStrategyManager {
     public constructor() {
         this.strategies.push({
             name: 'workflow.browser.open',
-            handler: new WorkflowResponseStrategyBrowser().doAction
+            handler: WorkflowResponseStrategyBrowser.doAction
         });
         this.strategies.push({
             name: 'workflow.prompt.small',
-            handler: new WorkflowResponseStrategyPromptSmall().doAction
+            handler: WorkflowResponseStrategyPromptSmall.doAction
         });
         this.strategies.push({
             name: 'workflow.prompt.large',
-            handler: new WorkflowResponseStrategyEditor().doAction
+            handler: WorkflowResponseStrategyEditor.doAction
         });
         this.strategies.push({
             name: 'workflow.editor.open',
-            handler: new WorkflowResponseStrategyEditor().doAction
+            handler: WorkflowResponseStrategyEditor.doAction
         });
     }
 
