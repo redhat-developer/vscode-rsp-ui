@@ -1201,14 +1201,6 @@ suite('Command Handler', () => {
     suite('handleWorkflow', () => {
         let handleWorkflow;
         let workflowResponseManager: WorkflowResponseStrategyManager;
-        const item: Protocol.WorkflowResponseItem = {
-            content: 'test\ntest',
-            id: 'id',
-            itemType: 'workflow.prompt.small',
-            label: 'label',
-            prompt: null,
-            properties: null
-        };
         const infoResponse: Protocol.WorkflowResponse = {
             status: ProtocolStubs.infoStatus,
             items: [],

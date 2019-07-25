@@ -26,9 +26,8 @@ suite('WorkflowResponseStrategyBrowser', () => {
     });
 
     suite('doAction', () => {
-        let workflowBrowser: WorkflowResponseStrategyBrowser;
         const item: Protocol.WorkflowResponseItem = {
-            content: 'test\ntest',
+            content: 'path',
             id: 'id',
             itemType: 'workflow.prompt.small',
             label: 'label',
@@ -36,23 +35,19 @@ suite('WorkflowResponseStrategyBrowser', () => {
             properties: null
         };
 
-        setup(() => {
-            workflowBrowser = new WorkflowResponseStrategyBrowser();
-        });
-
         test('return true if no item is passed as param', async () => {
-            const result = await workflowBrowser.doAction(undefined);
+            const result = await WorkflowResponseStrategyBrowser.doAction(undefined);
             expect(result).equals(true);
         });
 
         test('executeCommand is called with right param if an item is passed to method', async () => {
-            const executeStub = sandbox.stub(commands, 'executeCommand').resolves(undefined);
-            await workflowBrowser.doAction(item);
+            const executeStub = sandbox.stub(commands, 'executeCommand');
+            await WorkflowResponseStrategyBrowser.doAction(item);
             expect(executeStub).calledOnceWith('vscode.open', Uri.parse(item.content));
         });
 
         test('return false if item if method is called with valid item', async () => {
-            const result = await workflowBrowser.doAction(item);
+            const result = await WorkflowResponseStrategyBrowser.doAction(item);
             expect(result).equals(false);
         });
 
