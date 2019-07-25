@@ -17,6 +17,12 @@ import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowRequestFactory } from './workflow/request/workflowRequestFactory';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
 
+interface ServerActionItem {
+    label: string;
+    id: string;
+    properties: { [index: string]: string };
+}
+
 export class CommandHandler {
 
     private static readonly LIST_RUNTIMES_TIMEOUT: number = 20000;
@@ -405,20 +411,27 @@ export class CommandHandler {
             return Promise.reject(`Failed to contact the RSP server ${context.rsp}.`);
         }
 
-        const action: string = await this.chooseServerActions(context.server, client);
+        const action: ServerActionItem = await this.chooseServerActions(context.server, client);
         if (!action) {
             return;
         }
-        return await this.executeServerAction(action, context, client);
+
+        if (!action.properties) {
+            return await this.executeServerAction(action.id, context, client);
+        } else {
+            return await this.handleActionProperties(action);
+        }
+
     }
 
-    private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<string> {
+    private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<ServerActionItem> {
         const actionsList = await client.getOutgoingHandler().listServerActions(server)
             .then((response: Protocol.ListServerActionResponse) => {
                 return response.workflows.map(action => {
                     return {
                         label: action.actionLabel,
-                        id: action.actionId
+                        id: action.actionId,
+                        properties: this.getPropertiesFromAction(action)
                     };
                 });
             });
@@ -433,7 +446,7 @@ export class CommandHandler {
         if (!answer) {
             return;
         } else {
-            return answer.id;
+            return answer;
         }
     }
 
@@ -463,6 +476,23 @@ export class CommandHandler {
         }
     }
 
+    private async handleActionProperties(action: ServerActionItem): Promise<Protocol.Status> {
+        const item: Protocol.WorkflowResponseItem = {
+            id: action.id,
+            itemType: 'workflow.editor.open',
+            label: action.label,
+            content: undefined,
+            prompt: undefined,
+            properties: action.properties
+        };
+
+        const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy('workflow.editor.open');
+        const canceled: boolean = await strategy.handler(item);
+        if (canceled) {
+            return;
+        }
+    }
+
     private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
         if (StatusSeverity.isError(response.status)
                     || StatusSeverity.isCancel(response.status)) {
@@ -485,6 +515,16 @@ export class CommandHandler {
         }
 
         return Promise.resolve(response.status);
+    }
+
+    private getPropertiesFromAction(action: Protocol.ServerActionWorkflow): { [index: string]: string } {
+        if (!action ||
+            !action.actionWorkflow ||
+            action.actionWorkflow.items.length === 0 ||
+            !action.actionWorkflow.items[0].properties) {
+            return;
+        }
+        return action.actionWorkflow.items[0].properties;
     }
 
     public async editServer(context?: ServerStateNode): Promise<void> {

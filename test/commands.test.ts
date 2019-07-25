@@ -1083,12 +1083,30 @@ suite('Command Handler', () => {
             expect(executeActionStub).not.called;
         });
 
-        test('check if correct action is executed after user chose that', async () => {
+        test('check if correct action is executed after user chose that if doesnt have additional properties', async () => {
+            const actionItem = {
+                id: 'action',
+                label: 'action',
+                properties: undefined
+            };
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            sandbox.stub(handler, 'chooseServerActions' as any).resolves('action');
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
             const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any).resolves(ProtocolStubs.okStatus);
             await handler.serverActions(ProtocolStubs.unknownServerState);
             expect(executeActionStub).calledOnceWith('action', ProtocolStubs.unknownServerState, stubs.client);
+        });
+
+        test('check if action properties are handled if action has additional properties', async () => {
+            const actionItem = {
+                id: 'action',
+                label: 'action',
+                properties: { prop: 'prop' }
+            };
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
+            const handleActionStub = sandbox.stub(handler, 'handleActionProperties' as any).resolves(ProtocolStubs.okStatus);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(handleActionStub).calledOnceWith(actionItem);
         });
     });
 
@@ -1128,7 +1146,8 @@ suite('Command Handler', () => {
             await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
             expect(quickPickStub).calledOnceWith([{
                 label: 'label',
-                id: 'id'
+                id: 'id',
+                properties: undefined
             }], { placeHolder: 'Please choose the action you want to execute.' });
         });
     });
