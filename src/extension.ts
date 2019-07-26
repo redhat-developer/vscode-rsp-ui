@@ -52,7 +52,9 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
         vscode.commands.registerCommand('server.removeDeployment',
             context => executeCommand(commandHandler.removeDeployment, commandHandler, context, errorMessage.replace('%ACTION%', 'remove deployment to'))),
         vscode.commands.registerCommand('server.publishFull',
-            context => executeCommand(commandHandler.fullPublishServer, commandHandler, context, errorMessage.replace('%ACTION%', 'publish to'))),
+            context => executeCommand(commandHandler.publishServer, commandHandler, ServerState.PUBLISH_FULL, context, errorMessage.replace('%ACTION%', 'publish (Full) to'))),
+        vscode.commands.registerCommand('server.publishIncremental',
+            context => executeCommand(commandHandler.publishServer, commandHandler, ServerState.PUBLISH_INCREMENTAL, context, errorMessage.replace('%ACTION%', 'publish (Incremental) to'))),
         vscode.commands.registerCommand('server.createServer',
             context => executeCommand(commandHandler.createServer, commandHandler, context, errorMessage.replace('%ACTION%', 'create'))),
         vscode.commands.registerCommand('server.addLocation',
@@ -63,8 +65,6 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.serverActions, commandHandler, context, 'Unable to execute action')),
         vscode.commands.registerCommand('server.editServer',
             context => executeCommand(commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
-        vscode.commands.registerCommand('server.infoServer',
-            context => executeCommand(commandHandler.infoServer, commandHandler, context, 'Unable to retrieve server properties')),
         vscode.workspace.onDidSaveTextDocument(onDidSaveTextDocument),
         vscode.workspace.onDidCloseTextDocument(onDidCloseTextDocument)
     ];

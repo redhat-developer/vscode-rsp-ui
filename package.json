@@ -41,7 +41,8 @@
     "onCommand:server.remove",
     "onCommand:server.output",
     "onCommand:server.add",
-    "onCommand:server.publish",
+    "onCommand:server.publishFull",
+    "onCommand:server.publishIncremental",
     "onCommand:server.actions",
     "onView:servers",
     "onLanguage:plaintext"
@@ -132,6 +133,11 @@
         "category": "Servers"
       },
       {
+        "command": "server.publishIncremental",
+        "title": "Publish Server (Incremental)",
+        "category": "Servers"
+      },
+      {
         "command": "server.publishFull",
         "title": "Publish Server (Full)",
         "category": "Servers"
@@ -144,11 +150,6 @@
       {
         "command": "server.editServer",
         "title": "Edit Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.infoServer",
-        "title": "Properties",
         "category": "Servers"
       }
     ],
@@ -225,9 +226,14 @@
           "group": "2_server-remove@1"
         },
         {
-          "command": "server.publishFull",
+          "command": "server.publishIncremental",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
           "group": "3_server-deployments@6"
+        },
+        {
+          "command": "server.publishFull",
+          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+          "group": "3_server-deployments@7"
         },
         {
           "command": "server.addDeployment",
@@ -263,11 +269,6 @@
           "command": "server.editServer",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@2"
-        },
-        {
-          "command": "server.infoServer",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
-          "group": "6_server-info@3"
         }
       ]
     },

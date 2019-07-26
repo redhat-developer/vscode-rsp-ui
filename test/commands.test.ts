@@ -892,7 +892,7 @@ suite('Command Handler', () => {
 
     });
 
-    suite('fullPublishServer', () => {
+    suite('publishServer', () => {
         let publishStub: sinon.SinonStub;
 
         setup(() => {
@@ -900,20 +900,20 @@ suite('Command Handler', () => {
         });
 
         test('publishServer called with right context if context passed as param', async () => {
-            await handler.fullPublishServer(ProtocolStubs.unknownServerState);
+            await handler.publishServer(ServerState.PUBLISH_FULL, ProtocolStubs.unknownServerState);
             expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
         });
 
         test('check if selectRSP is called if no context is passed', async () => {
             const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(selectRSP).calledOnceWith('Select RSP provider you want to retrieve servers');
         });
 
         test('check if selectServer is called if no context is passed', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(selectServerStub).calledOnceWith('id', 'Select server to publish');
         });
 
@@ -921,7 +921,7 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            await handler.fullPublishServer(undefined);
+            await handler.publishServer(ServerState.PUBLISH_FULL, undefined);
             expect(publishStub).calledOnceWith('id', ProtocolStubs.serverHandle, 2);
         });
 
@@ -1374,84 +1374,6 @@ suite('Command Handler', () => {
             await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
             expect(showStub).calledOnceWith('id', serverJsonResponse);
 
-        });
-    });
-
-    suite('infoServer', () => {
-
-        test('check if selectRSP is called if no context is passed', async () => {
-            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
-            await handler.infoServer(undefined);
-            expect(selectRSP).calledOnceWith(sinon.match.string);
-        });
-
-        test('check if selectServer is called if no context is passed', async () => {
-            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
-            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
-            await handler.infoServer(undefined);
-            expect(selectServerStub).calledOnceWith('id', 'Select server you want to retrieve info about');
-        });
-
-        test('check if createOutputChannel called with right context if nothing is passed as param', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            const createChannelStub = sandbox.stub(vscode.window, 'createOutputChannel').returns(output);
-            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
-            sandbox.stub(handler, 'selectServer' as any).resolves('id');
-            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            await handler.infoServer(undefined);
-            expect(createChannelStub).calledOnceWith('Properties: id');
-        });
-
-        test('errors if server explorer is not initialized', async () => {
-            const nullHandler = new CommandHandler(null);
-
-            try {
-                await nullHandler.infoServer(undefined);
-                expect.fail();
-            } catch (err) {
-                expect(err).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
-            }
-        });
-
-        test('check if new channel is created if it doesn\'t already exist in map', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            const createChannelStub = sandbox.stub(vscode.window, 'createOutputChannel').returns(output);
-            await handler.infoServer(ProtocolStubs.unknownServerState);
-            expect(createChannelStub).calledOnceWith('Properties: id');
-        });
-
-        test('check if already existing channel is taken if it exist in map', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            handler.serverPropertiesChannel.set('id', output);
-            const getChannelStub = sandbox.stub(handler.serverPropertiesChannel, 'get').returns(output);
-            await handler.infoServer(ProtocolStubs.unknownServerState);
-            expect(getChannelStub).calledOnceWith('id');
-        });
-
-        test('check if already existing channel is cleared', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            handler.serverPropertiesChannel.set('id', output);
-            const clearChannelStub = sandbox.stub(output, 'clear');
-            await handler.infoServer(ProtocolStubs.unknownServerState);
-            expect(clearChannelStub).calledOnce;
-        });
-
-        test('check if channel is shown', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            handler.serverPropertiesChannel.set('id', output);
-            const showChannelStub = sandbox.stub(output, 'show');
-            await handler.infoServer(ProtocolStubs.unknownServerState);
-            expect(showChannelStub).calledOnce;
-        });
-
-        test('check if appendLine is called thrice after showing channel', async () => {
-            const output = vscode.window.createOutputChannel('Properties');
-            handler.serverPropertiesChannel.set('id', output);
-            const showChannelStub = sandbox.stub(output, 'show');
-            const appendLineStub = sandbox.stub(output, 'appendLine');
-            await handler.infoServer(ProtocolStubs.unknownServerState);
-            expect(appendLineStub).calledAfter(showChannelStub);
-            expect(appendLineStub).calledThrice;
         });
     });
 
