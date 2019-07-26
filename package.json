@@ -43,6 +43,7 @@
     "onCommand:server.add",
     "onCommand:server.publishFull",
     "onCommand:server.publishIncremental",
+    "onCommand:server.actions",
     "onView:servers",
     "onLanguage:plaintext"
   ],
@@ -139,6 +140,11 @@
       {
         "command": "server.publishFull",
         "title": "Publish Server (Full)",
+        "category": "Servers"
+      },
+      {
+        "command": "server.actions",
+        "title": "Server Actions...",
         "category": "Servers"
       },
       {
@@ -255,9 +261,14 @@
           "group": "5_rsp@2"
         },
         {
-          "command": "server.editServer",
+          "command": "server.actions",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@1"
+        },
+        {
+          "command": "server.editServer",
+          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+          "group": "6_server-info@2"
         }
       ]
     },

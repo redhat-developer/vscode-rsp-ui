@@ -45,6 +45,15 @@ export class ProtocolStubs {
         trace: ''
     };
 
+    public static readonly infoStatus: Protocol.Status = {
+        code: 0,
+        message: 'ok',
+        severity: 1,
+        ok: true,
+        plugin: 'unknown',
+        trace: ''
+    };
+
     public static readonly errorStatus: Protocol.Status = {
         code: 0,
         message: 'Critical Error',

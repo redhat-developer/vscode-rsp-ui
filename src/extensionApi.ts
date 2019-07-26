@@ -10,11 +10,18 @@ import { DebugInfo } from './debug/debugInfo';
 import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
-import { ServerEditorAdapter } from './serverEditorAdapter';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
 import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { WorkflowRequestFactory } from './workflow/request/workflowRequestFactory';
+import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
+
+interface ServerActionItem {
+    label: string;
+    id: string;
+    properties: { [index: string]: string };
+}
 
 export class CommandHandler {
 
@@ -373,30 +380,151 @@ export class CommandHandler {
             return;
         }
         let response: Protocol.WorkflowResponse = await this.initEmptyDownloadRuntimeRequest(rtId, client);
+        if (!response) {
+            return;
+        }
         while (true) {
-            if (StatusSeverity.isOk(response.status)) {
-                return Promise.resolve(response.status);
-            } else if (StatusSeverity.isError(response.status)
-                        || StatusSeverity.isCancel(response.status)) {
-                // error
-                return Promise.reject(response.status);
-            }
-
-            // not complete, not an error.
             const workflowMap = {};
-            for (const item of response.items) {
-                if (this.isMultilineText(item.content) ) {
-                    await ServerEditorAdapter.getInstance(this.explorer).showEditor(item.id, item.content);
-                }
-
-                const canceled: boolean = await this.promptUser(item, workflowMap);
-                if (canceled) {
-                    return;
-                }
+            const status = await this.handleWorkflow(response, workflowMap);
+            if (!status) {
+                return;
+            } else if (!StatusSeverity.isInfo(status)) {
+                return status;
             }
             // Now we have a data map
             response = await this.initDownloadRuntimeRequest(rtId, workflowMap, response.requestId, client);
         }
+    }
+
+    public async serverActions(context?: ServerStateNode): Promise<Protocol.Status> {
+        this.assertExplorerExists();
+        if (context === undefined) {
+            const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
+            if (!rsp || !rsp.id) return null;
+            const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
+            if (!serverId) return null;
+            context = this.explorer.getServerStateById(rsp.id, serverId);
+        }
+
+        const client: RSPClient = this.explorer.getClientByRSP(context.rsp);
+        if (!client) {
+            return Promise.reject(`Failed to contact the RSP server ${context.rsp}.`);
+        }
+
+        const action: ServerActionItem = await this.chooseServerActions(context.server, client);
+        if (!action) {
+            return;
+        }
+
+        if (!action.properties) {
+            return await this.executeServerAction(action.id, context, client);
+        } else {
+            return await this.handleActionProperties(action);
+        }
+
+    }
+
+    private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<ServerActionItem> {
+        const actionsList = await client.getOutgoingHandler().listServerActions(server)
+            .then((response: Protocol.ListServerActionResponse) => {
+                return response.workflows.map(action => {
+                    return {
+                        label: action.actionLabel,
+                        id: action.actionId,
+                        properties: this.getPropertiesFromAction(action)
+                    };
+                });
+            });
+
+        if (actionsList.length === 0) {
+            vscode.window.showInformationMessage('there are no additional actions for this server');
+            return;
+        }
+
+        const answer = await vscode.window.showQuickPick(actionsList,
+            { placeHolder: 'Please choose the action you want to execute.' });
+        if (!answer) {
+            return;
+        } else {
+            return answer;
+        }
+    }
+
+    private async executeServerAction(action: string, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
+        const actionRequest: Protocol.ServerActionRequest = await WorkflowRequestFactory.createWorkflowRequest(action, context);
+        if (!actionRequest) {
+            return;
+        }
+
+        let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
+        if (!response) {
+            return;
+        }
+        while (true) {
+            const workflowMap = {};
+            const status = await this.handleWorkflow(response, workflowMap);
+            if (!status) {
+                return;
+            } else if (!StatusSeverity.isInfo(status)) {
+                return status;
+            }
+
+            actionRequest.requestId = response.requestId;
+            actionRequest.data = workflowMap;
+            // Now we have a data map
+            response = await client.getOutgoingHandler().executeServerAction(actionRequest);
+        }
+    }
+
+    private async handleActionProperties(action: ServerActionItem): Promise<Protocol.Status> {
+        const item: Protocol.WorkflowResponseItem = {
+            id: action.id,
+            itemType: 'workflow.editor.open',
+            label: action.label,
+            content: undefined,
+            prompt: undefined,
+            properties: action.properties
+        };
+
+        const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy('workflow.editor.open');
+        const canceled: boolean = await strategy.handler(item);
+        if (canceled) {
+            return;
+        }
+    }
+
+    private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
+        if (StatusSeverity.isError(response.status)
+                    || StatusSeverity.isCancel(response.status)) {
+            // error
+            return Promise.reject(response.status);
+        }
+
+        // not complete, not an error.
+        if (!workflowMap) {
+            workflowMap = {};
+        }
+        if (response.items) {
+            for (const item of response.items) {
+                const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy(item.itemType);
+                const canceled: boolean = await strategy.handler(item, workflowMap);
+                if (canceled) {
+                    return;
+                }
+            }
+        }
+
+        return Promise.resolve(response.status);
+    }
+
+    private getPropertiesFromAction(action: Protocol.ServerActionWorkflow): { [index: string]: string } {
+        if (!action ||
+            !action.actionWorkflow ||
+            action.actionWorkflow.items.length === 0 ||
+            !action.actionWorkflow.items[0].properties) {
+            return;
+        }
+        return action.actionWorkflow.items[0].properties;
     }
 
     public async editServer(context?: ServerStateNode): Promise<void> {
@@ -447,36 +575,6 @@ export class CommandHandler {
         }
 
         return vscode.window.showQuickPick(servers.map(server => server.server.id), { placeHolder: message });
-    }
-
-    private async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: {}): Promise<boolean> {
-        const prompt = item.label + (item.content ? `\n${item.content}` : '');
-        let userInput: any = null;
-        if (item.prompt == null || item.prompt.responseType === 'none') {
-            userInput = await vscode.window.showQuickPick(['Continue...'],
-                { placeHolder: prompt, ignoreFocusOut: true });
-        } else {
-            if (item.prompt.responseType === 'bool') {
-                const oneProp = await vscode.window.showQuickPick(['True', 'False'],
-                    { placeHolder: prompt, ignoreFocusOut: true });
-                userInput = (oneProp === 'True');
-            } else {
-                const oneProp = await vscode.window.showInputBox(
-                    { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
-                if (item.prompt.responseType === 'int') {
-                    userInput = +oneProp;
-                } else {
-                    userInput = oneProp;
-                }
-            }
-        }
-
-        workflowMap[item.id] = userInput;
-        return userInput === undefined;
-    }
-
-    private isMultilineText(content: string) {
-        return content && content.indexOf('\n') !== -1;
     }
 
     private async initDownloadRuntimeRequest(id: string, data1: {[index: string]: any}, reqId: number, client: RSPClient):

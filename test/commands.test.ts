@@ -19,6 +19,7 @@ import * as sinonChai from 'sinon-chai';
 import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
+import { WorkflowResponseStrategyManager } from '../src/workflow/response/workflowResponseStrategyManager';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -997,6 +998,280 @@ suite('Command Handler', () => {
             await handler.addLocation(undefined);
             expect(addLocationStub).calledOnceWith('fakeId');
         });
+    });
+
+    suite('serverActions', () => {
+        test('check if error thrown if serverexplorer has not been initialized', async () => {
+            const nullHandler = new CommandHandler(null);
+
+            try {
+                await nullHandler.serverActions(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err.message).equals('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+            }
+        });
+
+        test('check if selectRSP is called correctly if context passed is undefined', async () => {
+            const selectRSP = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(selectRSP).calledOnceWith('Select RSP provider you want to retrieve servers');
+        });
+
+        test('check if selectServer is not called if user does not choose a rsp server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any);
+            await handler.serverActions(undefined);
+            expect(selectServerStub).not.called;
+        });
+
+        test('check if selectServer is called with right params if user choose a rsp server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            const selectServerStub = sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(selectServerStub).calledOnceWith('id', 'Select server you want to retrieve info about');
+        });
+
+        test('check if getServerStateById is not called if user does not choose a server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves(undefined);
+            const getServerStateStub = sandbox.stub(serverExplorer, 'getServerStateById');
+            await handler.serverActions(undefined);
+            expect(getServerStateStub).not.called;
+        });
+
+        test('check if getServerStateById is called with right params if user choose a server', async () => {
+            sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
+            sandbox.stub(handler, 'selectServer' as any).resolves('id');
+            const getServerStateStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(undefined);
+            expect(getServerStateStub).calledOnceWith('id', 'id');
+        });
+
+        test('check if getClientByRSP is called if context contains valid value', async () => {
+            const getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(getClientStub).calledOnceWith('id');
+        });
+
+        test('check if error is displayed if client has not been initialized for current rsp', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(undefined);
+
+            try {
+                await handler.serverActions(ProtocolStubs.unknownServerState);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals('Failed to contact the RSP server id.');
+            }
+        });
+
+        test('check if chooseServerActions method is called with right param', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            const chooseActionStub = sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(chooseActionStub).calledOnceWith(ProtocolStubs.serverHandle, stubs.client);
+        });
+
+        test('check if executeServerAction is not called if no action has been chosen by user', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(undefined);
+            const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(executeActionStub).not.called;
+        });
+
+        test('check if correct action is executed after user chose that if doesnt have additional properties', async () => {
+            const actionItem = {
+                id: 'action',
+                label: 'action',
+                properties: undefined
+            };
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
+            const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any).resolves(ProtocolStubs.okStatus);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(executeActionStub).calledOnceWith('action', ProtocolStubs.unknownServerState, stubs.client);
+        });
+
+        test('check if action properties are handled if action has additional properties', async () => {
+            const actionItem = {
+                id: 'action',
+                label: 'action',
+                properties: { prop: 'prop' }
+            };
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
+            const handleActionStub = sandbox.stub(handler, 'handleActionProperties' as any).resolves(ProtocolStubs.okStatus);
+            await handler.serverActions(ProtocolStubs.unknownServerState);
+            expect(handleActionStub).calledOnceWith(actionItem);
+        });
+    });
+
+    suite('chooseServerActions', () => {
+        let chooseServerActions;
+        const serverActionWorkflow: Protocol.ServerActionWorkflow = {
+            actionId: 'id',
+            actionLabel: 'label',
+            actionWorkflow: undefined
+        };
+        const listResponse: Protocol.ListServerActionResponse = {
+            status: ProtocolStubs.okStatus,
+            workflows: []
+        };
+
+        setup(() => {
+            chooseServerActions = Reflect.get(handler, 'chooseServerActions').bind(handler);
+        });
+
+        test('check if listServerActions is called correctly', async () => {
+            const listServerActions = stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(listServerActions).calledOnceWith(ProtocolStubs.serverHandle);
+        });
+
+        test('display message if there are no actions to be displayed', async () => {
+            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            const infoMessageStub = sandbox.stub(vscode.window, 'showInformationMessage');
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(infoMessageStub).calledOnceWith('there are no additional actions for this server');
+        });
+
+        test('check if quickpick is called with right params if there are actions to be displayed', async () => {
+            listResponse.workflows = [serverActionWorkflow];
+            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
+            await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
+            expect(quickPickStub).calledOnceWith([{
+                label: 'label',
+                id: 'id',
+                properties: undefined
+            }], { placeHolder: 'Please choose the action you want to execute.' });
+        });
+    });
+
+    suite('executeServerAction', () => {
+        let executeServerAction;
+        let executeServerStub: sinon.SinonStub;
+        const actionRequest: Protocol.ServerActionRequest = {
+            actionId: 'action',
+            data: null,
+            requestId: null,
+            serverId: 'id'
+        };
+        const response: Protocol.WorkflowResponse = {
+            status: ProtocolStubs.okStatus,
+            items: undefined,
+            jobId: 'id',
+            requestId: 1
+        };
+
+        setup(() => {
+            executeServerAction = Reflect.get(handler, 'executeServerAction').bind(handler);
+            executeServerStub = stubs.outgoing.executeServerAction = sandbox.stub().resolves(response);
+        });
+
+        test('check if executeServerAction method is called with right param', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            expect(executeServerStub).calledOnceWith(actionRequest);
+        });
+
+        test('check if handleWorkflow is called with right param', async () => {
+            const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            expect(handleWorkflowStub).calledOnceWith(response, {});
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is undefined', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is OK', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.okStatus);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is Error', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.errorStatus);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            expect(executeServerStub).calledOnce;
+        });
+
+        test('check if executeServerAction is called second time with right params', async () => {
+            const actionRequest: Protocol.ServerActionRequest = {
+                actionId: 'action',
+                data: {},
+                requestId: 1,
+                serverId: 'id'
+            };
+            sandbox.stub(handler, 'handleWorkflow' as any).onFirstCall().resolves(ProtocolStubs.infoStatus).onSecondCall().resolves(undefined);
+            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            executeServerStub.secondCall.calledWith(actionRequest);
+        });
+
+    });
+
+    suite('handleWorkflow', () => {
+        let handleWorkflow;
+        let workflowResponseManager: WorkflowResponseStrategyManager;
+        const infoResponse: Protocol.WorkflowResponse = {
+            status: ProtocolStubs.infoStatus,
+            items: [],
+            jobId: 'id',
+            requestId: 1
+        };
+
+        setup(() => {
+            handleWorkflow = Reflect.get(handler, 'handleWorkflow').bind(handler);
+            workflowResponseManager = new WorkflowResponseStrategyManager();
+        });
+
+        test('check if Promise resolve if ok status is passed as param', async () => {
+            const response: Protocol.WorkflowResponse = {
+                status: ProtocolStubs.okStatus,
+                items: undefined,
+                jobId: 'id',
+                requestId: 1
+            };
+
+            const result = await handleWorkflow(response);
+            expect(result).equals(ProtocolStubs.okStatus);
+        });
+
+        test('check if Promise rejects if errorStatus is passed as param', async () => {
+            const response: Protocol.WorkflowResponse = {
+                status: ProtocolStubs.errorStatus,
+                items: undefined,
+                jobId: 'id',
+                requestId: 1
+            };
+
+            try {
+                await handleWorkflow(response);
+                expect.fail();
+            } catch (err) {
+                expect(err).equals(ProtocolStubs.errorStatus);
+            }
+
+        });
+
+        test('check if getStrategy is not called if the response does not contain any item', async () => {
+            const getStrategyStub = sandbox.stub(workflowResponseManager, 'getStrategy');
+            await handleWorkflow(infoResponse);
+            expect(getStrategyStub).not.called;
+        });
+
+        test('check if Promise resolved if info Status is passed as param', async () => {
+            const result = await handleWorkflow(infoResponse);
+            expect(result).equals(ProtocolStubs.infoStatus);
+        });
+
     });
 
     suite('editServer', () => {
