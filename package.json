@@ -145,11 +145,6 @@
         "command": "server.editServer",
         "title": "Edit Server",
         "category": "Servers"
-      },
-      {
-        "command": "server.infoServer",
-        "title": "Properties",
-        "category": "Servers"
       }
     ],
     "views": {
@@ -263,11 +258,6 @@
           "command": "server.editServer",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@1"
-        },
-        {
-          "command": "server.infoServer",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
-          "group": "6_server-info@2"
         }
       ]
     },
