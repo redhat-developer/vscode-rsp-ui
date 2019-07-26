@@ -63,8 +63,6 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.downloadRuntime, commandHandler, context, 'Unable to detect any runtime: ')),
         vscode.commands.registerCommand('server.editServer',
             context => executeCommand(commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
-        vscode.commands.registerCommand('server.infoServer',
-            context => executeCommand(commandHandler.infoServer, commandHandler, context, 'Unable to retrieve server properties')),
         vscode.workspace.onDidSaveTextDocument(onDidSaveTextDocument),
         vscode.workspace.onDidCloseTextDocument(onDidCloseTextDocument)
     ];
