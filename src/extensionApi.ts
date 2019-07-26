@@ -543,37 +543,6 @@ export class CommandHandler {
         }
     }
 
-    public async infoServer(context?: ServerStateNode): Promise<void> {
-        if (context === undefined) {
-            if (this.explorer) {
-                const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
-                if (!rsp || !rsp.id) return null;
-                const serverId = await this.selectServer(rsp.id, 'Select server you want to retrieve info about');
-                if (!serverId) return null;
-                context = this.explorer.getServerStateById(rsp.id, serverId);
-            } else {
-                return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
-            }
-        }
-
-        const selectedServerType: Protocol.ServerType = context.server.type;
-        const selectedServerName: string = context.server.id;
-
-        let outputChannel: vscode.OutputChannel;
-        if (this.serverPropertiesChannel.has(selectedServerName)) {
-            outputChannel = this.serverPropertiesChannel.get(selectedServerName);
-            outputChannel.clear();
-        } else {
-            outputChannel = vscode.window.createOutputChannel(`Properties: ${selectedServerName}`);
-            this.serverPropertiesChannel.set(selectedServerName, outputChannel);
-        }
-
-        outputChannel.show();
-        outputChannel.appendLine(`Server Name: ${selectedServerName}`);
-        outputChannel.appendLine(`Server Type Id: ${selectedServerType.id}`);
-        outputChannel.appendLine(`Server Description: ${selectedServerType.visibleName}`);
-    }
-
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
         const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).
                                 filter(predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED).
