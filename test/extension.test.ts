@@ -97,8 +97,7 @@ suite('Extension Tests', () => {
                 'server.createServer',
                 'server.addLocation',
                 'server.downloadRuntime',
-                'server.editServer',
-                'server.infoServer'
+                'server.editServer'
             ];
             const foundServerCommands = commands.filter(value => {
                 return SERVER_COMMANDS.indexOf(value) >= 0 || value.startsWith('server.');
