@@ -29,11 +29,14 @@ This extension supports a number of commands for interacting with supported serv
    * `Stop` - From the list of servers present, select the server to stop.
    * `Remove` - From the list of servers present, select the server to be removed.
    * `Debug` - From the list of servers present, select the server to run in Debug mode.
-   * `Add Deployment to Server` - Add a deployable file to the server to be published.
+   * `Add Deployment to Server` - Add a deployable file or folder to the server to be published.
    * `Remove Deployment from Server` - Remove a deployment from the server.
    * `Publish Server (Full)` - Publish the server, synchronizing the content of deployments from your workspace to the server.
    * `Show Output Channel` - Select a particular server from the list to show its output channel in the editor.
-   * `Edit Server` - View a JSON representation of your server in an editor, and submit changes to key properties back to the RSP. 
+   * `Edit Server` - View a JSON representation of your server in an editor, and submit changes to properties back to the RSP. 
+   * `Download Runtime` - Some server types may expose to the user methods to download a version of specific runtimes or frameworks, extract them, and set them up to be used by the RSP. 
+   * `Server Actions` - Some server types may expose to the user arbitrary actions that the user may invoke, such as changing some configuration options, opening a web browser, or editing a configuration file. These server-contributed actions have few restrictions placed on them by the framework other than what may be done on the client-side. 
+
 
 ### Supported Servers
    * This extension has no built-in support for any specific server type
