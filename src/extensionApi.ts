@@ -520,6 +520,7 @@ export class CommandHandler {
     private getPropertiesFromAction(action: Protocol.ServerActionWorkflow): { [index: string]: string } {
         if (!action ||
             !action.actionWorkflow ||
+            !action.actionWorkflow.items ||
             action.actionWorkflow.items.length === 0 ||
             !action.actionWorkflow.items[0].properties) {
             return;

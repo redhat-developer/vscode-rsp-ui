@@ -1217,6 +1217,73 @@ suite('Command Handler', () => {
 
     });
 
+    suite('getPropertiesFromAction', () => {
+        let getPropertiesFromAction;
+        const serverActionWorkflow: Protocol.ServerActionWorkflow = {
+            actionId: 'id',
+            actionLabel: 'label',
+            actionWorkflow: null
+        };
+        const workflowResponse: Protocol.WorkflowResponse = {
+            status: ProtocolStubs.okStatus,
+            requestId: 1,
+            jobId: '',
+            items: null
+        };
+        const workflowResponseItem: Protocol.WorkflowResponseItem = {
+            id: 'id',
+            itemType: 'type',
+            label: 'label',
+            content: '',
+            prompt: null,
+            properties: null
+        };
+
+        setup(() => {
+            getPropertiesFromAction = Reflect.get(handler, 'getPropertiesFromAction').bind(handler);
+        });
+
+        test('check if method returns nothing if no action is passed to method', async () => {
+            const result = await getPropertiesFromAction(undefined);
+            expect(result).equals(undefined);
+        });
+
+        test('check if method returns nothing if action doesnt contain any workflow', async () => {
+            const result = await getPropertiesFromAction(serverActionWorkflow);
+            expect(result).equals(undefined);
+        });
+
+        test('check if method returns nothing if action workflow item is null', async () => {
+            serverActionWorkflow.actionWorkflow = workflowResponse;
+            const result = await getPropertiesFromAction(serverActionWorkflow);
+            expect(result).equals(undefined);
+        });
+
+        test('check if method returns nothing if action doesnt contain any workflow item', async () => {
+            workflowResponse.items = [];
+            serverActionWorkflow.actionWorkflow = workflowResponse;
+            const result = await getPropertiesFromAction(serverActionWorkflow);
+            expect(result).equals(undefined);
+        });
+
+        test('check if method returns nothing if action workflow item doesnt have any properties', async () => {
+            workflowResponse.items = [workflowResponseItem];
+            serverActionWorkflow.actionWorkflow = workflowResponse;
+            const result = await getPropertiesFromAction(serverActionWorkflow);
+            expect(result).equals(undefined);
+        });
+
+        test('check if method returns correct properties if object contains correct attributes', async () => {
+            const props = {path: 'path'};
+            workflowResponseItem.properties = props;
+            workflowResponse.items = [workflowResponseItem];
+            serverActionWorkflow.actionWorkflow = workflowResponse;
+            const result = await getPropertiesFromAction(serverActionWorkflow);
+            expect(result).equals(props);
+        });
+
+    });
+
     suite('handleWorkflow', () => {
         let handleWorkflow;
         let workflowResponseManager: WorkflowResponseStrategyManager;
