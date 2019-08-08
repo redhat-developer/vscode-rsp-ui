@@ -126,15 +126,6 @@ export class ProtocolStubs {
         rsp: 'id'
     };
 
-    public static readonly startingServerState: ServerStateNode = {
-        deployableStates: [ProtocolStubs.deployableStateNode],
-        publishState: ServerState.PUBLISH_STATE_UNKNOWN,
-        server: ProtocolStubs.serverHandle,
-        runMode: ServerState.RUN_MODE_RUN,
-        state: ServerState.STARTING,
-        rsp: 'id'
-    };
-
     public static readonly stoppedServerState: ServerStateNode = {
         deployableStates: [],
         publishState: ServerState.PUBLISH_STATE_UNKNOWN,
