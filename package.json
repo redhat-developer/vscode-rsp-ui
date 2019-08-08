@@ -312,12 +312,12 @@
       "explorer/context": [
         {
           "command": "server.distribution.run",
-          "when": "!explorerResourceIsFolder && resourceExtname == .war",
+          "when": "!explorerResourceIsFolder",
           "group": "1_server-distribution@1"
         },
         {
           "command": "server.distribution.debug",
-          "when": "!explorerResourceIsFolder && resourceExtname == .war",
+          "when": "!explorerResourceIsFolder",
           "group": "1_server-distribution@2"
         },
         {
