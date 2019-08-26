@@ -110,7 +110,8 @@ export class ServerEditorAdapter {
             let rspId: string;
             let serverId: string;
             for (rspId of this.RSPServerProperties.keys()) {
-                const docInfo = this.RSPServerProperties.get(rspId).find(prop => prop.file === doc.uri.fsPath);
+                const docInfo = this.RSPServerProperties.get(rspId).find(prop =>
+                                        prop.file.toLowerCase() === doc.uri.fsPath.toLowerCase());
                 if (docInfo) {
                     serverId = docInfo.server;
                     break;
