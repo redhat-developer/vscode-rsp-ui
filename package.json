@@ -161,16 +161,6 @@
         "command": "server.application.debug",
         "title": "Debug on Server",
         "category": "Application"
-      },
-      {
-        "command": "server.exploded.run",
-        "title": "Run on Server",
-        "category": "Application"
-      },
-      {
-        "command": "server.exploded.debug",
-        "title": "Debug on Server",
-        "category": "Application"
       }
     ],
     "views": {
@@ -196,14 +186,6 @@
         },
         {
           "command": "server.application.debug",
-          "when": "never"
-        },
-        {
-          "command": "server.exploded.run",
-          "when": "never"
-        },
-        {
-          "command": "server.exploded.debug",
           "when": "never"
         }
       ],
@@ -312,23 +294,11 @@
       "explorer/context": [
         {
           "command": "server.application.run",
-          "when": "!explorerResourceIsFolder",
           "group": "1_server-application@1"
         },
         {
           "command": "server.application.debug",
-          "when": "!explorerResourceIsFolder",
           "group": "1_server-application@2"
-        },
-        {
-          "command": "server.exploded.run",
-          "when": "explorerResourceIsFolder",
-          "group": "1_server-exploded@1"
-        },
-        {
-          "command": "server.exploded.debug",
-          "when": "explorerResourceIsFolder",
-          "group": "1_server-exploded@2"
         }
       ]
     },
