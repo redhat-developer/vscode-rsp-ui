@@ -153,24 +153,24 @@
         "category": "Servers"
       },
       {
-        "command": "server.distribution.run",
+        "command": "server.application.run",
         "title": "Run on Server",
-        "category": "Distribution"
+        "category": "Application"
       },
       {
-        "command": "server.distribution.debug",
+        "command": "server.application.debug",
         "title": "Debug on Server",
-        "category": "Distribution"
+        "category": "Application"
       },
       {
         "command": "server.exploded.run",
-        "title": "Run Exploded Distribution on Server",
-        "category": "Distribution"
+        "title": "Run on Server",
+        "category": "Application"
       },
       {
         "command": "server.exploded.debug",
-        "title": "Debug Exploded Distribution on Server",
-        "category": "Distribution"
+        "title": "Debug on Server",
+        "category": "Application"
       }
     ],
     "views": {
@@ -191,11 +191,11 @@
       ],
       "commandPalette": [
         {
-          "command": "server.distribution.run",
+          "command": "server.application.run",
           "when": "never"
         },
         {
-          "command": "server.distribution.debug",
+          "command": "server.application.debug",
           "when": "never"
         },
         {
@@ -311,14 +311,14 @@
       ],
       "explorer/context": [
         {
-          "command": "server.distribution.run",
+          "command": "server.application.run",
           "when": "!explorerResourceIsFolder",
-          "group": "1_server-distribution@1"
+          "group": "1_server-application@1"
         },
         {
-          "command": "server.distribution.debug",
+          "command": "server.application.debug",
           "when": "!explorerResourceIsFolder",
-          "group": "1_server-distribution@2"
+          "group": "1_server-application@2"
         },
         {
           "command": "server.exploded.run",
