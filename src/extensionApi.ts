@@ -149,10 +149,12 @@ export class CommandHandler {
     public async stopServer(forced: boolean, context?: ServerStateNode): Promise<Protocol.Status> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
-            if (!rsp || !rsp.id) return null;
+            if (!rsp || !rsp.id) 
+                return Promise.reject("No RSP chosen");
             const serverFilter = server => server.state === ServerState.STARTED;
             const serverId = await this.selectServer(rsp.id, 'Select server to stop.', serverFilter);
-            if (!serverId) return null;
+            if (!serverId) 
+                return Promise.reject("No Server chosen");
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
@@ -164,7 +166,9 @@ export class CommandHandler {
             if (!client) {
                 return Promise.reject('Failed to contact the RSP server.');
             }
-            const status = await client.getOutgoingHandler().stopServerAsync({ id: context.server.id, force: true });
+            const status = await client.getOutgoingHandler().stopServerAsync(
+                { id: context.server.id, force: forced }
+            );
             if (this.debugSession.isDebuggerStarted()) {
                 await this.debugSession.stop();
             }
