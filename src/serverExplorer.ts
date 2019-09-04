@@ -225,26 +225,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         const client: RSPClient = this.RSPServersStatus.get(state.rsp).client;
         if (client && file && file.length === 1) {
 
-            const answer = await window.showQuickPick(['No', 'Yes'], {placeHolder:
-                'Do you want to edit optional deployment parameters?'});
-            const options = {};
-            if (!answer) {
+            const options = await this.getDeploymentOptions(client, state);
+            if (!options) {
                 return;
-            }
-            if (answer === 'Yes') {
-                const deployOptionsResponse:Protocol.ListDeploymentOptionsResponse = 
-                    await client.getOutgoingHandler().listDeploymentOptions(state.server);
-                const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
-                for (const key in optionMap.attributes) {
-                    if (key) {
-                        const attribute = optionMap.attributes[key];
-                        const val = await window.showInputBox({prompt: attribute.description,
-                            value: attribute.defaultVal, password: attribute.secret});
-                        if (val) {
-                            options[key] = val;
-                        }
-                    }
-                }
             }
 
             // var fileUrl = require('file-url');
@@ -283,6 +266,32 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             canSelectFolders: (showQuickPick ? filePickerType === deploymentStatus.exploded : true),
             openLabel: `Select ${filePickerType} Deployment`
         };
+    }
+
+    private async getDeploymentOptions(client: RSPClient, state: ServerStateNode): Promise<object> {
+        const answer = await window.showQuickPick(['No', 'Yes'], {placeHolder:
+            'Do you want to edit optional deployment parameters?'});
+        const options = {};
+        if (!answer) {
+            return;
+        }
+        if (answer === 'Yes') {
+            const deployOptionsResponse: Protocol.ListDeploymentOptionsResponse = 
+                await client.getOutgoingHandler().listDeploymentOptions(state.server);
+            const optionMap: Protocol.Attributes = deployOptionsResponse.attributes;
+            for (const key in optionMap.attributes) {
+                if (key) {
+                    const attribute = optionMap.attributes[key];
+                    const val = await window.showInputBox({prompt: attribute.description,
+                        value: attribute.defaultVal, password: attribute.secret});
+                    if (val) {
+                        options[key] = val;
+                    }
+                }
+            }
+        }
+
+        return options;
     }
 
     public async removeDeployment(rspId: string, server: Protocol.ServerHandle, deployableRef: Protocol.DeployableReference): Promise<Protocol.Status> {
