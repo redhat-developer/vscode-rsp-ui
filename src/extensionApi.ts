@@ -568,7 +568,7 @@ export class CommandHandler {
                 await this.restartServer(mode, context);
             }
         } else {
-            return Promise.reject(`Unable to add distribution and run it on server ${context.server.id}. Stop/start the server and try again.`);
+            return Promise.reject(`Unable to add deployment and run it on server ${context.server.id}. Stop/start the server and try again.`);
         }
     }
 
