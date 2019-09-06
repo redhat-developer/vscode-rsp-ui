@@ -401,6 +401,16 @@ suite('Server explorer', () => {
                 expect(err.message).length > 0;
             }
         });
+
+        test('should stop workflow if server name is empty', async () => {
+            findServerStub.resolves([serverBean]);
+
+            sandbox.stub(serverExplorer, 'getServerName' as any).resolves(undefined);
+            const createServerStub = sandbox.stub(serverExplorer, 'createServer' as any);
+
+            await serverExplorer.addLocation('id');
+            expect(createServerStub).not.called;
+        });
     });
 
     suite('addDeployment', () => {
