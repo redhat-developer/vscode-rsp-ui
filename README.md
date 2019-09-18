@@ -72,8 +72,8 @@ This extension supports a number of commands for interacting with supported serv
 ## Q&A
 ---
 
-   1. How can i override Program and VM arguments?
-      - Due to some issues and requests we received from users we added an additional flag "args.override.boolean" to allow to override program and vm arguments. 
+   ### 1. How can i override Program and VM arguments?
+      Due to some issues and requests we received from users we added an additional flag "args.override.boolean" to allow to override program and vm arguments. 
 
       When a user attempts to launch his server, we will first check the override boolean value to see if we are overriding. If the user is overriding (right-click your server -> Edit Server -> set "args.override.boolean": "true" ), we will generate the vm args and program args at that time and set them in the server object.
 
@@ -83,8 +83,8 @@ This extension supports a number of commands for interacting with supported serv
       
       If "args.override.boolean" is set to false, the server will attempt to auto-generate the launch arguments as it normally does when launched.
       
-   2. Can I run my Wildfly Server on a different port than the default one?
-      - Yes. To run a Wildfly Server on a different port you first have to edit the port in the standalone.xml file. 
+   ### 2. Can I run my Wildfly Server on a different port than the default one?
+      Yes. To run a Wildfly Server on a different port you first have to edit the port in the standalone.xml file. 
 
       The next step is to add the following setting through the Server Editor in VScode.
 
@@ -92,8 +92,8 @@ This extension supports a number of commands for interacting with supported serv
 
       Now if you start the server it should run on the specified port.
 
-   3. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
-      - Yes. This is the video you can watch to learn more about this extension [https://www.youtube.com/watch?v=sP2Hlw-C_7I] (https://www.youtube.com/watch?v=sP2Hlw-C_7I)
+   ### 3. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
+      Yes. This is the video you can watch to learn more about this extension https://www.youtube.com/watch?v=sP2Hlw-C_7I
 
    
 
