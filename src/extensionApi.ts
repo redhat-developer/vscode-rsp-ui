@@ -20,6 +20,7 @@ import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './wor
 interface ServerActionItem {
     label: string;
     id: string;
+    itemType: string;
     properties: { [index: string]: string };
 }
 
@@ -433,6 +434,7 @@ export class CommandHandler {
                     return {
                         label: action.actionLabel,
                         id: action.actionId,
+                        itemType: this.getItemTypeFromAction(action),
                         properties: this.getPropertiesFromAction(action)
                     };
                 });
@@ -479,16 +481,17 @@ export class CommandHandler {
     }
 
     private async handleActionProperties(action: ServerActionItem): Promise<Protocol.Status> {
+        const itemType: string = (action.itemType ? action.itemType : 'workflow.editor.open');
         const item: Protocol.WorkflowResponseItem = {
             id: action.id,
-            itemType: 'workflow.editor.open',
+            itemType: itemType,
             label: action.label,
             content: undefined,
             prompt: undefined,
             properties: action.properties
         };
 
-        const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy('workflow.editor.open');
+        const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy(itemType);
         const canceled: boolean = await strategy.handler(item);
         if (canceled) {
             return;
@@ -528,6 +531,17 @@ export class CommandHandler {
             return;
         }
         return action.actionWorkflow.items[0].properties;
+    }
+
+    private getItemTypeFromAction(action: Protocol.ServerActionWorkflow): string {
+        if (!action ||
+            !action.actionWorkflow ||
+            !action.actionWorkflow.items ||
+            action.actionWorkflow.items.length === 0 ||
+            !action.actionWorkflow.items[0].itemType) {
+            return;
+        }
+        return action.actionWorkflow.items[0].itemType;
     }
 
     public async editServer(context?: ServerStateNode): Promise<void> {
