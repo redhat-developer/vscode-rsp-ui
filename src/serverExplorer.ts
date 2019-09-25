@@ -353,6 +353,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         }
         server.bean = serverBeans[0];
         server.name = await this.getServerName(rspId);
+        if (!server.name) {
+            return;
+        }
         const attrs = await this.getRequiredParameters(server.bean, client);
         await this.getOptionalParameters(server.bean, attrs);
         return this.createServer(server.bean, server.name, attrs, client);
