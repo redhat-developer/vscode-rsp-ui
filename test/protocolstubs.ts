@@ -77,6 +77,12 @@ export class ProtocolStubs {
         workingDir: 'dir'
     };
 
+    public static readonly serverJson: Protocol.GetServerJsonResponse = {
+        status: ProtocolStubs.okStatus,
+        serverJson: '',
+        serverHandle: ProtocolStubs.serverHandle
+    };
+
     public static readonly okStartServerResponse: Protocol.StartServerResponse = {
         details: ProtocolStubs.cmdDetails,
         status: ProtocolStubs.okStatus
@@ -182,7 +188,7 @@ export class ProtocolStubs {
     public static readonly updateServerResponse: Protocol.UpdateServerResponse = {
         handle: ProtocolStubs.serverHandle,
         validation: ProtocolStubs.createResponseOK,
-        serverJson: undefined
+        serverJson: ProtocolStubs.serverJson
     };
 
     public static readonly serverStateWithoutHandle: ServerStateNode =  {
