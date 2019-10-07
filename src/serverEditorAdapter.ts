@@ -125,9 +125,10 @@ export class ServerEditorAdapter {
             if (!serverHandle) {
                 return Promise.reject('Unable to save server properties - server is invalid');
             }
-            return this.explorer.saveServerProperties(rspId, serverHandle, doc.getText()).then(status => {
+            return this.explorer.saveServerProperties(rspId, serverHandle, doc.getText()).then(updateStatus => {
+                this.createTmpFile(true, rspId, updateStatus.serverJson);
                 vscode.window.showInformationMessage(`Server ${serverHandle.id} correctly saved`);
-                return status;
+                return updateStatus.validation.status;
             });
         }
     }

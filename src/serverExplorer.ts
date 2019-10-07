@@ -375,7 +375,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         return ServerEditorAdapter.getInstance(this).showServerJsonResponse(rspId, serverProperties);
     }
 
-    public async saveServerProperties(rspId: string, serverhandle: Protocol.ServerHandle, content: string): Promise<Protocol.Status> {
+    public async saveServerProperties(rspId: string, serverhandle: Protocol.ServerHandle, content: string): Promise<Protocol.UpdateServerResponse> {
         if (!serverhandle) {
             return Promise.reject('Unable to update server properties - Invalid server');
         }
@@ -394,7 +394,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         if (!StatusSeverity.isOk(response.validation.status)) {
             return Promise.reject(response.validation.status.message);
         }
-        return response.validation.status;
+        return response;
     }
 
     private async createServer(bean: Protocol.ServerBean, name: string, attributes: any = {}, client: RSPClient): Promise<Protocol.Status> {
