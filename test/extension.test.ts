@@ -42,9 +42,7 @@ suite('Extension Tests', () => {
         globalState: new DummyMemento(),
         asAbsolutePath(relativePath: string): string {
             return '';
-        },
-        logPath: '',
-        globalStoragePath: ''
+        }
     };
 
     setup(() => {
