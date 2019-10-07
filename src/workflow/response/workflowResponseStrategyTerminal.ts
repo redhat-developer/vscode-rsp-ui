@@ -10,6 +10,7 @@ export class WorkflowResponseStrategyTerminal {
         if (item.properties &&
             item.properties.hasOwnProperty('workflow.terminal.cmd')) {
             const terminal = vscode.window.createTerminal(item.id);
+            terminal.show();
             terminal.sendText(item.properties['workflow.terminal.cmd']);
         }
         return false;

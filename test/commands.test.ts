@@ -1147,6 +1147,7 @@ suite('Command Handler', () => {
             expect(quickPickStub).calledOnceWith([{
                 label: 'label',
                 id: 'id',
+                itemType: undefined,
                 properties: undefined
             }], { placeHolder: 'Please choose the action you want to execute.' });
         });
