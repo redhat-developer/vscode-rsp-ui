@@ -29,7 +29,7 @@ suite('WorkflowResponseStrategyManager', () => {
 
     test('check if strategies array contains all available strategies when new Manager is created', async () => {
         const strategies = Reflect.get(manager, 'strategies');
-        expect(strategies.length).equals(4);
+        expect(strategies.length).equals(5);
     });
 
     test('check if getStrategy returns right strategy if name is undefined', async () => {
