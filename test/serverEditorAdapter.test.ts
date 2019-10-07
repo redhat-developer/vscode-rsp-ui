@@ -360,13 +360,14 @@ suite('ServerEditorAdapter', () => {
         });
 
         test('Check if saveServerProperties is called with right params', async () => {
-            const saveStub = sandbox.stub(serverExplorer, 'saveServerProperties').resolves(ProtocolStubs.okStatus);
+            const saveStub = sandbox.stub(serverExplorer, 'saveServerProperties').resolves(ProtocolStubs.updateServerResponse);
             const serverProps: ServerProperties = {
                 server: 'id',
                 file: '/fakepath/'
             };
             serverEditorAdapter.RSPServerProperties.set('id', [serverProps]);
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            sandbox.stub(serverEditorAdapter, 'createTmpFile' as any).callsFake(() => '');
 
             await serverEditorAdapter.onDidSaveTextDocument(textDocumentWithUri);
             expect(saveStub).calledOnceWith('id', ProtocolStubs.serverHandle, '');
@@ -374,13 +375,14 @@ suite('ServerEditorAdapter', () => {
 
         test('Check if showInformationMessage is called if saveServerProperties succeed', async () => {
             const showInfoStub = sandbox.stub(vscode.window, 'showInformationMessage');
-            sandbox.stub(serverExplorer, 'saveServerProperties').resolves(ProtocolStubs.okStatus);
+            sandbox.stub(serverExplorer, 'saveServerProperties').resolves(ProtocolStubs.updateServerResponse);
             const serverProps: ServerProperties = {
                 server: 'id',
                 file: '/fakepath/'
             };
             serverEditorAdapter.RSPServerProperties.set('id', [serverProps]);
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            sandbox.stub(serverEditorAdapter, 'createTmpFile' as any).callsFake(() => '');
 
             await serverEditorAdapter.onDidSaveTextDocument(textDocumentWithUri);
             expect(showInfoStub).calledOnceWith('Server id correctly saved');
@@ -426,7 +428,7 @@ suite('ServerEditorAdapter', () => {
             const result = await serverExplorer.saveServerProperties('id', ProtocolStubs.serverHandle, 'text');
 
             expect(updateStubs).calledOnce;
-            expect(result).equals(ProtocolStubs.createResponseOK.status);
+            expect(result).equals(ProtocolStubs.updateServerResponse);
         });
 
         test('Return error if server is not updated', async () => {
