@@ -289,7 +289,7 @@
           "command": "server.editServer",
           "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@2"
-	}
+        }
       ],
       "explorer/context": [
         {
@@ -378,7 +378,7 @@
   },
   "dependencies": {
     "path": "0.12.7",
-    "rsp-client": "^0.20.0",
+    "rsp-client": "^0.21.0",
     "tmp": "^0.1.0",
     "vscode-server-connector-api": "0.1.5"
   }
