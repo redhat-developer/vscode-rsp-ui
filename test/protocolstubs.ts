@@ -181,7 +181,8 @@ export class ProtocolStubs {
 
     public static readonly updateServerResponse: Protocol.UpdateServerResponse = {
         handle: ProtocolStubs.serverHandle,
-        validation: ProtocolStubs.createResponseOK
+        validation: ProtocolStubs.createResponseOK,
+        serverJson: undefined
     };
 
     public static readonly serverStateWithoutHandle: ServerStateNode =  {
