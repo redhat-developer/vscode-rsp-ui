@@ -149,12 +149,10 @@ export class CommandHandler {
     public async stopServer(forced: boolean, context?: ServerStateNode): Promise<Protocol.Status> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
-            if (!rsp || !rsp.id) 
-                return Promise.reject("No RSP chosen");
+            if (!rsp || !rsp.id) return null;
             const serverFilter = server => server.state === ServerState.STARTED;
             const serverId = await this.selectServer(rsp.id, 'Select server to stop.', serverFilter);
-            if (!serverId) 
-                return Promise.reject("No Server chosen");
+            if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
