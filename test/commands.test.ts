@@ -469,7 +469,7 @@ suite('Command Handler', () => {
             const result = await handler.stopServer(false, ProtocolStubs.startedServerState);
             const args: Protocol.StopServerAttributes = {
                 id: ProtocolStubs.serverHandle.id,
-                force: true
+                force: false
             };
 
             expect(result).equals(ProtocolStubs.okStatus);
@@ -482,7 +482,7 @@ suite('Command Handler', () => {
             const result = await handler.stopServer(false);
             const args: Protocol.StopServerAttributes = {
                 id: 'id',
-                force: true
+                force: false
             };
 
             expect(result).equals(ProtocolStubs.okStatus);
