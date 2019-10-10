@@ -225,28 +225,52 @@ suite('Server explorer', () => {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: `id (Stopped) (Unknown)`,
             contextValue: 'Stopped',
-            iconPath: iconPath
+            iconPath: iconPath,
+            command: {
+                command: 'server.saveSelectedNode',
+                title: '',
+                tooltip: '',
+                arguments: [ ProtocolStubs.unknownServerState ]
+            }
         };
 
         const serverStart = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Started) (Unknown)',
             contextValue: 'Started',
-            iconPath: iconPath
+            iconPath: iconPath,
+            command: {
+                command: 'server.saveSelectedNode',
+                title: '',
+                tooltip: '',
+                arguments: [ ProtocolStubs.unknownServerState ]
+            }
         };
 
         const serverDebugging = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Debugging) (undefined)',
             contextValue: 'Debugging',
-            iconPath: iconPath
+            iconPath: iconPath,
+            command: {
+                command: 'server.saveSelectedNode',
+                title: '',
+                tooltip: '',
+                arguments: [ ProtocolStubs.serverDebuggingState ]
+            }
         };
 
         const serverUnknown = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
             label: 'id (Unknown) (Unknown)',
             contextValue: 'Unknown',
-            iconPath: iconPath
+            iconPath: iconPath,
+            command: {
+                command: 'server.saveSelectedNode',
+                title: '',
+                tooltip: '',
+                arguments: [ ProtocolStubs.unknownServerState ]
+            }
         };
 
         setup(() => {
@@ -676,7 +700,13 @@ suite('Server explorer', () => {
             const nodeResult = { label: `id (Unknown) (Unknown)`,
                 iconPath: iconPath,
                 contextValue: 'Unknown',
-                collapsibleState: TreeItemCollapsibleState.Expanded
+                collapsibleState: TreeItemCollapsibleState.Expanded,
+                command: {
+                    command: 'server.saveSelectedNode',
+                    title: '',
+                    tooltip: '',
+                    arguments: [ ProtocolStubs.unknownServerState ]
+                }
             };
 
             const result = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);

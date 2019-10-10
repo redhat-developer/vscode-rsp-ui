@@ -101,7 +101,8 @@ suite('Extension Tests', () => {
                 'server.actions',
                 'server.editServer',
                 'server.application.run',
-                'server.application.debug'
+                'server.application.debug',
+                'server.saveSelectedNode'
             ];
             const foundServerCommands = commands.filter(value => {
                 return SERVER_COMMANDS.indexOf(value) >= 0 || value.startsWith('server.');
