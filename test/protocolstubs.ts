@@ -82,7 +82,7 @@ export class ProtocolStubs {
         serverJson: '',
         serverHandle: ProtocolStubs.serverHandle
     };
-
+    
     public static readonly okStartServerResponse: Protocol.StartServerResponse = {
         details: ProtocolStubs.cmdDetails,
         status: ProtocolStubs.okStatus

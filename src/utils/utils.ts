@@ -49,12 +49,17 @@ export class Utils {
                     { placeHolder: prompt, ignoreFocusOut: true });
                 userInput = (oneProp === 'True');
             } else {
-                const oneProp = await vscode.window.showInputBox(
-                    { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
-                if (item.prompt.responseType === 'int') {
-                    userInput = +oneProp;
+                if (item.prompt.validResponses) {
+                    userInput = await vscode.window.showQuickPick(item.prompt.validResponses,
+                            { placeHolder: item.label, ignoreFocusOut: true });
                 } else {
-                    userInput = oneProp;
+                    const oneProp = await vscode.window.showInputBox(
+                        { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
+                    if (item.prompt.responseType === 'int') {
+                        userInput = +oneProp;
+                    } else {
+                        userInput = oneProp;
+                    }
                 }
             }
         }
