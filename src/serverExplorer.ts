@@ -17,8 +17,7 @@ import {
     TreeView,
     Uri,
     window,
-    workspace,
-    commands
+    workspace
 } from 'vscode';
 
 import {
@@ -30,7 +29,6 @@ import {
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType } from 'vscode-server-connector-api';
-import { executeCommand } from './extension';
 
 enum deploymentStatus {
     file = 'File',
