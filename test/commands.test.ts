@@ -8,7 +8,7 @@ import * as chaipromise from 'chai-as-promised';
 import { ClientStubs } from './clientstubs';
 import { DebugInfo } from '../src/debug/debugInfo';
 import { DebugInfoProvider } from '../src/debug/debugInfoProvider';
-import { CommandHandler } from '../src/extensionApi';
+import { CommandHandler, ServerActionItem } from '../src/extensionApi';
 import { JavaDebugSession } from '../src/debug/javaDebugSession';
 import { ProtocolStubs } from './protocolstubs';
 import { Protocol, ServerState } from 'rsp-client';
@@ -1087,26 +1087,13 @@ suite('Command Handler', () => {
             const actionItem = {
                 id: 'action',
                 label: 'action',
-                properties: undefined
+                actionWorkflow: undefined
             };
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
             const executeActionStub = sandbox.stub(handler, 'executeServerAction' as any).resolves(ProtocolStubs.okStatus);
             await handler.serverActions(ProtocolStubs.unknownServerState);
-            expect(executeActionStub).calledOnceWith('action', ProtocolStubs.unknownServerState, stubs.client);
-        });
-
-        test('check if action properties are handled if action has additional properties', async () => {
-            const actionItem = {
-                id: 'action',
-                label: 'action',
-                properties: { prop: 'prop' }
-            };
-            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            sandbox.stub(handler, 'chooseServerActions' as any).resolves(actionItem);
-            const handleActionStub = sandbox.stub(handler, 'handleActionProperties' as any).resolves(ProtocolStubs.okStatus);
-            await handler.serverActions(ProtocolStubs.unknownServerState);
-            expect(handleActionStub).calledOnceWith(actionItem);
+            expect(executeActionStub).calledOnceWith(actionItem, ProtocolStubs.unknownServerState, stubs.client);
         });
     });
 
@@ -1147,8 +1134,7 @@ suite('Command Handler', () => {
             expect(quickPickStub).calledOnceWith([{
                 label: 'label',
                 id: 'id',
-                itemType: undefined,
-                properties: undefined
+                actionWorkflow: undefined
             }], { placeHolder: 'Please choose the action you want to execute.' });
         });
     });
@@ -1156,17 +1142,22 @@ suite('Command Handler', () => {
     suite('executeServerAction', () => {
         let executeServerAction;
         let executeServerStub: sinon.SinonStub;
-        const actionRequest: Protocol.ServerActionRequest = {
-            actionId: 'action',
-            data: null,
-            requestId: null,
-            serverId: 'id'
-        };
         const response: Protocol.WorkflowResponse = {
             status: ProtocolStubs.okStatus,
             items: undefined,
             jobId: 'id',
             requestId: 1
+        };
+        const serverActionWorkflow: ServerActionItem = {
+            id: 'id',
+            label: 'label',
+            actionWorkflow: response
+        };
+        const actionRequest: Protocol.ServerActionRequest = {
+            actionId: 'id',
+            data: {},
+            requestId: null,
+            serverId: 'id'
         };
 
         setup(() => {
@@ -1176,14 +1167,14 @@ suite('Command Handler', () => {
 
         test('check if executeServerAction method is called with right param', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
-            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            await executeServerAction(serverActionWorkflow, ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnceWith(actionRequest);
         });
 
         test('check if handleWorkflow is called with right param', async () => {
             const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
             await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
-            expect(handleWorkflowStub).calledOnceWith(response, {});
+            expect(handleWorkflowStub).calledTwice;
         });
 
         test('check if executeServerAction is not called second time if status returned by handleWorkflow method is undefined', async () => {
@@ -1206,81 +1197,17 @@ suite('Command Handler', () => {
 
         test('check if executeServerAction is called second time with right params', async () => {
             const actionRequest: Protocol.ServerActionRequest = {
-                actionId: 'action',
+                actionId: 'id',
                 data: {},
                 requestId: 1,
                 serverId: 'id'
             };
-            sandbox.stub(handler, 'handleWorkflow' as any).onFirstCall().resolves(ProtocolStubs.infoStatus).onSecondCall().resolves(undefined);
-            await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
+            sandbox.stub(handler, 'handleWorkflow' as any).
+                    onFirstCall().resolves(ProtocolStubs.infoStatus).
+                    onSecondCall().resolves(ProtocolStubs.infoStatus).
+                    onThirdCall().resolves(undefined);
+            await executeServerAction(serverActionWorkflow, ProtocolStubs.unknownServerState, stubs.client);
             executeServerStub.secondCall.calledWith(actionRequest);
-        });
-
-    });
-
-    suite('getPropertiesFromAction', () => {
-        let getPropertiesFromAction;
-        const serverActionWorkflow: Protocol.ServerActionWorkflow = {
-            actionId: 'id',
-            actionLabel: 'label',
-            actionWorkflow: null
-        };
-        const workflowResponse: Protocol.WorkflowResponse = {
-            status: ProtocolStubs.okStatus,
-            requestId: 1,
-            jobId: '',
-            items: null
-        };
-        const workflowResponseItem: Protocol.WorkflowResponseItem = {
-            id: 'id',
-            itemType: 'type',
-            label: 'label',
-            content: '',
-            prompt: null,
-            properties: null
-        };
-
-        setup(() => {
-            getPropertiesFromAction = Reflect.get(handler, 'getPropertiesFromAction').bind(handler);
-        });
-
-        test('check if method returns nothing if no action is passed to method', async () => {
-            const result = await getPropertiesFromAction(undefined);
-            expect(result).equals(undefined);
-        });
-
-        test('check if method returns nothing if action doesnt contain any workflow', async () => {
-            const result = await getPropertiesFromAction(serverActionWorkflow);
-            expect(result).equals(undefined);
-        });
-
-        test('check if method returns nothing if action workflow item is null', async () => {
-            serverActionWorkflow.actionWorkflow = workflowResponse;
-            const result = await getPropertiesFromAction(serverActionWorkflow);
-            expect(result).equals(undefined);
-        });
-
-        test('check if method returns nothing if action doesnt contain any workflow item', async () => {
-            workflowResponse.items = [];
-            serverActionWorkflow.actionWorkflow = workflowResponse;
-            const result = await getPropertiesFromAction(serverActionWorkflow);
-            expect(result).equals(undefined);
-        });
-
-        test('check if method returns nothing if action workflow item doesnt have any properties', async () => {
-            workflowResponse.items = [workflowResponseItem];
-            serverActionWorkflow.actionWorkflow = workflowResponse;
-            const result = await getPropertiesFromAction(serverActionWorkflow);
-            expect(result).equals(undefined);
-        });
-
-        test('check if method returns correct properties if object contains correct attributes', async () => {
-            const props = {path: 'path'};
-            workflowResponseItem.properties = props;
-            workflowResponse.items = [workflowResponseItem];
-            serverActionWorkflow.actionWorkflow = workflowResponse;
-            const result = await getPropertiesFromAction(serverActionWorkflow);
-            expect(result).equals(props);
         });
 
     });

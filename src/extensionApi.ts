@@ -16,7 +16,7 @@ import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
 
-interface ServerActionItem {
+export interface ServerActionItem {
     label: string;
     id: string;
     actionWorkflow: Protocol.WorkflowResponse;
