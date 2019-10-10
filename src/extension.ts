@@ -69,6 +69,8 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to deploy and run application')),
         vscode.commands.registerCommand('server.application.debug',
             context => executeCommand(commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to deploy and debug application')),
+        vscode.commands.registerCommand('server.saveSelectedNode',
+            context => executeCommand(commandHandler.saveSelectedNode, commandHandler, context)),
         vscode.workspace.onDidSaveTextDocument(onDidSaveTextDocument),
         vscode.workspace.onDidCloseTextDocument(onDidCloseTextDocument)
     ];
