@@ -547,6 +547,10 @@ export class CommandHandler {
         }
     }
 
+    public async saveSelectedNode(server: ServerStateNode): Promise<void> {
+        this.explorer.serverSelected = server;
+    }
+
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
         const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).
                                 filter(predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED).
@@ -576,7 +580,10 @@ export class CommandHandler {
         if (!servers || servers.length < 1) {
             return Promise.reject('There are no servers to choose from.');
         }
-
+        if (servers.length > 1 && this.explorer.serverSelected && this.explorer.serverSelected.rsp === rspId) {
+            servers = servers.filter(node => node.server.id !== this.explorer.serverSelected.server.id);
+            servers.unshift(this.explorer.serverSelected);
+        }
         return vscode.window.showQuickPick(servers.map(server => server.server.id), { placeHolder: message });
     }
 

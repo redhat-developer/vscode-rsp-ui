@@ -17,7 +17,8 @@ import {
     TreeView,
     Uri,
     window,
-    workspace
+    workspace,
+    commands
 } from 'vscode';
 
 import {
@@ -29,6 +30,7 @@ import {
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType } from 'vscode-server-connector-api';
+import { executeCommand } from './extension';
 
 enum deploymentStatus {
     file = 'File',
@@ -77,6 +79,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         new Map<string, {required: Protocol.Attributes, optional: Protocol.Attributes}>();
     private readonly viewer: TreeView< RSPState | ServerStateNode | DeployableStateNode>;
     public RSPServersStatus: Map<string, RSPProperties> = new Map<string, RSPProperties>();
+    public serverSelected: ServerStateNode;
 
     private constructor() {
         this.viewer = window.createTreeView('servers', { treeDataProvider: this }) ;
@@ -569,7 +572,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             return { label: `${depStr}`,
                 iconPath: icon,
                 contextValue: serverState,
-                collapsibleState: TreeItemCollapsibleState.Expanded
+                collapsibleState: TreeItemCollapsibleState.Expanded,
+                command: {
+                    command: 'server.saveSelectedNode',
+                    title: '',
+                    tooltip: '',
+                    arguments: [ state ]
+                }
             };
         } else if (this.isDeployableElement(item)) {
             const state: DeployableStateNode = item as DeployableStateNode;
@@ -633,5 +642,4 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     private isDeployableElement(element: RSPState | ServerStateNode | DeployableStateNode): boolean {
         return (element as DeployableStateNode).reference !== undefined;
     }
-
 }
