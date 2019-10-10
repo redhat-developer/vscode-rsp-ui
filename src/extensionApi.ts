@@ -14,14 +14,12 @@ import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerSta
 import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
-import { WorkflowRequestFactory } from './workflow/request/workflowRequestFactory';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
 
 interface ServerActionItem {
     label: string;
     id: string;
-    itemType: string;
-    properties: { [index: string]: string };
+    actionWorkflow: Protocol.WorkflowResponse;
 }
 
 export class CommandHandler {
@@ -419,26 +417,21 @@ export class CommandHandler {
             return;
         }
 
-        if (!action.properties) {
-            return await this.executeServerAction(action.id, context, client);
-        } else {
-            return await this.handleActionProperties(action);
-        }
+        return await this.executeServerAction(action, context, client);
 
     }
 
     private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<ServerActionItem> {
-        const actionsList = await client.getOutgoingHandler().listServerActions(server)
-            .then((response: Protocol.ListServerActionResponse) => {
-                return response.workflows.map(action => {
-                    return {
-                        label: action.actionLabel,
-                        id: action.actionId,
-                        itemType: this.getItemTypeFromAction(action),
-                        properties: this.getPropertiesFromAction(action)
-                    };
-                });
-            });
+        const actionsList: ServerActionItem[] = await client.getOutgoingHandler().listServerActions(server)
+           .then((response: Protocol.ListServerActionResponse) => {
+               return response.workflows.map(action => {
+                   return {
+                       label: action.actionLabel,
+                       id: action.actionId,
+                       actionWorkflow: action.actionWorkflow
+                   };
+               });
+           });
 
         if (actionsList.length === 0) {
             vscode.window.showInformationMessage('there are no additional actions for this server');
@@ -454,11 +447,16 @@ export class CommandHandler {
         }
     }
 
-    private async executeServerAction(action: string, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
-        const actionRequest: Protocol.ServerActionRequest = await WorkflowRequestFactory.createWorkflowRequest(action, context);
-        if (!actionRequest) {
-            return;
-        }
+    private async executeServerAction(action: ServerActionItem, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
+        const workflowMap = {};
+        await this.handleWorkflow(action.actionWorkflow, workflowMap);
+
+        const actionRequest: Protocol.ServerActionRequest = {
+            actionId: action.id,
+            data: workflowMap,
+            requestId: null,
+            serverId: context.server.id
+        };
 
         let response: Protocol.WorkflowResponse = await client.getOutgoingHandler().executeServerAction(actionRequest);
         if (!response) {
@@ -477,24 +475,6 @@ export class CommandHandler {
             actionRequest.data = workflowMap;
             // Now we have a data map
             response = await client.getOutgoingHandler().executeServerAction(actionRequest);
-        }
-    }
-
-    private async handleActionProperties(action: ServerActionItem): Promise<Protocol.Status> {
-        const itemType: string = (action.itemType ? action.itemType : 'workflow.editor.open');
-        const item: Protocol.WorkflowResponseItem = {
-            id: action.id,
-            itemType: itemType,
-            label: action.label,
-            content: undefined,
-            prompt: undefined,
-            properties: action.properties
-        };
-
-        const strategy: WorkflowResponseStrategy = new WorkflowResponseStrategyManager().getStrategy(itemType);
-        const canceled: boolean = await strategy.handler(item);
-        if (canceled) {
-            return;
         }
     }
 
@@ -520,28 +500,6 @@ export class CommandHandler {
         }
 
         return Promise.resolve(response.status);
-    }
-
-    private getPropertiesFromAction(action: Protocol.ServerActionWorkflow): { [index: string]: string } {
-        if (!action ||
-            !action.actionWorkflow ||
-            !action.actionWorkflow.items ||
-            action.actionWorkflow.items.length === 0 ||
-            !action.actionWorkflow.items[0].properties) {
-            return;
-        }
-        return action.actionWorkflow.items[0].properties;
-    }
-
-    private getItemTypeFromAction(action: Protocol.ServerActionWorkflow): string {
-        if (!action ||
-            !action.actionWorkflow ||
-            !action.actionWorkflow.items ||
-            action.actionWorkflow.items.length === 0 ||
-            !action.actionWorkflow.items[0].itemType) {
-            return;
-        }
-        return action.actionWorkflow.items[0].itemType;
     }
 
     public async editServer(context?: ServerStateNode): Promise<void> {
