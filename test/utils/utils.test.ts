@@ -9,6 +9,7 @@ import * as sinonChai from 'sinon-chai';
 import { Utils } from '../../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController } from 'vscode-server-connector-api';
+import { Protocol } from 'rsp-client';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -114,6 +115,169 @@ suite('Utils', () => {
             await Utils.getIcon('fakeId', 'fakeType');
             expect(getImageStub).calledOnceWith('fakeType');
         });
+    });
+
+    suite('promptUser', () => {
+
+        const responseItem: Protocol.WorkflowResponseItem = {
+            content: 'text',
+            id: 'id',
+            itemType: 'type',
+            label: 'label',
+            prompt: null,
+            properties: null
+        };
+        let quickPickStub: sinon.SinonStub;
+
+        setup(() => {
+            quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
+        });
+
+        test('check if prompt placeholder contains the correct message when item passed has both label and content properties set', async () => {
+            const prompt = 'label\ntext';
+            await Utils.promptUser(responseItem, {});
+            expect(quickPickStub).calledOnceWith(['Continue...'], { placeHolder: prompt, ignoreFocusOut: true });
+        });
+
+        test('check if prompt placeholder contains correct message if item doesnt have content prop set', async () => {
+            const prompt = 'label';
+            const responseItemNoContent: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                content: ''
+            };
+            await Utils.promptUser(responseItemNoContent, {});
+            expect(quickPickStub).calledOnceWith(['Continue...'], { placeHolder: prompt, ignoreFocusOut: true });
+        });
+
+        test('check if value returned is true if no showQuickPick item is selected', async () => {
+            const result = await Utils.promptUser(responseItem, {});
+            expect(result).equals(true);
+        });
+
+        test('check if value returned is false if a showQuickPick item is selected', async () => {
+            quickPickStub.resolves('Continue...');
+            const result = await Utils.promptUser(responseItem, {});
+            expect(result).equals(false);
+        });
+
+        test('check if showQuickPick is called with correct params when responseType is boolean', async () => {
+            const prompt = 'label\ntext';
+            const responseItemBool: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'bool',
+                    validResponses: null
+                }
+            };
+            await Utils.promptUser(responseItemBool, {});
+
+            expect(quickPickStub).calledOnceWith(['Yes (True)', 'No (False)'], { placeHolder: prompt, ignoreFocusOut: true });
+        });
+
+        test('check if showQuickPick is called with correct params when responseType is neither bool nor none and there are validResponses', async () => {
+            const responseItemString: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'string',
+                    validResponses: ['text', 'text2']
+                }
+            };
+            await Utils.promptUser(responseItemString, {});
+
+            expect(quickPickStub).calledOnceWith(['text', 'text2'], { placeHolder: 'label', ignoreFocusOut: true });
+        });
+
+        test('check if showQuickPick is not called but the showInputox is called if responseItem is neither bool nor none and there are no validResponses', async () => {
+            const prompt = 'label\ntext';
+            const responseItemString: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'string',
+                    validResponses: null
+                }
+            };
+            const showInputStub = sandbox.stub(vscode.window, 'showInputBox').resolves('input');
+            await Utils.promptUser(responseItemString, {});
+
+            expect(quickPickStub).not.called;
+            expect(showInputStub).calledOnceWith({ prompt: prompt, ignoreFocusOut: true, password: false });
+        });
+
+        test('check if workflowMap is filled correctly if responseType is none or prompt is null', async () => {
+            const workflowMap = {};
+            quickPickStub.resolves('Continue...');
+            const result = await Utils.promptUser(responseItem, workflowMap);
+            expect(result).equals(false);
+            expect(workflowMap['id']).equals('Continue...');
+        });
+
+        test('check if workflowMap is filled correctly if responeType is bool', async () => {
+            const workflowMap = {};
+            const responseItemBool: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'bool',
+                    validResponses: null
+                }
+            };
+            quickPickStub.resolves('Yes (True)');
+            const result = await Utils.promptUser(responseItemBool, workflowMap);
+            expect(result).equals(false);
+            expect(workflowMap['id']).equals(true);
+        });
+
+        test('check if workflowMap is filled correctly if responeType is neither bool not none and validResponse field is filled', async () => {
+            const workflowMap = {};
+            const responseItemString: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'string',
+                    validResponses: ['text', 'text2']
+                }
+            };
+            quickPickStub.resolves('text2');
+            const result = await Utils.promptUser(responseItemString, workflowMap);
+            expect(result).equals(false);
+            expect(workflowMap['id']).equals('text2');
+        });
+
+        test('check if workflowMap is filled correctly if responeType is int', async () => {
+            const workflowMap = {};
+            const responseItemInt: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'int',
+                    validResponses: null
+                }
+            };
+            sandbox.stub(vscode.window, 'showInputBox').resolves(1);
+            const result = await Utils.promptUser(responseItemInt, workflowMap);
+            expect(result).equals(false);
+            expect(workflowMap['id']).equals(+1);
+        });
+
+        test('check if workflowMap is filled correctly if responeType is string but there are no validResponses', async () => {
+            const workflowMap = {};
+            const responseItemInt: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                prompt: {
+                    responseSecret: false,
+                    responseType: 'string',
+                    validResponses: null
+                }
+            };
+            sandbox.stub(vscode.window, 'showInputBox').resolves('text');
+            const result = await Utils.promptUser(responseItemInt, workflowMap);
+            expect(result).equals(false);
+            expect(workflowMap['id']).equals('text');
+        });
+
     });
 
 });
