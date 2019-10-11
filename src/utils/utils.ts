@@ -47,7 +47,7 @@ export class Utils {
             if (item.prompt.responseType === 'bool') {
                 const oneProp = await vscode.window.showQuickPick(['Yes (True)', 'No (False)'],
                     { placeHolder: prompt, ignoreFocusOut: true });
-                userInput = (oneProp === 'True');
+                userInput = (oneProp === 'Yes (True)');
             } else {
                 if (item.prompt.validResponses) {
                     userInput = await vscode.window.showQuickPick(item.prompt.validResponses,
