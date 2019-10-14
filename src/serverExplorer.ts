@@ -493,9 +493,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             this.serverAttributes.set(bean.serverAdapterTypeId, serverAttribute);
         }
         const attributes = {};
-        if (serverAttribute.optional
-              && serverAttribute.optional.attributes
-              && Object.keys(serverAttribute.optional.attributes).length > 0) {
+        if (serverAttribute.required
+            && serverAttribute.required.attributes
+            && Object.keys(serverAttribute.required.attributes).length > 0) {
             for (const key in serverAttribute.required.attributes) {
                 if (key !== 'server.home.dir' && key !== 'server.home.file') {
                     const attribute = serverAttribute.required.attributes[key];
@@ -504,6 +504,8 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                     if (value) {
                         attributes[key] = value;
                     }
+                } else {
+                    attributes[key] = bean.location;
                 }
             }
         }
@@ -528,6 +530,8 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                         if (val) {
                             attributes[key] = val;
                         }
+                    } else {
+                        attributes[key] = bean.location;
                     }
                 }
             }
