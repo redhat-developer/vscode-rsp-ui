@@ -5,10 +5,10 @@
 
 'use strict';
 import { CommandHandler } from './extensionApi';
-import { RSPClient, ServerState } from 'rsp-client';
+import { ServerState } from 'rsp-client';
 import { getAPI } from './api/implementation/rspProviderAPI';
 import { ServerEditorAdapter } from './serverEditorAdapter';
-import { ServerExplorer, ServerStateNode } from './serverExplorer';
+import { ServerExplorer } from './serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel } from 'vscode-server-connector-api';
 
@@ -88,6 +88,7 @@ export function deactivate() {
     }
 }
 
+/*
 function stopServer(client: RSPClient, val: ServerStateNode) {
     const oneStat: ServerStateNode = val;
     const stateNum = oneStat.state;
@@ -96,7 +97,8 @@ function stopServer(client: RSPClient, val: ServerStateNode) {
       && stateNum !== ServerState.STOPPING) {
         client.getOutgoingHandler().stopServerAsync({ id: oneStat.server.id, force: true });
     }
-}
+	}
+*/
 
 function onDidSaveTextDocument(doc: vscode.TextDocument) {
     ServerEditorAdapter.getInstance(serversExplorer).onDidSaveTextDocument(doc).catch(err => {
