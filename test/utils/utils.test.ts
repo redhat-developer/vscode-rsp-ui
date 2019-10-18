@@ -136,6 +136,54 @@ suite('Utils', () => {
             quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
         });
 
+        test('check if prompt value contains the correct message when item passed has both label and content properties set', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            const createPickStub = sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
+            await Utils.promptUser(responseItem, {});
+            expect(createPickStub).calledOnce;
+            expect(quickPickItem.value).equals('label\ntext');
+            expect(quickPickItem.items).deep.equals([{label: 'Continue...', alwaysShow: true, picked: true}]);
+        });
+
+        test('check if prompt placeholder contains correct message if item doesnt have content prop set', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            const createPickStub = sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
+            const responseItemNoContent: Protocol.WorkflowResponseItem = {
+                ...responseItem,
+                content: ''
+            };
+            await Utils.promptUser(responseItemNoContent, {});
+            expect(createPickStub).calledOnce;
+            expect(quickPickItem.value).equals('label');
+            expect(quickPickItem.items).deep.equals([{label: 'Continue...', alwaysShow: true, picked: true}]);
+        });
+
+        test('check if value returned is true if no showQuickPick item is selected', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
+            const result = await Utils.promptUser(responseItem, {});
+            expect(result).equals(true);
+        });
+
+        /*test('check if value returned is false if a showQuickPick item is selected', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.selectedItems = [{label: 'Continuee...', alwaysShow: true, picked: true}];
+            }, 50);
+            const result = await Utils.promptUser(responseItem, {});
+            expect(result).equals(false);
+        });*/
+
         test('check if showQuickPick is called with correct params when responseType is boolean', async () => {
             const prompt = 'label\ntext';
             const responseItemBool: Protocol.WorkflowResponseItem = {
