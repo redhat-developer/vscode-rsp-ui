@@ -33,7 +33,8 @@ suite('Utils', () => {
         extensionPath: undefined,
         id: 'fakeId',
         isActive: true,
-        packageJSON: undefined
+        packageJSON: undefined,
+        extensionKind: undefined
     };
 
     setup(() => {
@@ -70,7 +71,8 @@ suite('Utils', () => {
                 extensionPath: undefined,
                 id: 'fakeId',
                 isActive: true,
-                packageJSON: undefined
+                packageJSON: undefined,
+                extensionKind: undefined
             };
 
             sandbox.stub(vscode.extensions, 'getExtension').resolves(fakeExtension);
