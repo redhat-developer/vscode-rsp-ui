@@ -39,11 +39,6 @@ This extension supports a number of commands for interacting with supported serv
    * `Run on Server` - By selecting an application (e.g war file) directly from the explorer context view, the application will be deployed and the server started.
    * `Debug on Server` - By selecting an application (e.g war file) directly from the explorer context view, the application will be deployed and the server started in Debug mode.
 
-
-### Supported Servers
-   * This extension has no built-in support for any specific server type
-   * Support for individual server types is contributed by other extensions catering to their specific server type.
-
 ## Extension Settings
 
    This extension contributes the following settings:
@@ -53,46 +48,34 @@ This extension supports a number of commands for interacting with supported serv
    * `rsp-ui.enableStartServerOnActivation`: Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu
 
 ## Server Parameters
-
    To change Server Parameters, right-click on the server you want to edit and select `Edit Server`
-   
+
+### Global Server Parameters
+   These settings are valid for all servers
+
    * `"id"` - id server (read-only field, it cannot be changed)
    * `"args.override.boolean"` - allow to override program and vm arguments if set to true. The first time this flag is set to true and the server is started, two other parameters will be generated "vm.args.override.string" and "program.args.override.string". 
-   * `"vm.args.override.string"` - allow to override vm arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
-   * `"program.args.override.string"` - allow to override program arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
    * `"server.home.dir"` - the path where the server runtime is stored (read-only field, it cannot be changed)
    * `"deployables"` - the list of deployables. It contains all informations related to each deployable.
-   * `"jboss.server.host"` - allow to set the host you want the current Jboss/Wildfly instance to bind to (default localhost)
-   * `"jboss.server.port"` - allow to set the port you want the current Jboss/Wildfly instance to bind to (default 8080)
-   * `"wildfly.server.config.file"` - name of the configuration file to be used for the current Jboss/Wildfly instance. The file has to be stored in the same folder as the default standalone.xml file. (e.g "wildfly.server.config.file": "newconfigfile.xml")
    * `"server.autopublish.enabled"` - Enable the autopublisher
    * `"server.autopublish.inactivity.limit"` - Set the inactivity limit before the autopublisher runs
    * `"vm.install.path"` - A string representation pointing to a java home. If not set, java.home will be used instead
 
+### Provisional Global Server Parameters
+   These settings may eventually be supported by all servers, but these settings are Provisional and may be changed before becoming official API. 
+
+   * `"vm.args.override.string"` - allow to override vm arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
+   * `"program.args.override.string"` - allow to override program arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
+
+### Supported Servers
+   * This extension has no built-in support for any specific server type
+   * Support for individual server types is contributed by other extensions catering to their specific server type.
+
+
 ## Q&A
 ---
 
-### 1. How can i override Program and VM arguments?
-Due to some issues and requests we received from users we added an additional flag "args.override.boolean" to allow to override program and vm arguments. 
-
-When a user attempts to launch his server, we will first check the override boolean value to see if we are overriding. If the user is overriding (right-click your server -> Edit Server -> set "args.override.boolean": "true" ), we will generate the vm args and program args at that time and set them in the server object.
-
-At this point the user will be able to see two other properties in the server editor: "vm.args.override.string" and "program.args.override.string".
-
-Now, if the user wishes to change these flags, he can simply change the override.boolean value to true, and make whatever changes he requires to the program or vm arguments.      
-
-If "args.override.boolean" is set to false, the server will attempt to auto-generate the launch arguments as it normally does when launched.
-   
-### 2. Can I run my Wildfly Server on a different port than the default one?
-Yes. To run a Wildfly Server on a different port you first have to edit the port in the standalone.xml file. 
-
-The next step is to add the following setting through the Server Editor in VScode.
-
-Right-click your server -> Edit Server -> add "jboss.server.port": "8888". Change 8888 with the port you choose.
-
-Now if you start the server it should run on the specified port.
-
-### 3. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
+### 1. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
 Yes. This is the video you can watch to learn more about this extension https://www.youtube.com/watch?v=sP2Hlw-C_7I
 
    
@@ -103,7 +86,7 @@ This is an open source project open to anyone. This project welcomes contributio
 
 Download the most recent `adapters-<version>.vsix` file and install it by following the instructions [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix). 
 
-Stable releases are archived under http://download.jboss.org/jbosstools/adapters/snapshots/vscode-middleware-tools
+Stable releases are archived under http://download.jboss.org/jbosstools/adapters/snapshots/vscode-middleware-tools/rsp-ui/
 
 ## Community, discussion, contribution, and support
 
