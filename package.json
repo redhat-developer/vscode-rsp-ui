@@ -360,6 +360,7 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.7.1",
     "@types/sinon": "^5.0.2",
+    "@types/vscode": "^1.29.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.3.0",
@@ -374,7 +375,7 @@
     "tslint": "^5.16.0",
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.4.5",
-    "vscode": "^1.1.33"
+    "vscode-test": "^1.2.0"
   },
   "dependencies": {
     "path": "0.12.7",
