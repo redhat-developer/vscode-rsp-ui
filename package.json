@@ -340,6 +340,11 @@
               }
             }
           },
+          "rsp-ui.enableAsyncPublish": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable async publishing."
+          },
           "description": "Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu"
         }
       }
@@ -379,7 +384,7 @@
   },
   "dependencies": {
     "path": "0.12.7",
-    "rsp-client": "^0.21.0",
+    "rsp-client": "^0.22.0",
     "tmp": "^0.1.0",
     "vscode-server-connector-api": "0.1.5"
   }

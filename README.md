@@ -46,6 +46,7 @@ This extension supports a number of commands for interacting with supported serv
    * `vscodeAdapters.showChannelOnServerOutput`: enable/disable the server output channel logs
    * `java.home`: Specifies the path to a JDK (version 8 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.\nOn Windows, backslashes must be escaped, i.e.\n\"java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"
    * `rsp-ui.enableStartServerOnActivation`: Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu
+   * `rsp-ui.enableAsyncPublish`: enable/disable async publishing
 
 ## Server Parameters
    To change Server Parameters, right-click on the server you want to edit and select `Edit Server`
