@@ -321,8 +321,8 @@ export class CommandHandler {
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
-
-        return this.explorer.publish(context.rsp, context.server, publishType);
+        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>(`enableAsyncPublish`);
+        return this.explorer.publish(context.rsp, context.server, publishType, isAsync);
     }
 
     public async createServer(context?: RSPState): Promise<Protocol.Status> {
@@ -529,7 +529,8 @@ export class CommandHandler {
         const context = this.explorer.getServerStateById(rsp.id, serverId);
 
         await this.explorer.addDeployment([uri], context);
-        await this.explorer.publish(rsp.id, context.server, ServerState.PUBLISH_FULL);
+        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>(`enableAsyncPublish`);
+        await this.explorer.publish(rsp.id, context.server, ServerState.PUBLISH_FULL, isAsync);
         if (context.state === ServerState.STOPPED ||
             context.state === ServerState.UNKNOWN) {
             if (mode === ServerState.RUN_MODE_RUN) {

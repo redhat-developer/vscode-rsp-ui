@@ -311,13 +311,18 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         return status;
     }
 
-    public async publish(rspId: string, server: Protocol.ServerHandle, type: number): Promise<Protocol.Status> {
+    public async publish(rspId: string, server: Protocol.ServerHandle, type: number, isAsync: boolean): Promise<Protocol.Status> {
         const client: RSPClient = this.getClientByRSP(rspId);
         if (!client) {
             return Promise.reject('Unable to contact the RSP server.');
         }
         const req: Protocol.PublishServerRequest = { server: server, kind : type};
-        const status = await client.getOutgoingHandler().publish(req);
+        let status: Protocol.Status;
+        if (isAsync) {
+            status = await client.getOutgoingHandler().publishAsync(req);
+        } else {
+            status = await client.getOutgoingHandler().publish(req);
+        }
         if (!StatusSeverity.isOk(status)) {
             return Promise.reject(status.message);
         }
