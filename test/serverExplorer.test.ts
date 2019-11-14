@@ -333,6 +333,57 @@ suite('Server explorer', () => {
         });
     });
 
+    suite('publish', () => {
+        const serverHandle: Protocol.ServerHandle = {
+            id: 'fakeid',
+            type: ProtocolStubs.serverType
+        };
+        test('return error if there is no rsp client', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(null);
+            try {
+                await serverExplorer.publish('id', serverHandle, ServerState.PUBLISH_FULL, false);
+                expect.fail();
+            } catch (ex) {
+                expect(ex).equals('Unable to contact the RSP server.');
+            }
+        });
+
+        test('check async publish is called if isAsync param is true', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            const asyncPublishStub = stubs.outgoing.publishAsync.resolves(ProtocolStubs.okStatus);
+            const publishStub = stubs.outgoing.publish.resolves(ProtocolStubs.okStatus);
+            await serverExplorer.publish('id', serverHandle, ServerState.PUBLISH_FULL, true);
+            expect(asyncPublishStub).calledOnceWith({server: serverHandle, kind: ServerState.PUBLISH_FULL});
+            expect(publishStub).not.called;
+        });
+
+        test('check sync publish is called if isAsync param is false', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            const asyncPublishStub = stubs.outgoing.publishAsync.resolves(ProtocolStubs.okStatus);
+            const publishStub = stubs.outgoing.publish.resolves(ProtocolStubs.okStatus);
+            await serverExplorer.publish('id', serverHandle, ServerState.PUBLISH_FULL, false);
+            expect(publishStub).calledOnceWith({server: serverHandle, kind: ServerState.PUBLISH_FULL});
+            expect(asyncPublishStub).not.called;
+        });
+
+        test('promise rejected with status message if its status is not OK', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            stubs.outgoing.publish.resolves(ProtocolStubs.errorStatus);
+            try {
+                await serverExplorer.publish('id', serverHandle, ServerState.PUBLISH_FULL, false);
+            } catch (ex) {
+                expect(ex).equals('Critical Error');
+            }
+        });
+
+        test('return status if its status is OK', async () => {
+            sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
+            stubs.outgoing.publish.resolves(ProtocolStubs.okStatus);
+            const res = await serverExplorer.publish('id', serverHandle, ServerState.PUBLISH_FULL, false);
+            expect(res).equals(ProtocolStubs.okStatus);
+        });
+    });
+
     suite('addLocation', () => {
         let findServerStub: sinon.SinonStub;
         let showOpenDialogStub: sinon.SinonStub;
@@ -837,5 +888,5 @@ suite('Server explorer', () => {
             serverExplorer.updateRSPServer('id', 0);
             expect(refreshStub).calledOnce;
         });
-    })
+    });
 });
