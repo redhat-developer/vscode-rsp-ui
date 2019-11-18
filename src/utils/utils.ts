@@ -42,8 +42,9 @@ export class Utils {
         let userInput: any = null;
         if (item.prompt == null || item.prompt.responseType === 'none') {
             userInput = await new Promise<string | undefined>((resolve, reject) => {
+                const msg = prompt.replace(/(\r\n|\n|\r)/gm, '');
                 const quickPick = vscode.window.createQuickPick();
-                quickPick.value = prompt;
+                quickPick.value = msg;
                 quickPick.ignoreFocusOut = true;
                 quickPick.items = [{label: 'Continue...', alwaysShow: true, picked: true}];
 
@@ -53,7 +54,7 @@ export class Utils {
                 });
 
                 quickPick.onDidChangeValue(value => {
-                    quickPick.value = prompt;
+                    quickPick.value = msg;
                     vscode.window.showInformationMessage('Select Continue... to go to the next step');
                 });
 
