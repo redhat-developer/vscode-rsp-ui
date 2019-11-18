@@ -129,38 +129,60 @@ suite('Utils', () => {
             prompt: null,
             properties: null
         };
+
         let quickPickStub: sinon.SinonStub;
 
         setup(() => {
             quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
         });
 
-        test('check if prompt placeholder contains the correct message when item passed has both label and content properties set', async () => {
-            const prompt = 'label\ntext';
+        test('check if prompt value contains the correct message when item passed has both label and content properties set', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            const createPickStub = sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
             await Utils.promptUser(responseItem, {});
-            expect(quickPickStub).calledOnceWith(['Continue...'], { placeHolder: prompt, ignoreFocusOut: true });
+            expect(createPickStub).calledOnce;
+            expect(quickPickItem.value).equals('labeltext');
+            expect(quickPickItem.items).deep.equals([{label: 'Continue...', alwaysShow: true, picked: true}]);
         });
 
         test('check if prompt placeholder contains correct message if item doesnt have content prop set', async () => {
-            const prompt = 'label';
+            const quickPickItem = vscode.window.createQuickPick();
+            const createPickStub = sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
             const responseItemNoContent: Protocol.WorkflowResponseItem = {
                 ...responseItem,
                 content: ''
             };
             await Utils.promptUser(responseItemNoContent, {});
-            expect(quickPickStub).calledOnceWith(['Continue...'], { placeHolder: prompt, ignoreFocusOut: true });
+            expect(createPickStub).calledOnce;
+            expect(quickPickItem.value).equals('label');
+            expect(quickPickItem.items).deep.equals([{label: 'Continue...', alwaysShow: true, picked: true}]);
         });
 
         test('check if value returned is true if no showQuickPick item is selected', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.hide();
+            }, 20);
             const result = await Utils.promptUser(responseItem, {});
             expect(result).equals(true);
         });
 
-        test('check if value returned is false if a showQuickPick item is selected', async () => {
-            quickPickStub.resolves('Continue...');
+        /*test('check if value returned is false if a showQuickPick item is selected', async () => {
+            const quickPickItem = vscode.window.createQuickPick();
+            sandbox.stub(vscode.window, 'createQuickPick').returns(quickPickItem);
+            setInterval(() => {
+                quickPickItem.selectedItems = [{label: 'Continuee...', alwaysShow: true, picked: true}];
+            }, 50);
             const result = await Utils.promptUser(responseItem, {});
             expect(result).equals(false);
-        });
+        });*/
 
         test('check if showQuickPick is called with correct params when responseType is boolean', async () => {
             const prompt = 'label\ntext';
@@ -206,14 +228,6 @@ suite('Utils', () => {
 
             expect(quickPickStub).not.called;
             expect(showInputStub).calledOnceWith({ prompt: prompt, ignoreFocusOut: true, password: false });
-        });
-
-        test('check if workflowMap is filled correctly if responseType is none or prompt is null', async () => {
-            const workflowMap = {};
-            quickPickStub.resolves('Continue...');
-            const result = await Utils.promptUser(responseItem, workflowMap);
-            expect(result).equals(false);
-            expect(workflowMap['id']).equals('Continue...');
         });
 
         test('check if workflowMap is filled correctly if responeType is bool', async () => {
