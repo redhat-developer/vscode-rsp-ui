@@ -144,7 +144,7 @@ suite('Utils', () => {
             }, 20);
             await Utils.promptUser(responseItem, {});
             expect(createPickStub).calledOnce;
-            expect(quickPickItem.value).equals('label\ntext');
+            expect(quickPickItem.value).equals('labeltext');
             expect(quickPickItem.items).deep.equals([{label: 'Continue...', alwaysShow: true, picked: true}]);
         });
 
