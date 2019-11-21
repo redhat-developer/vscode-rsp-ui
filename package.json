@@ -13,7 +13,7 @@
   },
   "bugs": "https://github.com/redhat-developer/vscode-rsp-ui/issues/",
   "engines": {
-    "vscode": "^1.29.0"
+    "vscode": "^1.30.0"
   },
   "categories": [
     "Other"
