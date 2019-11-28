@@ -76,11 +76,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     private serverAttributes: Map<string, {required: Protocol.Attributes, optional: Protocol.Attributes}> =
         new Map<string, {required: Protocol.Attributes, optional: Protocol.Attributes}>();
     private readonly viewer: TreeView< RSPState | ServerStateNode | DeployableStateNode>;
+    private readonly viewerAB: TreeView< RSPState | ServerStateNode | DeployableStateNode>;
     public RSPServersStatus: Map<string, RSPProperties> = new Map<string, RSPProperties>();
     public serverSelected: ServerStateNode;
 
     private constructor() {
         this.viewer = window.createTreeView('servers', { treeDataProvider: this }) ;
+        this.viewerAB = window.createTreeView('serversAB', { treeDataProvider: this }) ;
 
         this.runStateEnum
             .set(0, 'Unknown')
@@ -214,6 +216,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
     public selectNode(data: RSPState | ServerStateNode): void {
         this.viewer.reveal(data, { focus: true, select: true });
+        this.viewerAB.reveal(data, { focus: true, select: true });
     }
 
     public async selectAndAddDeployment(state: ServerStateNode): Promise<Protocol.Status> {

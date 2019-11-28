@@ -45,6 +45,7 @@
     "onCommand:server.publishIncremental",
     "onCommand:server.actions",
     "onView:servers",
+    "onView:serversAB",
     "onLanguage:plaintext"
   ],
   "main": "./out/src/extension",
@@ -166,9 +167,10 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "serverView",
+          "id": "serverViewActivitybar",
           "title": "Server Connector",
-          "icon": "images/server-light.png"
+          "icon": "images/server-light.png",
+          "when": "false"
         }
       ]
     },
@@ -178,13 +180,19 @@
           "id": "servers",
           "name": "Servers"
         }
+      ],
+      "serverViewActivitybar": [
+        {
+          "id": "serversAB",
+          "name": "Servers"
+        }
       ]
     },
     "menus": {
       "view/title": [
         {
           "command": "server.createServer",
-          "when": "view == servers",
+          "when": "view == servers || view == serversAB",
           "group": "navigation"
         }
       ],
@@ -201,102 +209,102 @@
       "view/item/context": [
         {
           "command": "server.startRSP",
-          "when": "view == servers && viewItem =~ '/^(RSPUnknown|RSPStopped)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(RSPUnknown|RSPStopped)/'",
           "group": "0_server-rspstartstop@1"
         },
         {
           "command": "server.stopRSP",
-          "when": "view == servers && viewItem =~ '/^(RSPStarted)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(RSPStarted)/'",
           "group": "0_server-rspstartstop@2"
         },
         {
           "command": "server.terminateRSP",
-          "when": "view == servers && viewItem =~ '/^(RSPStarted|RSPStarting|RSPStopping)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(RSPStarted|RSPStarting|RSPStopping)/'",
           "group": "0_server-rspstartstop@2"
         },
         {
           "command": "server.createServer",
-          "when": "view == servers && viewItem =~ '/^(RSPStarted)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(RSPStarted)/'",
           "group": "0_server-rspstartstop@3"
         },
         {
           "command": "server.start",
-          "when": "view == servers && viewItem =~ '/^Stopped/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^Stopped/'",
           "group": "1_server-startstop@1"
         },
         {
           "command": "server.debug",
-          "when": "view == servers && viewItem =~ '/^Stopped/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^Stopped/'",
           "group": "1_server-startstop@2"
         },
         {
           "command": "server.stop",
-          "when": "view == servers && viewItem =~ '/^(Started|Debugging)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(Started|Debugging)/'",
           "group": "1_server-startstop@3"
         },
         {
           "command": "server.restart",
-          "when": "view == servers && viewItem =~ '/^(Started|Debugging)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(Started|Debugging)/'",
           "group": "1_server-startstop@4"
         },
         {
           "command": "server.restartDebug",
-          "when": "view == servers && viewItem =~ '/^(Started|Debugging)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(Started|Debugging)/'",
           "group": "1_server-startstop@5"
         },
         {
           "command": "server.terminate",
-          "when": "view == servers && viewItem =~ /^(Starting|Stopping)/",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Stopping)/",
           "group": "1_server-startstop@6"
         },
         {
           "command": "server.remove",
-          "when": "view == servers && viewItem =~ '/^Stopped/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^Stopped/'",
           "group": "2_server-remove@1"
         },
         {
           "command": "server.publishIncremental",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
           "group": "3_server-deployments@6"
         },
         {
           "command": "server.publishFull",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
           "group": "3_server-deployments@7"
         },
         {
           "command": "server.addDeployment",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|^Unknown)/",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|^Unknown)/",
           "group": "3_server-deployments@1"
         },
         {
           "command": "server.removeDeployment",
-          "when": "view == servers && viewItem =~ /^(Synchronized|[+|-|Full]* Publish|Unknown)/",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Synchronized|[+|-|Full]* Publish|Unknown)/",
           "group": "3_server-deployments@2"
         },
         {
           "command": "server.output",
-          "when": "view == servers && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ '/^(Starting|Started|Debugging|Stopping|Stopped)/'",
           "group": "4_server-status@1"
         },
         {
           "command": "server.downloadRuntime",
-          "when": "view == servers && !viewItem",
+          "when": "view == servers || view == serversAB && !viewItem",
           "group": "5_rsp@1"
         },
         {
           "command": "server.addLocation",
-          "when": "view == servers && !viewItem",
+          "when": "view == servers || view == serversAB && !viewItem",
           "group": "5_rsp@2"
         },
         {
           "command": "server.actions",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@1"
         },
         {
           "command": "server.editServer",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+          "when": "view == servers || view == serversAB && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
           "group": "6_server-info@2"
         }
       ],
