@@ -219,7 +219,7 @@
         },
         {
           "command": "server.terminateRSP",
-          "when": "view =~ (servers|serversAB) && viewItem =~ '/^(RSPStarted|RSPStarting|RSPStopping)/'",
+          "when": "view =~ '/(servers|serversAB)'/ && viewItem =~ '/^(RSPStarted|RSPStarting|RSPStopping)/'",
           "group": "0_server-rspstartstop@2"
         },
         {
