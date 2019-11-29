@@ -262,8 +262,17 @@ export class CommandHandler {
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
-        return this.stopServer(false, context)
-            .then(() => {
+        const client: RSPClient = this.explorer.getClientByRSP(context.rsp);
+        if (!client) {
+            return Promise.reject('Failed to contact the RSP server.');
+        }
+
+        const listener = (state: Protocol.ServerState) => {
+            if (state
+                && state.server
+                && state.server.id === context.server.id
+                && state.state === ServerState.STOPPED) {
+                client.getIncomingHandler().removeOnServerStateChanged(listener);
                 if (mode === 'debug') {
                     return this.debugServer(context);
                 } else if (mode === 'run') {
@@ -271,7 +280,10 @@ export class CommandHandler {
                 } else {
                     return Promise.reject(`Could not restart server: unknown mode ${mode}`);
                 }
-            });
+            }
+        };
+        client.getIncomingHandler().onServerStateChanged(listener);
+        this.stopServer(false, context);
     }
 
     public async addDeployment(context?: ServerStateNode): Promise<Protocol.Status> {
