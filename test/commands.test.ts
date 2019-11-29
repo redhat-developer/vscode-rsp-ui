@@ -712,14 +712,13 @@ suite('Command Handler', () => {
     });
 
     suite('restartServer', () => {
-        let startStub: sinon.SinonStub;
         let stopStub: sinon.SinonStub;
 
         setup(() => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
-            startStub = sandbox.stub(handler, 'startServer').resolves(ProtocolStubs.okStatus);
             sandbox.stub(vscode.window, 'showQuickPick').resolves(ProtocolStubs.serverHandle.id);
+            stubs.incoming.onServerStateChanged = sandbox.stub().resolves(ProtocolStubs.stoppedServerState);
         });
 
         test('should restart with given server', async () => {
@@ -728,9 +727,8 @@ suite('Command Handler', () => {
             await handler.restartServer('run', ProtocolStubs.startedServerState);
 
             // then
+            expect(stubs.incoming.onServerStateChanged).calledBefore(stopStub);
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
-            expect(startStub).calledAfter(stopStub);
-            expect(startStub).calledOnceWith('run', ProtocolStubs.startedServerState);
         });
 
         test('should restart without given but prompted server', async () => {
@@ -742,31 +740,29 @@ suite('Command Handler', () => {
             await handler.restartServer('run');
 
             // then
+            expect(stubs.incoming.onServerStateChanged).calledBefore(stopStub);
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
-            expect(startStub).calledAfter(stopStub);
-            expect(startStub).calledOnceWith('run', ProtocolStubs.startedServerState);
         });
 
-        test('error if mode doesn\'t contains a valid value', async () => {
-            try {
-                await handler.restartServer('fakeMode', ProtocolStubs.startedServerState);
-                expect.fail();
-            } catch (err) {
-                expect(err).equals('Could not restart server: unknown mode fakeMode');
-            }
-        });
+        // test('error if mode doesn\'t contains a valid value', async () => {
+        //     try {
+        //         await handler.restartServer('fakeMode', ProtocolStubs.startedServerState);
+        //         expect.fail();
+        //     } catch (err) {
+        //         expect(err).equals('Could not restart server: unknown mode fakeMode');
+        //     }
+        // });
     });
 
     suite('restartServerInDebug', () => {
         let stopStub: sinon.SinonStub;
-        let debugStub: sinon.SinonStub;
 
         setup(() => {
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
-            debugStub = sandbox.stub(handler, 'debugServer').resolves(ProtocolStubs.okStatus);
             stubs.outgoing.getLaunchCommand = sandbox.stub().resolves(ProtocolStubs.javaCommandLine);
             sandbox.stub(vscode.window, 'showQuickPick').resolves(ProtocolStubs.serverHandle.id);
             sandbox.stub(handler, 'checkExtension' as any).resolves(undefined);
+            stubs.incoming.onServerStateChanged = sandbox.stub().resolves(ProtocolStubs.stoppedServerState);
         });
 
         test('should restart with given server', async () => {
@@ -774,9 +770,8 @@ suite('Command Handler', () => {
             await handler.restartServer('debug', ProtocolStubs.startedServerState);
 
             // then
+            expect(stubs.incoming.onServerStateChanged).calledBefore(stopStub);
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
-            expect(debugStub).calledAfter(stopStub);
-            expect(debugStub).calledOnceWith(ProtocolStubs.startedServerState);
         });
 
         test('should restart without given but prompted server', async () => {
@@ -788,9 +783,8 @@ suite('Command Handler', () => {
             await handler.restartServer('debug');
 
             // then
+            expect(stubs.incoming.onServerStateChanged).calledBefore(stopStub);
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
-            expect(debugStub).calledAfter(stopStub);
-            expect(debugStub).calledOnceWith(ProtocolStubs.startedServerState);
         });
     });
 
