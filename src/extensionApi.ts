@@ -267,23 +267,36 @@ export class CommandHandler {
             return Promise.reject('Failed to contact the RSP server.');
         }
 
-        const listener = (state: Protocol.ServerState) => {
-            if (state
-                && state.server
-                && state.server.id === context.server.id
-                && state.state === ServerState.STOPPED) {
-                client.getIncomingHandler().removeOnServerStateChanged(listener);
-                if (mode === 'debug') {
-                    return this.debugServer(context);
-                } else if (mode === 'run') {
-                    return this.startServer('run', context);
-                } else {
-                    return Promise.reject(`Could not restart server: unknown mode ${mode}`);
-                }
-            }
-        };
+        const listener = this.getRestartListener(mode, context, client);
         client.getIncomingHandler().onServerStateChanged(listener);
         this.stopServer(false, context);
+    }
+
+    public getRestartListener(mode: string, context: ServerStateNode, client: RSPClient) {
+        const listener = async (state: Protocol.ServerState) => {
+            try {
+                if (state
+                    && state.server
+                    && state.server.id === context.server.id
+                    && state.state === ServerState.STOPPED) {
+                    client.getIncomingHandler().removeOnServerStateChanged(listener);
+                    switch (mode) {
+                        case ServerState.RUN_MODE_DEBUG: {
+                            return await this.debugServer(context);
+                        }
+                        case ServerState.RUN_MODE_RUN: {
+                            return await this.startServer(ServerState.RUN_MODE_RUN, context);
+                        }
+                        default: {
+                            return Promise.reject(`Could not restart server: unknown mode ${mode}`);
+                        }
+                    }
+                }
+            } catch (err) {
+                vscode.window.showErrorMessage(`Failed to restart server. Error- ${err.toLowerCase()}`);
+            }
+        };
+        return listener;
     }
 
     public async addDeployment(context?: ServerStateNode): Promise<Protocol.Status> {
