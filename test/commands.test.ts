@@ -20,6 +20,7 @@ import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategyManager } from '../src/workflow/response/workflowResponseStrategyManager';
+import { EventEmitter } from 'events';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -744,14 +745,46 @@ suite('Command Handler', () => {
             expect(stopStub).calledOnceWith(false, ProtocolStubs.startedServerState);
         });
 
-        // test('error if mode doesn\'t contains a valid value', async () => {
-        //     try {
-        //         await handler.restartServer('fakeMode', ProtocolStubs.startedServerState);
-        //         expect.fail();
-        //     } catch (err) {
-        //         expect(err).equals('Could not restart server: unknown mode fakeMode');
-        //     }
-        // });
+        test('call startServer method if restart in run_mode', async () => {
+            const startServerStub = sandbox.stub(handler, 'startServer');
+            const emitter = new EventEmitter();
+            const serverStateStopped = {
+                ...ProtocolStubs.serverState,
+                state: ServerState.STOPPED
+            };
+            const listener = handler.getRestartListener(ServerState.RUN_MODE_RUN, ProtocolStubs.startedServerState, stubs.client);
+            emitter.addListener('listener', listener);
+            emitter.emit('listener', serverStateStopped);
+            expect(startServerStub).calledOnce;
+        });
+
+        test('call debugServer method if restart in debug_mode', async () => {
+            const debugServerStub = sandbox.stub(handler, 'debugServer');
+            const emitter = new EventEmitter();
+            const serverStateStopped = {
+                ...ProtocolStubs.serverState,
+                state: ServerState.STOPPED
+            };
+            const listener = handler.getRestartListener(ServerState.RUN_MODE_DEBUG, ProtocolStubs.startedServerState, stubs.client);
+            emitter.addListener('listener', listener);
+            emitter.emit('listener', serverStateStopped);
+            expect(debugServerStub).calledOnce;
+        });
+
+        test('error if mode doesn\'t contains a valid value', async () => {
+            try {
+                const emitter = new EventEmitter();
+                const serverStateStopped = {
+                    ...ProtocolStubs.serverState,
+                    state: ServerState.STOPPED
+                };
+                const listener = handler.getRestartListener('fakeMode', ProtocolStubs.startedServerState, stubs.client);
+                emitter.addListener('listener', listener);
+                emitter.emit('listener', serverStateStopped);
+            } catch (err) {
+                expect(err).equals('Could not restart server: unknown mode fakeMode');
+            }
+        });
     });
 
     suite('restartServerInDebug', () => {
