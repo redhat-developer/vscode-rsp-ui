@@ -288,7 +288,7 @@ export class CommandHandler {
                             return await this.startServer(ServerState.RUN_MODE_RUN, context);
                         }
                         default: {
-                            return Promise.reject(`Could not restart server: unknown mode ${mode}`);
+                            vscode.window.showErrorMessage(`Could not restart server: unknown mode ${mode}`);
                         }
                     }
                 }
