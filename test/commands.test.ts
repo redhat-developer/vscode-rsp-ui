@@ -772,18 +772,16 @@ suite('Command Handler', () => {
         });
 
         test('error if mode doesn\'t contains a valid value', async () => {
-            try {
-                const emitter = new EventEmitter();
-                const serverStateStopped = {
-                    ...ProtocolStubs.serverState,
-                    state: ServerState.STOPPED
-                };
-                const listener = handler.getRestartListener('fakeMode', ProtocolStubs.startedServerState, stubs.client);
-                emitter.addListener('listener', listener);
-                emitter.emit('listener', serverStateStopped);
-            } catch (err) {
-                expect(err).equals('Could not restart server: unknown mode fakeMode');
-            }
+            const showErrorStub = sandbox.stub(vscode.window, 'showErrorMessage');
+            const emitter = new EventEmitter();
+            const serverStateStopped = {
+                ...ProtocolStubs.serverState,
+                state: ServerState.STOPPED
+            };
+            const listener = handler.getRestartListener('fakeMode', ProtocolStubs.startedServerState, stubs.client);
+            emitter.addListener('listener', listener);
+            emitter.emit('listener', serverStateStopped);
+            expect(showErrorStub).calledOnceWith('Could not restart server: unknown mode fakeMode');
         });
     });
 
