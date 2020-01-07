@@ -282,9 +282,11 @@ export class CommandHandler {
                 if (state
                     && state.server
                     && state.server.id === context.server.id
-                    && state.state === ServerState.STOPPED) {
+                    && (state.state === ServerState.STOPPED ||
+                    state.state === ServerState.STARTED)) {
                     client.getIncomingHandler().removeOnServerStateChanged(listener);
-                    switch (mode) {
+                    if (state.state === ServerState.STOPPED) {
+                        switch (mode) {
                         case ServerState.RUN_MODE_DEBUG: {
                             return await this.debugServer(context);
                         }
@@ -293,6 +295,7 @@ export class CommandHandler {
                         }
                         default: {
                             vscode.window.showErrorMessage(`Could not restart server: unknown mode ${mode}`);
+                        }
                         }
                     }
                 }
