@@ -297,6 +297,8 @@ export class CommandHandler {
                             vscode.window.showErrorMessage(`Could not restart server: unknown mode ${mode}`);
                         }
                         }
+                    } else {
+                        vscode.window.showErrorMessage('Could not restart server. Server shutdown failed. Server still started');
                     }
                 }
             } catch (err) {
