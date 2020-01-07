@@ -252,7 +252,7 @@ export class CommandHandler {
         this.explorer.showOutput(context);
     }
 
-    public async restartServer(mode: string, context?: ServerStateNode): Promise<Protocol.StartServerResponse> {
+    public async restartServer(mode: string, context?: ServerStateNode): Promise<Protocol.Status> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
             if (!rsp || !rsp.id) return null;
@@ -269,7 +269,11 @@ export class CommandHandler {
 
         const listener = this.getRestartListener(mode, context, client);
         client.getIncomingHandler().onServerStateChanged(listener);
-        this.stopServer(false, context);
+        return this.stopServer(false, context).catch(err => {
+            // if server fails to stop, remove listener and make error be handled by main catch
+            client.getIncomingHandler().removeOnServerStateChanged(listener);
+            return Promise.reject(err);
+        });
     }
 
     public getRestartListener(mode: string, context: ServerStateNode, client: RSPClient) {
