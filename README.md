@@ -1,4 +1,4 @@
-# Server Connector
+# Remote Server Protocol UI
 
 [![Build Status](https://travis-ci.org/redhat-developer/vscode-rsp-ui.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-rsp-ui)
 [![License](https://img.shields.io/badge/license-EPLv2.0-brightgreen.svg)](https://github.com/redhat-developer/vscode-rsp-ui/blob/master/README.md)
