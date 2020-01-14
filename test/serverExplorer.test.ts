@@ -603,15 +603,12 @@ suite('Server explorer', () => {
             expect(JSON.stringify(pickerResult)).equals(JSON.stringify(pickerResponseDialog));
         });
 
-        test('check promise get rejected if os picker is closed without choosing', async () => {
+        test('check nothing is made if os picker is closed without choosing', async () => {
             sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(undefined);
+            const openDialogStub = sandbox.stub(window, 'showOpenDialog');
 
-            try {
-                await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
-                expect.fail();
-            } catch (err) {
-                expect(err).equals(undefined);
-            }
+            await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
+            expect(openDialogStub).not.called;
         });
 
         test('check if user doesn\'t choose any file from dialog', async () => {
