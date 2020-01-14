@@ -221,7 +221,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
     public async selectAndAddDeployment(state: ServerStateNode): Promise<Protocol.Status> {
         return this.createOpenDialogOptions()
-            .then(options => window.showOpenDialog(options))
+            .then(options => options && window.showOpenDialog(options))
             .then(async file => this.addDeployment(file, state));
     }
 
@@ -258,7 +258,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                                        process.platform === 'linux';
         const filePickerType = await this.quickPickDeploymentType(showQuickPick);
         if (!filePickerType) {
-            return Promise.reject();
+            return;
         }
         // dialog behavior on different OS
         // Windows -> if both options (canSelectFiles and canSelectFolders) are true, fs only shows folders
