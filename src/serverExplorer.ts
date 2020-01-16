@@ -15,6 +15,7 @@ import {
     TreeItem,
     TreeItemCollapsibleState,
     TreeView,
+    TreeViewVisibilityChangeEvent,
     Uri,
     window,
     workspace
@@ -78,11 +79,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     private readonly viewer: TreeView< RSPState | ServerStateNode | DeployableStateNode>;
     private readonly viewerAB: TreeView< RSPState | ServerStateNode | DeployableStateNode>;
     public RSPServersStatus: Map<string, RSPProperties> = new Map<string, RSPProperties>();
-    public serverSelected: ServerStateNode;
+    public nodeSelected: RSPState | ServerStateNode;
 
     private constructor() {
-        this.viewer = window.createTreeView('servers', { treeDataProvider: this }) ;
-        this.viewerAB = window.createTreeView('serversAB', { treeDataProvider: this }) ;
+        this.viewer = window.createTreeView('servers', { treeDataProvider: this });
+        this.viewerAB = window.createTreeView('serversAB', { treeDataProvider: this });
+        this.viewer.onDidChangeVisibility(this.changeViewer, this);
+        this.viewerAB.onDidChangeVisibility(this.changeViewer, this);
 
         this.runStateEnum
             .set(0, 'Unknown')
@@ -112,7 +115,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         const client: RSPClient = this.getClientByRSP(rspId);
         if (client) {
             const servers: Protocol.ServerHandle[] = await client.getOutgoingHandler().getServerHandles();
-            await servers.forEach(async serverHandle => {
+            servers.forEach(async serverHandle => {
                 const state = await client.getOutgoingHandler().getServerState(serverHandle);
                 const serverNode: ServerStateNode = this.convertToServerStateNode(rspId, state);
                 this.RSPServersStatus.get(rspId).state.serverStates.push(serverNode);
@@ -129,22 +132,30 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const serverNode: ServerStateNode = this.convertToServerStateNode(rspId, state);
             if (serverNode) {
                 this.RSPServersStatus.get(rspId).state.serverStates.push(serverNode);
-                this.refresh({rsp: rspId, ...state } as ServerStateNode);
+                this.refresh(this.RSPServersStatus.get(rspId).state);
+                this.selectNode({rsp: rspId, ...state } as ServerStateNode);
             }
         }
     }
 
     public updateRSPServer(rspId: string, state: number) {
         this.RSPServersStatus.get(rspId).state.state = state;
-        this.refresh();
+        this.refresh(this.RSPServersStatus.get(rspId).state);
     }
 
     public updateServer(rspId: string, event: Protocol.ServerState): void {
         const indexServer: number = this.RSPServersStatus.get(rspId).state.serverStates.
                                             findIndex(state => state.server.id === event.server.id);
-        const serverNode: ServerStateNode = this.convertToServerStateNode(rspId, event);
-        this.RSPServersStatus.get(rspId).state.serverStates[indexServer] = serverNode;
-        this.refresh();
+        const serverToUpdate: ServerStateNode = this.RSPServersStatus.get(rspId).state.serverStates[indexServer];
+        // update serverToUpdate based on event
+        Object.keys(event).forEach(key => {
+            if (key in serverToUpdate) {
+                serverToUpdate[key] = event[key];
+            }
+        });
+        serverToUpdate.deployableStates = this.convertToDeployableStateNodes(rspId, event.deployableStates);
+        this.RSPServersStatus.get(rspId).state.serverStates[indexServer] = serverToUpdate;
+        this.refresh(serverToUpdate);
         const channel: OutputChannel = this.serverOutputChannels.get(event.server.id);
         if (event.state === ServerState.STARTING && channel) {
             channel.clear();
@@ -179,7 +190,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     public removeServer(rspId: string, handle: Protocol.ServerHandle): void {
         this.RSPServersStatus.get(rspId).state.serverStates = this.RSPServersStatus.get(rspId).state.serverStates.
                                                                         filter(state => state.server.id !== handle.id);
-        this.refresh();
+        this.refresh(this.RSPServersStatus.get(rspId).state);
         const channel: OutputChannel = this.serverOutputChannels.get(handle.id);
         this.serverOutputChannels.delete(handle.id);
         if (channel) {
@@ -208,15 +219,26 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     }
 
     public refresh(data?: RSPState | ServerStateNode): void {
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(data);
         if (data !== undefined && this.isServerElement(data)) {
             this.selectNode(data);
         }
     }
 
     public selectNode(data: RSPState | ServerStateNode): void {
-        this.viewer.reveal(data, { focus: true, select: true });
-        this.viewerAB.reveal(data, { focus: true, select: true });
+        this.nodeSelected = data;
+        const tmpViewer = this.viewerAB.visible ? this.viewerAB : this.viewer;
+        tmpViewer.reveal(data, { focus: true, select: true });
+    }
+
+    private changeViewer(_e: TreeViewVisibilityChangeEvent) {
+        if (!this.viewer.visible && !this.viewerAB.visible) {
+            return;
+        }
+        const tmpViewer = this.viewer.visible ? this.viewer : this.viewerAB;
+        if (this.nodeSelected) {
+            tmpViewer.reveal(this.nodeSelected, { focus: true, select: true });
+        }
     }
 
     public async selectAndAddDeployment(state: ServerStateNode): Promise<Protocol.Status> {

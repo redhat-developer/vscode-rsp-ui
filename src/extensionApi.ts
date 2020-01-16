@@ -583,7 +583,7 @@ export class CommandHandler {
     }
 
     public async saveSelectedNode(server: ServerStateNode): Promise<void> {
-        this.explorer.serverSelected = server;
+        this.explorer.nodeSelected = server;
     }
 
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
@@ -615,9 +615,12 @@ export class CommandHandler {
         if (!servers || servers.length < 1) {
             return Promise.reject('There are no servers to choose from.');
         }
-        if (servers.length > 1 && this.explorer.serverSelected && this.explorer.serverSelected.rsp === rspId) {
-            servers = servers.filter(node => node.server.id !== this.explorer.serverSelected.server.id);
-            servers.unshift(this.explorer.serverSelected);
+        if (servers.length > 1 &&
+            this.explorer.nodeSelected &&
+            'deployableStates' in this.explorer.nodeSelected &&
+            this.explorer.nodeSelected.rsp === rspId) {
+            servers = servers.filter(node => node.server.id !== (this.explorer.nodeSelected as ServerStateNode).server.id);
+            servers.unshift(this.explorer.nodeSelected);
         }
         return vscode.window.showQuickPick(servers.map(server => server.server.id), { placeHolder: message });
     }
