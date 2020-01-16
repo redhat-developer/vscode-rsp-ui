@@ -274,11 +274,13 @@ suite('Server explorer', () => {
         };
 
         setup(() => {
-            findStatusStub = serverExplorer.RSPServersStatus.get('id').state.serverStates.findIndex = sandbox.stub();
+            serverExplorer.RSPServersStatus.get('id').state.serverStates = [ProtocolStubs.stoppedServerState];
+            findStatusStub = serverExplorer.RSPServersStatus.get('id').state.serverStates.findIndex = sandbox.stub().returns(0);
         });
 
         test('call should update server state to received in state change event (Stopped)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Stopped');
+            sandbox.stub(serverExplorer, 'refresh');
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
             const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
@@ -294,6 +296,8 @@ suite('Server explorer', () => {
 
         test('call should update server state to received in state change event (Started)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Started');
+            sandbox.stub(serverExplorer, 'refresh');
+            serverExplorer.selectNode = sandbox.stub();
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
             const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
@@ -320,6 +324,7 @@ suite('Server explorer', () => {
 
         test('call should update server state to received in state change event (Unknown)', async () => {
             sandbox.stub(serverExplorer.runStateEnum, 'get').returns('Unknown');
+            sandbox.stub(serverExplorer, 'refresh');
             serverExplorer.selectNode = sandbox.stub();
             const children = serverExplorer.getChildren();
             const treeItem = await serverExplorer.getTreeItem(ProtocolStubs.unknownServerState);
