@@ -102,9 +102,8 @@ export class CommandHandler {
                 });
             }
 
-            this.explorer.updateRSPServer(context.type.id, ServerState.STOPPED);
             this.explorer.disposeRSPProperties(context.type.id);
-            this.explorer.refresh(context);
+            this.explorer.updateRSPServer(context.type.id, ServerState.STOPPED);
         } else {
             return Promise.reject(`The RSP server ${context.type.visibilename} is already stopped.`);
         }

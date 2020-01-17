@@ -476,16 +476,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             rspProps.rspserverstderr.dispose();
         }
 
-        const newProps = {
-            client: undefined,
-            rspserverstderr: undefined,
-            rspserverstdout: undefined,
-            state: {
-                ...rspProps.state,
-                serverStates: undefined
-            }
-        };
-        this.RSPServersStatus.set(rspId, newProps);
+        this.RSPServersStatus.get(rspId).state.serverStates = undefined;
     }
 
     /**

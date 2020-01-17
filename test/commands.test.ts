@@ -8,6 +8,7 @@ import * as chaipromise from 'chai-as-promised';
 import { ClientStubs } from './clientstubs';
 import { DebugInfo } from '../src/debug/debugInfo';
 import { DebugInfoProvider } from '../src/debug/debugInfoProvider';
+import { EventEmitter } from 'events';
 import { CommandHandler, ServerActionItem } from '../src/extensionApi';
 import { JavaDebugSession } from '../src/debug/javaDebugSession';
 import { ProtocolStubs } from './protocolstubs';
@@ -20,7 +21,6 @@ import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategyManager } from '../src/workflow/response/workflowResponseStrategyManager';
-import { EventEmitter } from 'events';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -145,6 +145,8 @@ suite('Command Handler', () => {
 
         let serverInfo: ServerInfo;
         let rspProvider: RSPController;
+        let disposeRSPStub: sinon.SinonStub;
+        let updateStub: sinon.SinonStub;
         setup(() => {
             serverInfo = {
                 host: 'localhost',
@@ -158,6 +160,8 @@ suite('Command Handler', () => {
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
             };
+            disposeRSPStub = sandbox.stub(serverExplorer, 'disposeRSPProperties');
+            updateStub = sandbox.stub(serverExplorer, 'updateRSPServer');
         });
 
         test('check if selectRSP method is called with right params if context is undefined and forced is true', async () => {
@@ -200,7 +204,6 @@ suite('Command Handler', () => {
         });
 
         test('check if updateState is called twice if not forced or forced and no error occured', async () => {
-            const updateStub = sandbox.stub(serverExplorer, 'updateRSPServer');
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             await handler.stopRSP(false, ProtocolStubs.rspStateStarted);
             expect(updateStub).calledTwice;
@@ -230,7 +233,6 @@ suite('Command Handler', () => {
         });
 
         test('check if updateState is called three times if forced and error occured', async () => {
-            const updateStub = sandbox.stub(serverExplorer, 'updateRSPServer');
             rspProvider.stopRSP = () => Promise.reject('error');
             sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             try {
@@ -243,7 +245,6 @@ suite('Command Handler', () => {
         });
 
         test('check if disposeRSp is called with right param', async () => {
-            const disposeRSPStub = sandbox.stub(serverExplorer, 'disposeRSPProperties');
             sandbox.stub(Utils, 'activateExternalProvider' as any).resolves(rspProvider);
             await handler.stopRSP(true, ProtocolStubs.rspStateStarted);
             expect(disposeRSPStub).calledOnceWith('id');
@@ -1410,7 +1411,7 @@ suite('Command Handler', () => {
         });
 
         test('showQuickPick not called with 1 server if filtering for stopped state', async () => {
-
+            serverExplorer.RSPServersStatus.get('id').state.state = 4;
             const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick');
             const selectRSPWithHandlerInjected = Reflect.get(handler, 'selectRSP').bind(handler);
             const filter = server => server.state.state === ServerState.STOPPED;
