@@ -859,21 +859,6 @@ suite('Server explorer', () => {
             serverExplorer.disposeRSPProperties('id');
             expect(disposeStdErrStub).calledOnce;
         });
-
-        test('check if new properties is set', async () => {
-            const newProps = {
-                client: undefined,
-                rspserverstderr: undefined,
-                rspserverstdout: undefined,
-                state: {
-                    ...serverExplorer.RSPServersStatus.get('id').state,
-                    serverStates: undefined
-                }
-            };
-            const setPropsStub = sandbox.stub(serverExplorer.RSPServersStatus, 'set');
-            serverExplorer.disposeRSPProperties('id');
-            expect(setPropsStub).calledOnceWith('id', newProps);
-        });
     });
 
     suite('updateRSPServer', () => {
