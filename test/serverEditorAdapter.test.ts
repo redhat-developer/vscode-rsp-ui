@@ -367,7 +367,7 @@ suite('ServerEditorAdapter', () => {
             };
             serverEditorAdapter.RSPServerProperties.set('id', [serverProps]);
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            sandbox.stub(serverEditorAdapter, 'createTmpFile' as any).callsFake(() => '');
+            sandbox.stub(serverEditorAdapter, 'saveAndShowEditor' as any).callsFake(() => '');
 
             await serverEditorAdapter.onDidSaveTextDocument(textDocumentWithUri);
             expect(saveStub).calledOnceWith('id', ProtocolStubs.serverHandle, '');
@@ -382,7 +382,7 @@ suite('ServerEditorAdapter', () => {
             };
             serverEditorAdapter.RSPServerProperties.set('id', [serverProps]);
             sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
-            sandbox.stub(serverEditorAdapter, 'createTmpFile' as any).callsFake(() => '');
+            sandbox.stub(serverEditorAdapter, 'saveAndShowEditor' as any).callsFake(() => '');
 
             await serverEditorAdapter.onDidSaveTextDocument(textDocumentWithUri);
             expect(showInfoStub).calledOnceWith('Server id correctly saved');
