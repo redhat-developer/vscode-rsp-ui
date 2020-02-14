@@ -88,7 +88,7 @@ suite('ServerEditorAdapter', () => {
 
     suite('showEditor', () => {
         test('check if parse method is called with right params', async () => {
-            const parseStub = sandbox.stub(vscode.Uri, 'parse');
+            const parseStub = sandbox.stub(vscode.Uri, 'parse').returns(uriDoc);
             await serverEditorAdapter.showEditor('suffix', 'content');
             expect(parseStub).calledOnceWith('untitled:suffix');
         });
