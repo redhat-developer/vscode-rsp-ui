@@ -577,6 +577,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const depStr = `${id1} (${serverState})`;
             const icon = await Utils.getIcon(state.type.id, state.type.id);
             return { label: `${depStr}`,
+                id: id1,
                 iconPath: icon,
                 contextValue: `RSP${serverState}`,
                 collapsibleState: TreeItemCollapsibleState.Expanded
@@ -593,6 +594,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const depStr = `${id1} (${serverState}) (${pubState})`;
             const icon = await Utils.getIcon(state.rsp, handle.type.id);
             return { label: `${depStr}`,
+                id: `${state.rsp}-${id1}`,
                 iconPath: icon,
                 contextValue: serverState,
                 collapsibleState: TreeItemCollapsibleState.Expanded,
