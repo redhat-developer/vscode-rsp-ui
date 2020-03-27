@@ -149,7 +149,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         const serverToUpdate: ServerStateNode = this.RSPServersStatus.get(rspId).state.serverStates[indexServer];
         // update serverToUpdate based on event
         Object.keys(event).forEach(key => {
-            if (key in serverToUpdate) {
+            if (key in serverToUpdate || key === 'runMode') {
                 serverToUpdate[key] = event[key];
             }
         });
