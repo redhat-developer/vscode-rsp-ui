@@ -55,7 +55,7 @@ This extension supports a number of commands for interacting with supported serv
    These settings are valid for all servers
 
    * `"id"` - id server (read-only field, it cannot be changed)
-   * `"args.override.boolean"` - allow to override program and vm arguments if set to true. The first time this flag is set to true and the server is started, two other parameters will be generated "vm.args.override.string" and "program.args.override.string". 
+   * `"args.override.boolean"` - allow to override program and vm arguments if set to true. The first time this flag is set to true and the server is started, two other parameters will be generated "args.vm.override.string" and "args.program.override.string". 
    * `"server.home.dir"` - the path where the server runtime is stored (read-only field, it cannot be changed)
    * `"deployables"` - the list of deployables. It contains all informations related to each deployable.
    * `"server.autopublish.enabled"` - Enable the autopublisher
@@ -65,8 +65,8 @@ This extension supports a number of commands for interacting with supported serv
 ### Provisional Global Server Parameters
    These settings may eventually be supported by all servers, but these settings are Provisional and may be changed before becoming official API. 
 
-   * `"vm.args.override.string"` - allow to override vm arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
-   * `"program.args.override.string"` - allow to override program arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
+   * `"args.vm.override.string"` - allow to override vm arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
+   * `"args.program.override.string"` - allow to override program arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
 
 ### Supported Servers
    * This extension has no built-in support for any specific server type
