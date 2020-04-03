@@ -14,6 +14,12 @@ node('rhel8'){
 
 	stage('Build') {
 		sh "npm install"
+		if(publishToMarketPlace.equals('false')) {
+			def baseUrl = "https://download.jboss.org/jbosstools/adapters/snapshots/vscode-middleware-tools"
+			sh "wget ${baseUrl}/vscode-server-connector-api/vscode-server-connector-api-latest.tgz"
+			sh "wget ${baseUrl}/rsp-client/rsp-client-latest.tgz"
+			sh "npm install vscode-server-connector-api-latest.tgz rsp-client-latest.tgz"
+		}
 		sh "npm run build"
 	}
 
