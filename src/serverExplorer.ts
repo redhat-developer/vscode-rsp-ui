@@ -574,9 +574,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const state: RSPState = item as RSPState;
             const id1: string = state.type.visibilename;
             const serverState = `${this.runStateEnum.get(state.state)}`;
-            const depStr = `${id1} (${serverState})`;
             const icon = await Utils.getIcon(state.type.id, state.type.id);
-            return { label: `${depStr}`,
+            return { label: `${id1}`,
+                description: `(${serverState})`,
                 id: id1,
                 iconPath: icon,
                 contextValue: `RSP${serverState}`,
@@ -591,9 +591,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                                     'Debugging' :
                                     this.runStateEnum.get(state.state);
             const pubState: string = this.publishStateEnum.get(state.publishState);
-            const depStr = `${id1} (${serverState}) (${pubState})`;
             const icon = await Utils.getIcon(state.rsp, handle.type.id);
-            return { label: `${depStr}`,
+            return { label: `${id1}`,
+                description: `(${serverState}) (${pubState})`,
                 id: `${state.rsp}-${id1}`,
                 iconPath: icon,
                 contextValue: serverState,
@@ -610,9 +610,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const id1: string = state.reference.label;
             const serverState: string = this.runStateEnum.get(state.state);
             const pubState: string = this.publishStateEnum.get(state.publishState);
-            const depStr = `${id1} (${serverState}) (${pubState})`;
             const icon = await Utils.getIcon(state.rsp, state.server.type.id);
-            return { label: `${depStr}`,
+            return { label: `${id1}`,
+                description: `(${serverState}) (${pubState})`,
                 iconPath: icon,
                 contextValue: pubState,
                 collapsibleState: TreeItemCollapsibleState.None
