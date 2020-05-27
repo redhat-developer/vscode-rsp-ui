@@ -223,7 +223,9 @@ suite('Server explorer', () => {
 
         const serverStop = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
-            label: `id (Stopped) (Unknown)`,
+            label: 'id',
+            description: '(Stopped) (Unknown)',
+            id: 'id-id',
             contextValue: 'Stopped',
             iconPath: iconPath,
             command: {
@@ -236,7 +238,9 @@ suite('Server explorer', () => {
 
         const serverStart = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
-            label: 'id (Started) (Unknown)',
+            label: 'id',
+            description: '(Started) (Unknown)',
+            id: 'id-id',
             contextValue: 'Started',
             iconPath: iconPath,
             command: {
@@ -249,7 +253,9 @@ suite('Server explorer', () => {
 
         const serverDebugging = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
-            label: 'id (Debugging) (undefined)',
+            label: 'id',
+            description: '(Debugging) (undefined)',
+            id: 'id-id',
             contextValue: 'Debugging',
             iconPath: iconPath,
             command: {
@@ -262,7 +268,9 @@ suite('Server explorer', () => {
 
         const serverUnknown = {
             collapsibleState: TreeItemCollapsibleState.Expanded,
-            label: 'id (Unknown) (Unknown)',
+            label: 'id',
+            description: '(Unknown) (Unknown)',
+            id: 'id-id',
             contextValue: 'Unknown',
             iconPath: iconPath,
             command: {
@@ -739,7 +747,9 @@ suite('Server explorer', () => {
 
         test('return valid node if RSPState is passed', async () => {
             const nodeResult = {
-                label: `the type (Stopped)`,
+                label: 'the type',
+                description: '(Stopped)',
+                id: 'the type',
                 iconPath: iconPath,
                 contextValue: `RSPStopped`,
                 collapsibleState: TreeItemCollapsibleState.Expanded
@@ -750,7 +760,9 @@ suite('Server explorer', () => {
         });
 
         test('return valid node if ServerStateNode is passed', async () => {
-            const nodeResult = { label: `id (Unknown) (Unknown)`,
+            const nodeResult = { label: 'id',
+                description: '(Unknown) (Unknown)',
+                id: 'id-id',
                 iconPath: iconPath,
                 contextValue: 'Unknown',
                 collapsibleState: TreeItemCollapsibleState.Expanded,
@@ -768,7 +780,8 @@ suite('Server explorer', () => {
 
         test('return valid node if DeployableStateNode is passed', async () => {
 
-            const nodeResult = { label: `fake (Started) (Unknown)`,
+            const nodeResult = { label: 'fake',
+                description: '(Started) (Unknown)',
                 iconPath: iconPath,
                 contextValue: 'Unknown',
                 collapsibleState: TreeItemCollapsibleState.None
