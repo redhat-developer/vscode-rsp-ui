@@ -29,7 +29,7 @@ import {
 } from 'rsp-client';
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
-import { RSPType } from 'vscode-server-connector-api';
+import { RSPType, ServerInfo } from 'vscode-server-connector-api';
 
 enum deploymentStatus {
     file = 'File',
@@ -64,6 +64,7 @@ export interface RSPProperties {
     rspserverstdout: OutputChannel;
     rspserverstderr: OutputChannel;
     client: RSPClient;
+    info: ServerInfo;
 }
 
 export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNode | DeployableStateNode> {

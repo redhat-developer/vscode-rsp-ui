@@ -44,9 +44,16 @@ class RSPProviderAPIImpl implements RSPModel {
         serversExplorer.RSPServersStatus.set(rsp.type.id, rspProperties);
         serversExplorer.refresh();
         const startRSP = await this.updateRSPActivationSetting(rsp, serversExplorer);
-        if (startRSP) {
-            const commandHandler = new CommandHandler(serversExplorer);
-            executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+        if (startRSP ) {
+            if( vscode.window.state.focused) {
+                const commandHandler = new CommandHandler(serversExplorer);
+                executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+            } else {
+                setTimeout(function() {
+                    const commandHandler = new CommandHandler(serversExplorer);
+                    executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+                    }, 3000);
+            }
         }
     }
 
