@@ -513,7 +513,8 @@ suite('Server explorer', () => {
             client: undefined,
             rspserverstderr: undefined,
             rspserverstdout: undefined,
-            state: ProtocolStubs.rspState
+            state: ProtocolStubs.rspState,
+            info: undefined
         };
 
         setup(() => {
@@ -677,7 +678,8 @@ suite('Server explorer', () => {
                 client: stubs.client,
                 rspserverstderr: undefined,
                 rspserverstdout: undefined,
-                state: ProtocolStubs.rspState
+                state: ProtocolStubs.rspState,
+                info: undefined
             };
             serverExplorer.RSPServersStatus.set('client', rspPropertiesWithClient);
             const result = await serverExplorer.getClientByRSP('client');
@@ -700,7 +702,8 @@ suite('Server explorer', () => {
                 client: undefined,
                 rspserverstderr: undefined,
                 rspserverstdout: stdout,
-                state: ProtocolStubs.rspState
+                state: ProtocolStubs.rspState,
+                info: undefined
             };
             serverExplorer.RSPServersStatus.set('stdout', rspPropertiesWithStdOut);
             const result = await serverExplorer.getRSPOutputChannel('stdout');
@@ -723,7 +726,8 @@ suite('Server explorer', () => {
                 client: undefined,
                 rspserverstderr: stderr,
                 rspserverstdout: undefined,
-                state: ProtocolStubs.rspState
+                state: ProtocolStubs.rspState,
+                info: undefined
             };
             serverExplorer.RSPServersStatus.set('stderr', rspPropertiesWithStderr);
             const result = await serverExplorer.getRSPErrorChannel('stderr');

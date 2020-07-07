@@ -128,7 +128,8 @@ suite('Extension Tests', () => {
             client: stubs.client,
             rspserverstderr: undefined,
             rspserverstdout: undefined,
-            state: ProtocolStubs.rspState
+            state: ProtocolStubs.rspState,
+            info: undefined
         };
         serverExplorer.RSPServersStatus.set('id', rspProperties);
         deactivate();

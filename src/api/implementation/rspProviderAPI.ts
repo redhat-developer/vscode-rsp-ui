@@ -38,7 +38,8 @@ class RSPProviderAPIImpl implements RSPModel {
             state: rspState,
             client: undefined,
             rspserverstderr: rspserverstderr,
-            rspserverstdout: rspserverstdout
+            rspserverstdout: rspserverstdout,
+            info: undefined
         };
         const serversExplorer = ServerExplorer.getInstance();
         serversExplorer.RSPServersStatus.set(rsp.type.id, rspProperties);

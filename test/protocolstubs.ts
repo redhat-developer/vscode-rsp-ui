@@ -166,7 +166,8 @@ export class ProtocolStubs {
         client: undefined,
         rspserverstderr: undefined,
         rspserverstdout: undefined,
-        state: ProtocolStubs.rspState
+        state: ProtocolStubs.rspState,
+        info: undefined
     };
 
     public static readonly rspStateStarted: RSPState = {
