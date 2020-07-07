@@ -83,7 +83,11 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
 export function deactivate() {
     for (const rspProvider of serversExplorer.RSPServersStatus.values()) {
         if (rspProvider.client) {
-            rspProvider.client.shutdownServer();
+            if( rspProvider.info.spawned) {
+                rspProvider.client.shutdownServer();
+            } else {
+                rspProvider.client.disconnect();
+            }
         }
     }
 }

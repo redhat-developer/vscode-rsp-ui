@@ -165,14 +165,14 @@ suite('Command Handler', () => {
         });
 
         test('check if selectRSP method is called with right params if context is undefined and forced is true', async () => {
-            const message = 'Select RSP provider you want to start';
+            const message = 'Select RSP provider you want to stop';
             const selectRSPStub = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
             await handler.stopRSP(true, undefined);
             expect(selectRSPStub).calledOnceWith(message, sinon.match.func);
         });
 
         test('check if selectRSP method is called with right params if context is undefined and forced is false', async () => {
-            const message = 'Select RSP provider you want to start';
+            const message = 'Select RSP provider you want to stop';
             const selectRSPStub = sandbox.stub(handler, 'selectRSP' as any).resolves(undefined);
             await handler.stopRSP(false, undefined);
             expect(selectRSPStub).calledWithMatch(message, sinon.match.func);

@@ -123,16 +123,39 @@ suite('Extension Tests', () => {
         sandbox.assert.notCalled(stubs.clientStub.shutdownServer);
     });
 
-    test('server has been stopped on deactivation', () => {
+    test('RSP has been stopped on deactivation if spawned here', () => {
         const rspProperties: RSPProperties = {
             client: stubs.client,
             rspserverstderr: undefined,
             rspserverstdout: undefined,
-            state: ProtocolStubs.rspState
+            state: ProtocolStubs.rspState,
+            info: {
+                host: "localhost",
+                port: 12345,
+                spawned: true
+            }
         };
         serverExplorer.RSPServersStatus.set('id', rspProperties);
         deactivate();
 
         expect(stubs.clientStub.shutdownServer).calledOnce;
+    });
+
+    test('RSP has been stopped on disconnected if NOT spawned here', () => {
+        const rspProperties: RSPProperties = {
+            client: stubs.client,
+            rspserverstderr: undefined,
+            rspserverstdout: undefined,
+            state: ProtocolStubs.rspState,
+            info: {
+                host: "localhost",
+                port: 12345,
+                spawned: false
+            }
+        };
+        serverExplorer.RSPServersStatus.set('id', rspProperties);
+        deactivate();
+
+        expect(stubs.clientStub.disconnect).calledOnce;
     });
 });

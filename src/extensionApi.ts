@@ -62,6 +62,8 @@ export class CommandHandler {
         const rspProperties: RSPProperties = this.explorer.RSPServersStatus.get(context.type.id);
         rspProperties.client = client;
         rspProperties.state.serverStates = [];
+        rspProperties.info = serverInfo;
+        
         this.explorer.RSPServersStatus.set(context.type.id, rspProperties);
         await this.activate(context.type.id, client);
         this.explorer.initRSPNode(context.type.id);
@@ -77,7 +79,7 @@ export class CommandHandler {
                                              serverR.state.state === ServerState.STARTING ||
                                              serverR.state.state === ServerState.STOPPING;
             }
-            const rsp = await this.selectRSP('Select RSP provider you want to start', filterRSPPredicate);
+            const rsp = await this.selectRSP('Select RSP provider you want to stop', filterRSPPredicate);
             if (!rsp || !rsp.id) return null;
             context = this.explorer.RSPServersStatus.get(rsp.id).state;
         }
