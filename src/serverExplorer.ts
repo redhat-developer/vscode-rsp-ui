@@ -492,7 +492,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                     return 'Cannot set empty server name';
                 }
                 if (this.RSPServersStatus.get(rspId).state.serverStates.find(state => state.server.id === value)) {
-                    return 'Cannot set duplicate server nae';
+                    return 'Cannot set duplicate server name';
                 }
             }
         };
