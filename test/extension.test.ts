@@ -84,6 +84,7 @@ suite('Extension Tests', () => {
             const SERVER_COMMANDS = [
                 'server.startRSP',
                 'server.stopRSP',
+		'server.disconnectRSP',
                 'server.terminateRSP',
                 'server.start',
                 'server.restart',
