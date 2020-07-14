@@ -58,6 +58,11 @@ export class CommandHandler {
         }
 
         const client = await initClient(serverInfo);
+        client.onConnectionClosed(event => {
+            this.explorer.disposeRSPProperties(context.type.id);
+            this.explorer.updateRSPServer(context.type.id, ServerState.STOPPED);
+        });
+    
 
         const rspProperties: RSPProperties = this.explorer.RSPServersStatus.get(context.type.id);
         rspProperties.client = client;
@@ -67,6 +72,17 @@ export class CommandHandler {
         this.explorer.RSPServersStatus.set(context.type.id, rspProperties);
         await this.activate(context.type.id, client);
         this.explorer.initRSPNode(context.type.id);
+    }
+
+    public async disconnectRSP(context?: RSPState): Promise<void> {
+        if( context === undefined )
+            return Promise.reject(`No RSP selected`);
+        const id = context.type.id;
+        //const contextProperties = this.explorer.RSPServersStatus.get(id);
+        const client: RSPClient = this.explorer.getClientByRSP(id);
+        client.disconnect();
+        this.explorer.disposeRSPProperties(context.type.id);
+        this.explorer.updateRSPServer(context.type.id, ServerState.STOPPED);
     }
 
     public async stopRSP(forced: boolean, context?: RSPState): Promise<void> {

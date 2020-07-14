@@ -14,7 +14,7 @@ export class AdaptersConstants {
         "Create New Server...",
         "Add Local Server...",
         "Download Server...",
-        "Start RSP Provider",
+        "Start / Connect to RSP Provider",
         "Stop RSP Provider",
         "Terminate RSP Provider",
         "Start Server",

@@ -27,6 +27,8 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
     const newLocal = [
         vscode.commands.registerCommand('server.startRSP',
             context => executeCommand(commandHandler.startRSP, commandHandler, context, errorMessage.replace('%ACTION%', 'start'))),
+        vscode.commands.registerCommand('server.disconnectRSP',
+            context => executeCommand(commandHandler.disconnectRSP, commandHandler, context, errorMessage.replace('%ACTION%', 'disconnect'))),
         vscode.commands.registerCommand('server.stopRSP',
             context => executeCommand(commandHandler.stopRSP, commandHandler, false, context, errorMessage.replace('%ACTION%', 'stop'))),
         vscode.commands.registerCommand('server.terminateRSP',

@@ -2,7 +2,7 @@
   "name": "vscode-rsp-ui",
   "displayName": "Remote Server Protocol UI",
   "description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
-  "version": "0.23.0",
+  "version": "0.23.1",
   "license": "SEE LICENSE IN LICENSE",
   "publisher": "redhat",
   "author": "Red Hat",
@@ -30,6 +30,7 @@
     "onCommand:server.addLocation",
     "onCommand:server.downloadRuntime",
     "onCommand:server.startRSP",
+    "onCommand:server.disconnectRSP",
     "onCommand:server.stopRSP",
     "onCommand:server.terminateRSP",
     "onCommand:server.start",
@@ -70,7 +71,12 @@
       },
       {
         "command": "server.startRSP",
-        "title": "Start RSP Provider",
+        "title": "Start / Connect to RSP Provider",
+        "category": "Servers"
+      },
+      {
+        "command": "server.disconnectRSP",
+        "title": "Disconnect from RSP Provider",
         "category": "Servers"
       },
       {
@@ -213,8 +219,13 @@
           "group": "0_server-rspstartstop@1"
         },
         {
+          "command": "server.disconnectRSP",
+          "when": "view =~ '/(servers|serversAB)/' && viewItem =~ '/^(RSPConnected)/'",
+          "group": "0_server-rspstartstop@2"
+        },
+        {
           "command": "server.stopRSP",
-          "when": "view =~ '/(servers|serversAB)/' && viewItem =~ '/^(RSPStarted)/'",
+          "when": "view =~ '/(servers|serversAB)/' && viewItem =~ '/^(RSPStarted|RSPConnected)/'",
           "group": "0_server-rspstartstop@2"
         },
         {
@@ -403,7 +414,7 @@
   },
   "dependencies": {
     "path": "0.12.7",
-    "rsp-client": "^0.23.0",
+    "rsp-client": "^0.23.1",
     "tmp": "^0.1.0",
     "vscode-server-connector-api": "0.1.7"
   }
