@@ -169,16 +169,6 @@
         "category": "Application"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "serverViewActivitybar",
-          "title": "Server Connector",
-          "icon": "images/server-light.png",
-          "when": "false"
-        }
-      ]
-    },
     "views": {
       "serverView": [
         {
