@@ -573,7 +573,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             const id1: string = state.type.visibilename;
             // TODO fix the run state here, but need to find the RSPProperties for this RSPState
             const props: RSPProperties = this.RSPServersStatus.get(state.type.id);
-            const useConnected = (state.state == 2 && props.info.spawned == false);
+            const useConnected = (state.state == 2 && (props.info ? props.info.spawned : null) == false);
             const serverState = useConnected ? `Connected` : `${this.runStateEnum.get(state.state)}`;
             const icon = await Utils.getIcon(state.type.id, state.type.id);
             return { label: `${id1}`,
