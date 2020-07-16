@@ -20,7 +20,7 @@ export function extensionUIAssetsTest() {
         });
 
         it('Command Palette prompt knows RSP commands', async function() {
-            this.timeout(30000);
+            this.timeout(45000);
             await verifyCommandPalette(quickBox);
         });
 
@@ -31,25 +31,14 @@ export function extensionUIAssetsTest() {
             expect(item).not.undefined;
         });
 
-        it('Servers activity bar is available', async function() {
+        it('Action button "Create New Server..." from Servers tab is available', async function() {
             this.timeout(5000);
-            const viewControls = await new ActivityBar().getViewControls();
-            expect(viewControls.map(item => item.getTitle())).to.include(AdaptersConstants.RSP_CONNECTOR_NAME);
-            const serversView = new ActivityBar().getViewControl(AdaptersConstants.RSP_CONNECTOR_NAME);
-            expect(serversView).not.undefined;
-            const serversBar = await serversView.openView();
-            expect(serversBar).not.undefined;
-            expect(await serversBar.getTitlePart().getTitle()).to.equal(AdaptersConstants.RSP_ATIVITY_BAR_TITLE);
-        });
-
-        it('Action button from Servers activity bar is available', async function() {
-            this.timeout(5000);
-            const serversView = new ActivityBar().getViewControl(AdaptersConstants.RSP_CONNECTOR_NAME);
-            const serversBar = await serversView.openView();
-            const titlePart = serversBar.getTitlePart();
-            const actionsButton = await titlePart.getActions();
-            expect(actionsButton.length).to.equal(1);
-            expect(actionsButton[0].getTitle()).to.include('Create New Server');
+            const explorerView = new ActivityBar().getViewControl('Explorer');
+            const bar = await explorerView.openView();
+            const content = bar.getContent();
+            const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
+            const actionButton = section.getAction(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
+            expect(actionButton.getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON)
         });
 
         it('Servers tab is available under Explorer bar', async function() {
@@ -60,7 +49,7 @@ export function extensionUIAssetsTest() {
             const content = bar.getContent();
             const sections = await content.getSections();
             expect(await Promise.all(sections.map(item => item.getTitle()))).to.include(AdaptersConstants.RSP_SERVERS_LABEL);
-            const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
+            const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL); 
             expect(section).not.undefined;
             expect(await section.getTitle()).to.equal(AdaptersConstants.RSP_SERVERS_LABEL);
             const actionsButton = await section.getActions();
