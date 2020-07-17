@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-node('fedora31'){
+node('rhel8'){
 	stage('Checkout repo') {
 		deleteDir()
 		git url: "https://github.com/${params.FORK}/vscode-rsp-ui.git", branch: params.BRANCH
