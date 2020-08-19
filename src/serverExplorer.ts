@@ -113,11 +113,11 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         const client: RSPClient = this.getClientByRSP(rspId);
         if (client) {
             const servers: Protocol.ServerHandle[] = await client.getOutgoingHandler().getServerHandles();
-            servers.forEach(async serverHandle => {
+            for (const serverHandle of servers) {
                 const state = await client.getOutgoingHandler().getServerState(serverHandle);
                 const serverNode: ServerStateNode = this.convertToServerStateNode(rspId, state);
                 this.RSPServersStatus.get(rspId).state.serverStates.push(serverNode);
-            });
+            }
         }
 
         this.refresh(this.RSPServersStatus.get(rspId).state);
