@@ -284,12 +284,19 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         // Windows -> if both options (canSelectFiles and canSelectFolders) are true, fs only shows folders
         // Linux(fedora) -> if both options are true, fs shows both files and folders but files are unselectable
         // Mac OS -> if both options are true, it works correctly
-        var d = workspace.workspaceFile != undefined ? workspace.workspaceFile : 
-                workspace.workspaceFolders == undefined ? undefined : 
-                workspace.workspaceFolders.length <= 0 ? undefined : 
-                workspace.workspaceFolders[0].uri;
+
+        const activeEditorUri = window.activeTextEditor === undefined ? undefined : 
+                            window.activeTextEditor.document === undefined ? undefined : 
+                            window.activeTextEditor.document.uri;
+        const workspaceFolderUri =  (workspace.workspaceFolders !== undefined && workspace.workspaceFolders.length > 0) 
+                                    ? workspace.workspaceFolders[0].uri : undefined;
+        const workspaceFileUri = workspace.workspaceFile === undefined ? undefined :
+                                    workspace.workspaceFile.scheme === "file" ? workspace.workspaceFile : undefined;
+        const uriToOpen = activeEditorUri !== undefined ? activeEditorUri :
+                        workspaceFolderUri !== undefined ? workspaceFolderUri : 
+                        workspaceFileUri;
         return {
-            defaultUri: d,
+            defaultUri: uriToOpen,
             canSelectFiles: (showQuickPick ? filePickerType === deploymentStatus.file : true),
             canSelectMany: false,
             canSelectFolders: (showQuickPick ? filePickerType === deploymentStatus.exploded : true),
