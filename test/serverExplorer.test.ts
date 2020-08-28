@@ -538,6 +538,7 @@ suite('Server explorer', () => {
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const filePickerResult = stubDialog.getCall(0).args[0];
+            filePickerResult.defaultUri = undefined;
             expect(JSON.stringify(filePickerResult)).equals(JSON.stringify(filePickerResponseWindows));
         });
 
@@ -557,6 +558,7 @@ suite('Server explorer', () => {
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const folderPickerResult = stubDialog.getCall(0).args[0];
+            folderPickerResult.defaultUri = undefined;
             expect(JSON.stringify(folderPickerResult)).equals(JSON.stringify(folderPickerResponseWindows));
         });
 
@@ -576,6 +578,7 @@ suite('Server explorer', () => {
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const filePickerResult = stubDialog.getCall(0).args[0];
+            filePickerResult.defaultUri = undefined;
             expect(JSON.stringify(filePickerResult)).equals(JSON.stringify(filePickerResponseLinux));
         });
 
@@ -595,6 +598,7 @@ suite('Server explorer', () => {
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const folderPickerResult = stubDialog.getCall(0).args[0];
+            folderPickerResult.defaultUri = undefined;
             expect(JSON.stringify(folderPickerResult)).equals(JSON.stringify(folderPickerResponseLinux));
         });
 
@@ -614,6 +618,7 @@ suite('Server explorer', () => {
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
 
             const pickerResult = stubDialog.getCall(0).args[0];
+            pickerResult.defaultUri = undefined;
             expect(JSON.stringify(pickerResult)).equals(JSON.stringify(pickerResponseDialog));
         });
 
