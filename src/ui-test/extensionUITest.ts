@@ -25,14 +25,14 @@ export function extensionUIAssetsTest() {
         });
 
         it('Remote Server Protocol UI extension is installed', async function() {
-            this.timeout(5000);
-            const section = await sideBar.getContent().getSection('Enabled') as ExtensionsViewSection;
+            this.timeout(8000);
+            const section = await sideBar.getContent().getSection('Installed') as ExtensionsViewSection;
             const item = await section.findItem(`@installed ${AdaptersConstants.RSP_UI_NAME}`) as ExtensionsViewItem;
             expect(item).not.undefined;
         });
 
         it('Action button "Create New Server..." from Servers tab is available', async function() {
-            this.timeout(5000);
+            this.timeout(8000);
             const explorerView = new ActivityBar().getViewControl('Explorer');
             const bar = await explorerView.openView();
             const content = bar.getContent();
@@ -42,14 +42,14 @@ export function extensionUIAssetsTest() {
         });
 
         it('Servers tab is available under Explorer bar', async function() {
-            this.timeout(5000);
+            this.timeout(8000);
             const explorerView = new ActivityBar().getViewControl('Explorer');
             expect(explorerView).not.undefined;
             const bar = await explorerView.openView();
             const content = bar.getContent();
             const sections = await content.getSections();
             expect(await Promise.all(sections.map(item => item.getTitle()))).to.include(AdaptersConstants.RSP_SERVERS_LABEL);
-            const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL); 
+            const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
             expect(section).not.undefined;
             expect(await section.getTitle()).to.equal(AdaptersConstants.RSP_SERVERS_LABEL);
             const actionsButton = await section.getActions();
@@ -61,9 +61,11 @@ export function extensionUIAssetsTest() {
             this.timeout(4000);
             if (sideBar && await sideBar.isDisplayed()) {
                 sideBar = await new ActivityBar().getViewControl('Extensions').openView();
-                const actionButton = await sideBar.getTitlePart().getAction('Clear Extensions Input');
-                await actionButton.click();
-                view.closeView();
+                const titlePart = sideBar.getTitlePart();
+                const actionButton = await titlePart.getAction('Clear Extensions Search Results');
+                if (actionButton.isEnabled()) {
+                    await actionButton.click();
+                }
             }
             if (quickBox && await quickBox.isDisplayed()) {
                 await quickBox.cancel();
