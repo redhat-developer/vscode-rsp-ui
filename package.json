@@ -2,7 +2,7 @@
   "name": "vscode-rsp-ui",
   "displayName": "Remote Server Protocol UI",
   "description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
-  "version": "0.23.3",
+  "version": "0.23.4",
   "license": "SEE LICENSE IN LICENSE",
   "publisher": "redhat",
   "author": "Red Hat",
@@ -218,7 +218,7 @@
         },
         {
           "command": "server.createServer",
-          "when": "view =~ '/(servers)/' && viewItem =~ '/^(RSPStarted)/'",
+          "when": "view =~ '/(servers)/' && viewItem =~ '/^(RSPStarted|RSPConnected)/'",
           "group": "0_server-rspstartstop@3"
         },
         {
