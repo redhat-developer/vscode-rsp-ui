@@ -433,7 +433,8 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         };
         const response = await client.getOutgoingHandler().updateServer(serverProps);
         if (!StatusSeverity.isOk(response.validation.status)) {
-            return Promise.reject(response.validation.status.message);
+            return Promise.reject(
+                response.validation.status.message.concat('\n', response.validation.status.trace));
         }
         return response;
     }
