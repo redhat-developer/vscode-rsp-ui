@@ -443,7 +443,7 @@ suite('ServerEditorAdapter', () => {
                 expect(updateStubs).calledOnce;
                 expect.fail();
             } catch (err) {
-                expect(err).equals(ProtocolStubs.createResponseKO.status.message);
+                expect(err.validation.status.message).equals(ProtocolStubs.createResponseKO.status.message);
             }
 
         });

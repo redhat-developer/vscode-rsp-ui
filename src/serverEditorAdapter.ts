@@ -155,17 +155,6 @@ export class ServerEditorAdapter {
         return Promise.reject(msg);
     }
 
-    private async saveAndShowEditor2(path: string, content: string): Promise<void> {
-        return new Promise((res, rej) =>{
-            fs.writeFile(path, content, undefined, error => {
-                if (error !== null) {
-                    rej(`Unable to save file on path ${path}. Error - ${error}`);
-                }
-            });
-            vscode.workspace.openTextDocument(path).then(
-                doc => vscode.window.showTextDocument(doc));
-        });
-    }
     public async onDidCloseTextDocument(doc: vscode.TextDocument): Promise<void> {
         if (!doc) {
             return Promise.reject('Error closing document - document is invalid');
