@@ -125,15 +125,47 @@ export class ServerEditorAdapter {
             if (!serverHandle) {
                 return Promise.reject('Unable to save server properties - server is invalid');
             }
-            return this.explorer.saveServerProperties(rspId, serverHandle, doc.getText()).then(updateStatus => {
-                const file: string = this.RSPServerProperties.get(rspId).find(prop => prop.server === serverHandle.id).file;
-                this.saveAndShowEditor(file, updateStatus.serverJson.serverJson);
-                vscode.window.showInformationMessage(`Server ${serverHandle.id} correctly saved`);
-                return updateStatus.validation.status;
-            });
+            return this.explorer.saveServerProperties(rspId, serverHandle, doc.getText()).then(
+                updateStatus => {return this.postSaveEditor(rspId, serverHandle, updateStatus, true);},
+                updateStatus => {return this.postSaveEditor(rspId, serverHandle, updateStatus, false);}
+            );
         }
     }
 
+    public async postSaveEditor(rspId: string, serverHandle: Protocol.ServerHandle, updateStatus: any, success: boolean): Promise<Protocol.Status> {
+        const file: string = this.RSPServerProperties.get(rspId).find(prop => prop.server === serverHandle.id).file;
+
+        if( success ) {
+            this.saveAndShowEditor(file, updateStatus.serverJson.serverJson);
+            vscode.window.showInformationMessage(`Server ${serverHandle.id} correctly saved`);
+            return updateStatus.validation.status;
+        }
+
+        let check: string = typeof updateStatus;
+        if( check !== 'object' ) {
+            return Promise.reject(updateStatus);
+        }
+
+        this.saveAndShowEditor(file, updateStatus.serverJson.serverJson);
+        await vscode.workspace.openTextDocument(file).then(doc =>
+            vscode.window.showTextDocument(doc)
+        );
+
+        let msg = updateStatus.validation.status.message.concat('\n', updateStatus.validation.status.trace);
+        return Promise.reject(msg);
+    }
+
+    private async saveAndShowEditor2(path: string, content: string): Promise<void> {
+        return new Promise((res, rej) =>{
+            fs.writeFile(path, content, undefined, error => {
+                if (error !== null) {
+                    rej(`Unable to save file on path ${path}. Error - ${error}`);
+                }
+            });
+            vscode.workspace.openTextDocument(path).then(
+                doc => vscode.window.showTextDocument(doc));
+        });
+    }
     public async onDidCloseTextDocument(doc: vscode.TextDocument): Promise<void> {
         if (!doc) {
             return Promise.reject('Error closing document - document is invalid');
