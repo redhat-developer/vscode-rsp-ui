@@ -347,6 +347,7 @@ export class CommandHandler {
             if (!rsp || !rsp.id) return null;
             const serverFilter = server => server.publishState === ServerState.PUBLISH_STATE_NONE ||
                                            server.publishState === ServerState.PUBLISH_STATE_INCREMENTAL ||
+                                           server.publishState === ServerState.PUBLISH_STATE_FULL ||
                                            server.publishState === ServerState.PUBLISH_STATE_UNKNOWN;
             const serverId = await this.selectServer(rsp.id, 'Select server to remove deployment from', serverFilter);
             if (!serverId) return null;
