@@ -1191,22 +1191,22 @@ suite('Command Handler', () => {
             executeServerStub = stubs.outgoing.executeServerAction = sandbox.stub().resolves(response);
         });
 
-        test('check if executeServerAction method is called with right param', async () => {
-            sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+        test('check if executeServerAction method is called once with ok param', async () => {
+            sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.okStatus);
             await executeServerAction(serverActionWorkflow, ProtocolStubs.unknownServerState, stubs.client);
             expect(executeServerStub).calledOnceWith(actionRequest);
         });
 
-        test('check if handleWorkflow is called with right param', async () => {
-            const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
+        test('check if handleWorkflow is called twice with ok param', async () => {
+            const handleWorkflowStub = sandbox.stub(handler, 'handleWorkflow' as any).resolves(ProtocolStubs.okStatus);
             await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
             expect(handleWorkflowStub).calledTwice;
         });
 
-        test('check if executeServerAction is not called second time if status returned by handleWorkflow method is undefined', async () => {
+        test('check if executeServerAction is not called if status returned by handleWorkflow method is undefined', async () => {
             sandbox.stub(handler, 'handleWorkflow' as any).resolves(undefined);
             await executeServerAction('action', ProtocolStubs.unknownServerState, stubs.client);
-            expect(executeServerStub).calledOnce;
+            expect(executeServerStub).not.called;
         });
 
         test('check if executeServerAction is not called second time if status returned by handleWorkflow method is OK', async () => {
