@@ -17,6 +17,6 @@ install:
 - npm run build
 
 script:
-- npm test --silent
+- npm test
 - npm run ui-test
 - npm run coverage:upload
