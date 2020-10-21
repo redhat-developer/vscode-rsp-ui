@@ -501,8 +501,11 @@ export class CommandHandler {
 
     private async executeServerAction(action: ServerActionItem, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
         const workflowMap = {};
-        await this.handleWorkflow(action.actionWorkflow, workflowMap);
-
+        const status1 = await this.handleWorkflow(action.actionWorkflow, workflowMap);
+        if( !status1) {
+            // Only way status1 is undefined is if the user canceled an input, and thus canceled the request
+            return;
+        }
         const actionRequest: Protocol.ServerActionRequest = {
             actionId: action.id,
             data: workflowMap,
@@ -530,6 +533,7 @@ export class CommandHandler {
         }
     }
 
+    // Should only return undefined if user cancels
     private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
         if (StatusSeverity.isError(response.status)
                     || StatusSeverity.isCancel(response.status)) {
@@ -605,9 +609,9 @@ export class CommandHandler {
     }
 
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
-        const rspProviders = Array.from(this.explorer.RSPServersStatus.values()).
-                                filter(predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED).
-                                map(rsp => {
+        const vals = Array.from(this.explorer.RSPServersStatus.values());
+        const predicateFilter2 = predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED;
+        const rspProviders = vals.filter(predicateFilter2).map(rsp => {
                                     return {
                                         label: (!rsp.state.type.visibilename ?
                                                 rsp.state.type.id :

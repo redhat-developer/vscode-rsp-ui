@@ -47,7 +47,7 @@ export class ProtocolStubs {
 
     public static readonly infoStatus: Protocol.Status = {
         code: 0,
-        message: 'ok',
+        message: 'info',
         severity: 1,
         ok: true,
         plugin: 'unknown',
