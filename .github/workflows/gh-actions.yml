@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }} # runs a test on Ubuntu, Windows and macOS
+
+    strategy:
+      matrix:
+        os: [macOS-latest, windows-latest, ubuntu-latest]
+        node: [12]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm install
+    - run: npm run build
+    - name: Run Unit tests
+      uses: GabrielBB/xvfb-action@v1.0
+      with:
+        run: npm test
+    - name: Run UI tests
+      uses: GabrielBB/xvfb-action@v1.0
+      with:
+        run: npm run ui-test
