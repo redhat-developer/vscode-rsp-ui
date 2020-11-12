@@ -1,6 +1,6 @@
 # Remote Server Protocol UI
 
-[![Build Status](https://travis-ci.org/redhat-developer/vscode-rsp-ui.svg?branch=master)](https://travis-ci.org/redhat-developer/vscode-rsp-ui)
+[![RSP - CI](https://img.shields.io/github/workflow/status/redhat-developer/vscode-rsp-ui/CI)](https://github.com/redhat-developer/vscode-rsp-ui/actions)
 [![License](https://img.shields.io/badge/license-EPLv2.0-brightgreen.svg)](https://github.com/redhat-developer/vscode-rsp-ui/blob/master/README.md)
 [![Visual Studio Marketplace](https://vsmarketplacebadge.apphb.com/version/redhat.vscode-rsp-ui.svg)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-rsp-ui)
 [![Gitter](https://badges.gitter.im/redhat-developer/server-connector.svg)](https://gitter.im/redhat-developer/server-connector?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
