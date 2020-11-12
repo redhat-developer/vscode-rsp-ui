@@ -28,9 +28,12 @@ suite('Extension Tests', () => {
         public get<T>(key: string): Promise<T|undefined> {
             return Promise.resolve(undefined);
         }
-
         public update(key: string, value: any): Promise<void> {
             return Promise.resolve();
+        }
+
+        public setKeysForSync(keys: string[]): void {
+            return;
         }
     }
 
@@ -44,7 +47,13 @@ suite('Extension Tests', () => {
             return '';
         },
         logPath: '',
-        globalStoragePath: ''
+        globalStoragePath: '',
+        extensionUri: undefined,
+        environmentVariableCollection: undefined,
+        storageUri: undefined,
+        logUri: undefined,
+        extensionMode: undefined,
+        globalStorageUri: undefined
     };
 
     setup(() => {
@@ -74,17 +83,21 @@ suite('Extension Tests', () => {
 
     test('Server is started at extension activation time', async () => {
         const serverInstance = sandbox.stub(ServerExplorer, 'getInstance').returns(serverExplorer);
-        sandbox.stub(vscode.commands, 'registerCommand').resolves();
+        const registerCommandStub = sandbox.stub(vscode.commands, 'registerCommand').resolves();
         await activate(context);
+        expect(registerCommandStub.called).to.be.true;
         expect(serverInstance).calledOnce;
     });
 
     test('should register all server commands', async () => {
+        // adding active for the extension so that commands are registered,
+        // see https://github.com/redhat-developer/vscode-rsp-ui/issues/153
+        await activate(context);
         return await vscode.commands.getCommands(true).then(commands => {
             const SERVER_COMMANDS = [
                 'server.startRSP',
                 'server.stopRSP',
-		'server.disconnectRSP',
+                'server.disconnectRSP',
                 'server.terminateRSP',
                 'server.start',
                 'server.restart',
