@@ -16,7 +16,10 @@
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: watch",
+            "env": {
+                "VSCODE_REDHAT_TELEMETRY_DEBUG":"true"
+            }
         },
         {
             "name": "Extension Tests Debug",
@@ -32,7 +35,8 @@
             ],
             "preLaunchTask": "npm: watch",
             "env": {
-                "VSCA_TEST_MODE": "debug"
+                "VSCA_TEST_MODE": "debug",
+                "VSCODE_REDHAT_TELEMETRY_DEBUG":"true"
             }
         },
         {
@@ -49,7 +53,8 @@
             ],
             "preLaunchTask": "npm: watch",
             "env": {
-                "VSCA_TEST_MODE": "coverage"
+                "VSCA_TEST_MODE": "coverage",
+                "VSCODE_REDHAT_TELEMETRY_DEBUG":"true"
             }
         }
     ]

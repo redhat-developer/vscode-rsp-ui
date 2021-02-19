@@ -30,6 +30,7 @@ import {
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType, ServerInfo } from 'vscode-server-connector-api';
+import sendTelemetry from './telemetry';
 
 enum deploymentStatus {
     file = 'File',
@@ -399,9 +400,21 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         if (!server.name) {
             return;
         }
-        const attrs = await this.getRequiredParameters(server.bean, client);
-        await this.getOptionalParameters(server.bean, attrs);
-        return this.createServer(server.bean, server.name, attrs, client);
+
+        let telemetryProps: any = {
+            rspType: rspId,
+            serverType: server.bean.serverAdapterTypeId,
+        };
+        const startTime = Date.now();
+        try {
+            const attrs = await this.getRequiredParameters(server.bean, client);
+            await this.getOptionalParameters(server.bean, attrs);
+            return this.createServer(server.bean, server.name, attrs, client);
+            } finally {
+            telemetryProps.duration = Date.now() - startTime;
+            sendTelemetry('server.add.local', telemetryProps);
+        }
+
     }
 
     public async editServer(rspId: string, server: Protocol.ServerHandle): Promise<void> {

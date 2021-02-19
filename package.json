@@ -15,6 +15,9 @@
   "engines": {
     "vscode": "^1.51.0"
   },
+  "extensionDependencies": [
+    "redhat.vscode-commons"
+  ],
   "categories": [
     "Other"
   ],
@@ -367,7 +370,7 @@
     "watch": "tsc -watch -p ./",
     "clean": "rm -rf out || rmdir out /s /q",
     "test": "npm run clean && npm run compile && node ./out/test/unit-tests.js",
-    "ui-test": "npm run compile && extest setup-and-run out/src/ui-test/allTestsSuite.js",
+    "ui-test": "npm run compile && extest setup-and-run -i out/src/ui-test/allTestsSuite.js",
     "update-deps": "node_modules/.bin/ncu --upgrade --loglevel verbose --packageFile package.json && npm update",
     "coverage:upload": "codecov -f coverage/coverage-final.json",
     "build": "npm run compile"
@@ -378,6 +381,7 @@
     "@types/node": "^10.17.44",
     "@types/sinon": "^5.0.2",
     "@types/vscode": "^1.51.0",
+    "@redhat-developer/vscode-redhat-telemetry": "0.0.13",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.8.1",
