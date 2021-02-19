@@ -1,4 +1,4 @@
-import { executeCommand } from '../../extension';
+import { executeCommandAndLog } from '../../extension';
 import { CommandHandler } from '../../extensionApi';
 import { RSPProperties, RSPState, ServerExplorer } from '../../serverExplorer';
 import * as vscode from 'vscode';
@@ -48,11 +48,11 @@ class RSPProviderAPIImpl implements RSPModel {
         if (startRSP ) {
             if( vscode.window.state.focused) {
                 const commandHandler = new CommandHandler(serversExplorer);
-                executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+                executeCommandAndLog('server.startRSP', commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
             } else {
                 setTimeout(function() {
                     const commandHandler = new CommandHandler(serversExplorer);
-                    executeCommand(commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
+                    executeCommandAndLog('server.startRSP', commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
                     }, 3000);
             }
         }
