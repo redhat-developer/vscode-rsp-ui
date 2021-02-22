@@ -381,7 +381,6 @@
     "@types/node": "^10.17.44",
     "@types/sinon": "^5.0.2",
     "@types/vscode": "^1.51.0",
-    "@redhat-developer/vscode-redhat-telemetry": "0.0.13",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "codecov": "^3.8.1",
@@ -400,6 +399,7 @@
     "vscode-test": "^1.4.1"
   },
   "dependencies": {
+    "@redhat-developer/vscode-redhat-telemetry": "0.0.13",
     "path": "0.12.7",
     "rsp-client": "^0.23.1",
     "tmp": "^0.1.0",
