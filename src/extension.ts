@@ -57,7 +57,7 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
             commandHandler.publishServer, commandHandler, ServerState.PUBLISH_FULL, context, 'Unable to publish (Full) to the server: ')),
         vscode.commands.registerCommand('server.publishIncremental', context => executeCommand(
             commandHandler.publishServer, commandHandler, ServerState.PUBLISH_INCREMENTAL, context, 'Unable to publish (Incremental) to the server: ')),
-        vscode.commands.registerCommand('server.editServer', context => context => executeCommand(
+        vscode.commands.registerCommand('server.editServer', context => executeCommand(
                 commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
         vscode.commands.registerCommand('server.actions', context => executeCommand(
                 commandHandler.serverActions, commandHandler, context, 'Unable to execute action')),
