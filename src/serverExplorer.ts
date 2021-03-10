@@ -368,8 +368,14 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     }
 
     public async addLocation(rspId: string): Promise<Protocol.Status> {
+        let telemetryProps: any = { rspType: rspId }
+        const startTime = Date.now();
+
         const client: RSPClient = this.getClientByRSP(rspId);
         if (!client) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'Unable to contact the RSP server.';
+            sendTelemetry('server.add.local', telemetryProps);
             return Promise.reject('Unable to contact the RSP server.');
         }
         const server: { name: string, bean: Protocol.ServerBean } = { name: null, bean: null };
@@ -382,6 +388,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
         if (!folders
           || folders.length === 0) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'User canceled browse to server home';
+            sendTelemetry('server.add.local', telemetryProps);
             return;
         }
 
@@ -393,24 +402,25 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
           || !serverBeans[0].serverAdapterTypeId
           || !serverBeans[0].typeCategory
           || serverBeans[0].typeCategory === 'UNKNOWN') {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = `Could not detect any server at ${folders[0].fsPath}!`;
+            sendTelemetry('server.add.local', telemetryProps);
             throw new Error(`Could not detect any server at ${folders[0].fsPath}!`);
         }
         server.bean = serverBeans[0];
         server.name = await this.getServerName(rspId);
         if (!server.name) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'User canceled when adding server name';
+            sendTelemetry('server.add.local', telemetryProps);
             return;
         }
-
-        let telemetryProps: any = {
-            rspType: rspId,
-            serverType: server.bean.serverAdapterTypeId,
-        };
-        const startTime = Date.now();
+        telemetryProps.serverType = server.bean.serverAdapterTypeId;
         try {
             const attrs = await this.getRequiredParameters(server.bean, client);
             await this.getOptionalParameters(server.bean, attrs);
             return this.createServer(server.bean, server.name, attrs, client);
-            } finally {
+        } finally {
             telemetryProps.duration = Date.now() - startTime;
             sendTelemetry('server.add.local', telemetryProps);
         }

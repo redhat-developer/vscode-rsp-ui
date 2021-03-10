@@ -491,30 +491,39 @@ export class CommandHandler {
             rspId = rsp.id;
         }
 
+        let telemetryProps: any = { rspType: rspId };
+        const startTime = Date.now();
+
         const client = this.explorer.getClientByRSP(rspId);
         if (!client) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'Failed to contact the RSP server.';
+            sendTelemetry('server.add.download', telemetryProps);
             return Promise.reject('Failed to contact the RSP server.');
         }
 
         const rtId: string = await this.promptDownloadableRuntimes(client);
         if (!rtId) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'No runtime selected to download';
+            sendTelemetry('server.add.download', telemetryProps);
             return;
         }
+        telemetryProps.serverType = rtId;
         let response: Protocol.WorkflowResponse = await this.initEmptyDownloadRuntimeRequest(rtId, client);
         if (!response) {
+            telemetryProps.duration = Date.now() - startTime;
+            telemetryProps.errorMessage = 'No response for initial download runtime workflow request';
+            sendTelemetry('server.add.download', telemetryProps);
             return;
         }
 
-        let telemetryProps: any = {
-            rspType: rspId,
-            serverType: rtId,
-        };
-        const startTime = Date.now();
         try {
             while (true) {
                 const workflowMap = {};
                 const status = await this.handleWorkflow(response, workflowMap);
                 if (!status) {
+                    telemetryProps.errorMessage = 'User did not complete download runtime workflow';
                     return;
                 } else if (!StatusSeverity.isInfo(status)) {
                     return status;
