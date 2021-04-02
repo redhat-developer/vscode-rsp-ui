@@ -411,6 +411,12 @@ suite('Server explorer', () => {
             version: '7.1'
         };
 
+        const orgJbossServerType: Protocol.ServerType = {
+            id: 'org.jboss',
+            visibleName: 'org.jboss.visiblename',
+            description: 'org.jboss.description'
+    }
+
         const serverBeanWithoutType: Protocol.ServerBean = {
             fullVersion: 'version',
             location: 'path',
@@ -423,20 +429,6 @@ suite('Server explorer', () => {
 
         const noAttributes: Protocol.Attributes = {
             attributes: { }
-        };
-
-        const status: Protocol.Status = {
-            code: 0,
-            message: 'ok',
-            severity: 0,
-            ok: true,
-            plugin: 'plugin',
-            trace: ''
-        };
-
-        const createResponse: Protocol.CreateServerResponse = {
-            status: status,
-            invalidKeys: []
         };
 
         const userSelectedPath = { fsPath: 'path/path' };
@@ -453,19 +445,35 @@ suite('Server explorer', () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
         });
 
-        test('should detect and create the server in a given location', async () => {
+        test('should open a webview for the given server type', async () => {
+            if( discoveryPath && noAttributes && orgJbossServerType && showOpenDialogStub) {
+                // this garbage just added so I don't have to comment out those lines
+            }
+        /*
             const inputBoxStub = sandbox.stub(window, 'showInputBox');
             inputBoxStub.onFirstCall().resolves('eap');
             inputBoxStub.onSecondCall().resolves('No');
 
-            const createServerStub = stubs.serverCreation.createServerFromBeanAsync.resolves(createResponse);
             stubs.outgoing.getOptionalAttributes.resolves(noAttributes);
             stubs.outgoing.getRequiredAttributes.resolves(noAttributes);
+            stubs.outgoing.getServerTypes.resolves([orgJbossServerType]);
+
+            const webviewStub = sandbox.stub(window, 'createWebviewPanel');
+            webviewStub.onFirstCall().resolves({
+                webview: {
+                    html: '',
+                    onDidReceiveMessage(type: any) {
+                    }
+                },
+                onDidDispose(param:any) {
+                }
+            });
 
             await serverExplorer.addLocation('id'); // to be modified
             expect(findServerStub).calledOnceWith(discoveryPath);
             expect(showOpenDialogStub).calledOnce;
-            expect(createServerStub).calledOnceWith(serverBean, 'eap');
+            expect(webviewStub).calledOnce;
+        */
         });
 
         test('should error if no server detected in provided location', async () => {
@@ -488,16 +496,6 @@ suite('Server explorer', () => {
             } catch (err) {
                 expect(err.message).length > 0;
             }
-        });
-
-        test('should stop workflow if server name is empty', async () => {
-            findServerStub.resolves([serverBean]);
-
-            sandbox.stub(serverExplorer, 'getServerName' as any).resolves(undefined);
-            const createServerStub = sandbox.stub(serverExplorer, 'createServer' as any);
-
-            await serverExplorer.addLocation('id');
-            expect(createServerStub).not.called;
         });
     });
 
