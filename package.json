@@ -334,6 +334,12 @@
           "description": "Specifies the path to a JDK (version 8 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.\nOn Windows, backslashes must be escaped, i.e.\n\"java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
           "scope": "window"
         },
+        "rsp-ui.newserverwebviewworkflow": {
+          "type": "boolean",
+          "default": true,
+          "title": "Use webviews when creating a new server",
+          "description": "If true, use the webviews workflow when creating a new server. If false, use a series of prompts."
+        },
         "rsp-ui.enableStartServerOnActivation": {
           "type": "array",
           "items": {
@@ -400,6 +406,7 @@
   },
   "dependencies": {
     "@redhat-developer/vscode-redhat-telemetry": "0.0.13",
+    "@redhat-developer/vscode-wizard": "^0.2.2",
     "path": "0.12.7",
     "rsp-client": "^0.23.1",
     "tmp": "^0.1.0",

@@ -445,7 +445,7 @@ export class CommandHandler {
         }
     }
 
-    public async createServer(context?: RSPState): Promise<Protocol.Status> {
+    public async createServer(context?: RSPState): Promise<Protocol.Status | null> {
         this.assertExplorerExists();
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to use to create a server');
@@ -471,7 +471,7 @@ export class CommandHandler {
         }
     }
 
-    public async addLocation(rspId: string): Promise<Protocol.Status> {
+    public async addLocation(rspId: string): Promise<Protocol.Status | null> {
         if (this.explorer) {
             if (!rspId) {
                 const rsp = await this.selectRSP('Select RSP provider you want to use');
