@@ -20,6 +20,7 @@ import {
     window,
     workspace
 } from 'vscode';
+import { myContext } from './extension';
 
 import {
     Protocol,
@@ -31,6 +32,8 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType, ServerInfo } from 'vscode-server-connector-api';
 import sendTelemetry from './telemetry';
+import { IWizardPage, WebviewWizard, WizardDefinition } from '@redhat-developer/vscode-wizard';
+import { stat } from 'fs';
 
 enum deploymentStatus {
     file = 'File',
@@ -369,7 +372,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
     public async addLocation(rspId: string): Promise<Protocol.Status> {
         let telemetryProps: any = { rspType: rspId }
-        const startTime = Date.now();
+        const startTime: number = Date.now();
 
         const client: RSPClient = this.getClientByRSP(rspId);
         if (!client) {
@@ -407,7 +410,87 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             sendTelemetry('server.add.local', telemetryProps);
             throw new Error(`Could not detect any server at ${folders[0].fsPath}!`);
         }
-        server.bean = serverBeans[0];
+        //return this.addLocationStepImplementation(server, serverBeans[0], rspId, client, telemetryProps, startTime);
+        return this.addLocationWizardImplementation(server, serverBeans[0], rspId, client, telemetryProps, startTime);
+    }
+
+    public async addLocationWizardImplementation(server, serverBean: Protocol.ServerBean, rspId: string,
+        client: RSPClient, telemetryProps: any, startTime: number): Promise<Protocol.Status> {
+            //const req = await client.getOutgoingHandler().getRequiredAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
+            //const opt = await client.getOutgoingHandler().getOptionalAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
+            const myret: any = {};
+            const explorer: ServerExplorer = this;
+            let def : WizardDefinition = {
+                title: "Sample Wizard", 
+                description: "A wizard to sample - description",
+                pages: [
+                  {
+                      title: "Page 1",
+                      description: "Age Page",
+                      fields: [
+                          {
+                              id: "age",
+                              label: "Age",
+                              type: "textbox"
+                          }
+                      ],
+                      validator: (parameters:any) => {
+                          let templates = [];
+                          const age : Number = Number(parameters.age);
+                          if( age <= 3) {
+                              templates.push({ id: "ageValidation", 
+                              content: "No babies allowed"});
+                          }
+                          return templates;
+                      }
+                    }
+                  ],
+                  workflowManager: {
+                    canFinish(wizard:WebviewWizard, data: any): boolean {
+                        return data.age !== undefined;
+                    },
+                    performFinish(wizard:WebviewWizard, data: any): void {
+                        // Do something
+                        var age : Number = Number(data.age);
+                        myret.test = {
+                            "age": age
+                        }
+                        try {
+                            explorer.createServer(server.bean, server.name, myret, client).then(
+                                status => status && explorer.showAddServerWizardFinishResult(status)
+                            )
+                        } catch( e ) {
+                            console.log(e);
+                        }
+                    },
+                    getNextPage(page:IWizardPage, data: any): IWizardPage | null {
+                        return null;
+                    },
+                    getPreviousPage(page:IWizardPage, data: any): IWizardPage | null {
+                        return null;
+                    }
+                }
+            };
+            const wiz: WebviewWizard = new WebviewWizard("sample1", "sample1", myContext, def, new Map<string,string>());
+            wiz.open();
+
+            const stat: Protocol.Status = {
+                severity: 1,
+                plugin: "",
+                code: 0,
+                trace: "",
+                message: "New Server Workflow is executing",
+                ok: true
+            };
+            return stat;
+    }
+
+    public showAddServerWizardFinishResult(stat: Protocol.Status ) {
+        console.log(stat);
+    }
+    public async addLocationStepImplementation(server, serverBean: Protocol.ServerBean, rspId: string,
+            client: RSPClient, telemetryProps: any, startTime: number): Promise<Protocol.Status> {
+        server.bean = serverBean;
         server.name = await this.getServerName(rspId);
         if (!server.name) {
             telemetryProps.duration = Date.now() - startTime;
@@ -465,11 +548,11 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
     private async createServer(bean: Protocol.ServerBean, name: string, attributes: any = {}, client: RSPClient): Promise<Protocol.Status> {
         if (!bean || !name) {
-            throw new Error('Couldn\'t create server: no type or name provided.');
+            return Promise.reject('Couldn\'t create server: no type or name provided.');
         }
         const response = await client.getServerCreation().createServerFromBeanAsync(bean, name, attributes);
         if (!StatusSeverity.isOk(response.status)) {
-            throw new Error(response.status.message);
+            return Promise.reject(response.status.message);
         }
         return response.status;
     }

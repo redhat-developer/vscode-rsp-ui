@@ -15,10 +15,12 @@ import sendTelemetry from './telemetry';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;
+export let myContext: vscode.ExtensionContext;
 
 export async function activate(context: vscode.ExtensionContext): Promise<RSPModel> {
     serversExplorer = ServerExplorer.getInstance();
     commandHandler = new CommandHandler(serversExplorer);
+    myContext = context;
     registerCommands(commandHandler, context);
     return getAPI();
 }
