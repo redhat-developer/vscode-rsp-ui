@@ -32,8 +32,7 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType, ServerInfo } from 'vscode-server-connector-api';
 import sendTelemetry from './telemetry';
-import { IWizardPage, WebviewWizard, WizardDefinition } from '@redhat-developer/vscode-wizard';
-import { stat } from 'fs';
+import { IWizardPage, WebviewWizard, WizardDefinition,WizardPageFieldDefinition } from '@redhat-developer/vscode-wizard';
 
 enum deploymentStatus {
     file = 'File',
@@ -381,7 +380,6 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             sendTelemetry('server.add.local', telemetryProps);
             return Promise.reject('Unable to contact the RSP server.');
         }
-        const server: { name: string, bean: Protocol.ServerBean } = { name: null, bean: null };
         const folders = await window.showOpenDialog({
             canSelectFiles: false,
             canSelectMany: false,
@@ -410,53 +408,107 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             sendTelemetry('server.add.local', telemetryProps);
             throw new Error(`Could not detect any server at ${folders[0].fsPath}!`);
         }
-        //return this.addLocationStepImplementation(server, serverBeans[0], rspId, client, telemetryProps, startTime);
-        return this.addLocationWizardImplementation(server, serverBeans[0], rspId, client, telemetryProps, startTime);
+        //return this.addLocationStepImplementation(serverBeans[0], rspId, client, telemetryProps, startTime);
+        return this.addLocationWizardImplementation(serverBeans[0], rspId, client, telemetryProps, startTime);
     }
 
-    public async addLocationWizardImplementation(server, serverBean: Protocol.ServerBean, rspId: string,
+    private attrTypeToFieldDefinitionType(attr: Protocol.Attribute): string {
+        if( attr.type === 'bool' )
+            return "checkbox";
+        if( attr.type === 'list')
+            return "textarea";
+        if( attr.type === 'map')
+            return "textarea";
+        // if( attr.type === 'int' || attr.type === 'string')  or other
+        return "textbox";
+    }
+    private attrAsFieldDefinition(key: string, attr: Protocol.Attribute, required: boolean ) : WizardPageFieldDefinition {
+        const ret: WizardPageFieldDefinition = {
+            id: key,
+            label: key + (required ? "*" : ""),
+            description: attr.description,
+            type: this.attrTypeToFieldDefinitionType(attr),
+            initialValue: attr.defaultVal
+        };
+        return ret;
+    }
+    public async addLocationWizardImplementation(serverBean: Protocol.ServerBean, rspId: string,
         client: RSPClient, telemetryProps: any, startTime: number): Promise<Protocol.Status> {
-            //const req = await client.getOutgoingHandler().getRequiredAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
-            //const opt = await client.getOutgoingHandler().getOptionalAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
+
+            let serverType: Protocol.ServerType = null;
+            const serverTypes: Protocol.ServerType[] = await client.getOutgoingHandler().getServerTypes();
+            for( const oneType of serverTypes ) {
+                if( oneType.id === serverBean.serverAdapterTypeId ) {
+                    serverType = oneType;
+                }
+            }
+
+            const req: Protocol.Attributes = await client.getOutgoingHandler().getRequiredAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
+            const opt: Protocol.Attributes = await client.getOutgoingHandler().getOptionalAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
+
+            let fields: WizardPageFieldDefinition[] = [];
+            let nameField: WizardPageFieldDefinition = {
+                id: "id",
+                type: "textbox",
+                label: "Server Name*"
+            };
+            fields.push(nameField);
+            for( const key in req.attributes ) {
+                const oneAttr: Protocol.Attribute = req.attributes[key];
+                let f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, true);
+                if (key === 'server.home.dir' || key === 'server.home.file') {
+                    f1.initialValue = serverBean.location;
+                }
+                fields.push(f1);
+            }
+
+            for( const key in opt.attributes ) {
+                const oneAttr: Protocol.Attribute = opt.attributes[key];
+                let f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, false);
+                fields.push(f1);
+            }
+
             const myret: any = {};
             const explorer: ServerExplorer = this;
             let def : WizardDefinition = {
-                title: "Sample Wizard", 
-                description: "A wizard to sample - description",
+                title: "New Server: " + serverType.visibleName, 
+                description: serverType.description,
                 pages: [
                   {
-                      title: "Page 1",
-                      description: "Age Page",
-                      fields: [
-                          {
-                              id: "age",
-                              label: "Age",
-                              type: "textbox"
-                          }
-                      ],
-                      validator: (parameters:any) => {
+                    title: "New Server: " + serverType.visibleName, 
+                    description: serverType.description,
+                    fields: fields,
+                    validator: (parameters:any) => {
                           let templates = [];
-                          const age : Number = Number(parameters.age);
-                          if( age <= 3) {
-                              templates.push({ id: "ageValidation", 
-                              content: "No babies allowed"});
+                          for( const key in req.attributes ) {
+                              if( !parameters[key] || parameters[key] === "") {
+                                templates.push({ id: key+"Validation", 
+                                content: key+" must not be empty."});
+                                }
                           }
-                          return templates;
-                      }
+                          if( !parameters['id'] || parameters['id'] === "") {
+                            templates.push({ id: "idValidation", 
+                            content: "id must not be empty."});
+                            }
+                      return templates;
                     }
-                  ],
-                  workflowManager: {
+                  }
+                ],
+                workflowManager: {
                     canFinish(wizard:WebviewWizard, data: any): boolean {
-                        return data.age !== undefined;
+                        if( !data['id'] || data['id'] === "") {
+                            return false;
+                        }
+                        for( const key in req.attributes ) {
+                            if( !data[key] || data[key] === "") {
+                                return false;
+                            }
+                        }
+                        return true;
                     },
                     performFinish(wizard:WebviewWizard, data: any): void {
-                        // Do something
-                        var age : Number = Number(data.age);
-                        myret.test = {
-                            "age": age
-                        }
                         try {
-                            explorer.createServer(server.bean, server.name, myret, client).then(
+                            explorer.createServer(serverBean, data.id, data, client).then(
                                 status => status && explorer.showAddServerWizardFinishResult(status)
                             )
                         } catch( e ) {
@@ -471,7 +523,8 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                     }
                 }
             };
-            const wiz: WebviewWizard = new WebviewWizard("sample1", "sample1", myContext, def, new Map<string,string>());
+            const wiz: WebviewWizard = new WebviewWizard("New Server Wizard", "NewServerWizard", 
+                myContext, def, new Map<string,string>());
             wiz.open();
 
             const stat: Protocol.Status = {
@@ -488,8 +541,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     public showAddServerWizardFinishResult(stat: Protocol.Status ) {
         console.log(stat);
     }
-    public async addLocationStepImplementation(server, serverBean: Protocol.ServerBean, rspId: string,
+    public async addLocationStepImplementation(serverBean: Protocol.ServerBean, rspId: string,
             client: RSPClient, telemetryProps: any, startTime: number): Promise<Protocol.Status> {
+        const server: { name: string, bean: Protocol.ServerBean } = { name: null, bean: null };
         server.bean = serverBean;
         server.name = await this.getServerName(rspId);
         if (!server.name) {
