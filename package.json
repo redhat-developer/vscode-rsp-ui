@@ -395,7 +395,7 @@
     "tslint": "^5.17.0",
     "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.9.7",
-    "vscode-extension-tester": "^3.2.2",
+    "vscode-extension-tester": "^4.0.2",
     "vscode-test": "^1.4.1"
   },
   "dependencies": {
