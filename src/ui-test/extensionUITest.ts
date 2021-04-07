@@ -1,6 +1,6 @@
 import { AdaptersConstants } from './common/adaptersContants';
 import { expect } from 'chai';
-import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, ExtensionsViewItem } from 'vscode-extension-tester';
+import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, ExtensionsViewItem, InputBox } from 'vscode-extension-tester';
 
 /**
  * @author Ondrej Dockal <odockal@redhat.com>
@@ -10,13 +10,13 @@ export function extensionUIAssetsTest() {
 
         let view: ViewControl;
         let sideBar: SideBarView;
-        let quickBox: QuickOpenBox;
+        let quickBox: InputBox;
 
         before(async function() {
             this.timeout(4000);
-            view = new ActivityBar().getViewControl('Extensions');
+            view = await new ActivityBar().getViewControl('Extensions');
             sideBar = await view.openView();
-            quickBox = await new Workbench().openCommandPrompt();
+            quickBox = (await new Workbench().openCommandPrompt()) as InputBox;
         });
 
         it('Command Palette prompt knows RSP commands', async function() {
@@ -33,7 +33,7 @@ export function extensionUIAssetsTest() {
 
         it('Action button "Create New Server..." from Servers tab is available', async function() {
             this.timeout(8000);
-            const explorerView = new ActivityBar().getViewControl('Explorer');
+            const explorerView = await new ActivityBar().getViewControl('Explorer');
             const bar = await explorerView.openView();
             const content = bar.getContent();
             const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
@@ -43,7 +43,7 @@ export function extensionUIAssetsTest() {
 
         it('Servers tab is available under Explorer bar', async function() {
             this.timeout(8000);
-            const explorerView = new ActivityBar().getViewControl('Explorer');
+            const explorerView = await new ActivityBar().getViewControl('Explorer');
             expect(explorerView).not.undefined;
             const bar = await explorerView.openView();
             const content = bar.getContent();
@@ -60,7 +60,8 @@ export function extensionUIAssetsTest() {
         after(async function() {
             this.timeout(4000);
             if (sideBar && await sideBar.isDisplayed()) {
-                sideBar = await new ActivityBar().getViewControl('Extensions').openView();
+                const viewControl = await new ActivityBar().getViewControl('Extensions');
+                sideBar = await viewControl.openView();
                 const titlePart = sideBar.getTitlePart();
                 const actionButton = await titlePart.getAction('Clear Extensions Search Results');
                 if (actionButton.isEnabled()) {
