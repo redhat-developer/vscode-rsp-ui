@@ -470,6 +470,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                 let f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, true);
                 if (key === 'server.home.dir' || key === 'server.home.file') {
                     f1.initialValue = serverBean.location;
+                    f1.properties = {disabled: true};
                 }
                 requiredFields.push(f1);
             }
