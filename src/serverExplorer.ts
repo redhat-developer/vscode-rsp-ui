@@ -440,6 +440,22 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         };
         return ret;
     }
+
+    public getDefaultServerName(rspId: string, serverType: Protocol.ServerType) : string {
+        let count: number = 0;
+        let needle = serverType.visibleName;
+        let done: boolean = false;
+        while (!done) {
+            let found = this.RSPServersStatus.get(rspId).state.serverStates.find(state => state.server.id === needle);
+            if( found !== undefined ) {
+                needle = serverType.visibleName + " (" + ++count + ")";
+            } else {
+                done = true;
+            }
+        }
+        return needle;
+    }
+
     public async addLocationWizardImplementation(serverBean: Protocol.ServerBean, rspId: string,
         client: RSPClient, telemetryProps: any, startTime: number): Promise<Protocol.Status | null> {
 
@@ -448,19 +464,24 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             for( const oneType of serverTypes ) {
                 if( oneType.id === serverBean.serverAdapterTypeId ) {
                     serverType = oneType;
-                    }
+                }
             }
 
             const req: Protocol.Attributes = await client.getOutgoingHandler().getRequiredAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
             const opt: Protocol.Attributes = await client.getOutgoingHandler().getOptionalAttributes({id: serverBean.serverAdapterTypeId, visibleName: '', description: ''});
 
+
+            let initialData: Map<string,string> = new Map<string,string>();
+            let defaultName: string = this.getDefaultServerName(rspId, serverType);
             let fields:  (WizardPageFieldDefinition | WizardPageSectionDefinition)[] = [];
             let nameField: WizardPageFieldDefinition = {
                 id: "id",
                 type: "textbox",
-                label: "Server Name*"
+                label: "Server Name*",
+                initialValue: defaultName
             };
             fields.push(nameField);
+            initialData['id'] = defaultName;
 
             let requiredFields: WizardPageFieldDefinition[] = [];
             let optionalFields: WizardPageFieldDefinition[] = [];
@@ -471,6 +492,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                 if (key === 'server.home.dir' || key === 'server.home.file') {
                     f1.initialValue = serverBean.location;
                     f1.properties = {disabled: true};
+                    initialData[key] = f1.initialValue;
                 }
                 requiredFields.push(f1);
             }
@@ -595,7 +617,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             };
 
             const wiz: WebviewWizard = new WebviewWizard("New Server Wizard", "NewServerWizard", 
-                myContext, def, new Map<string,string>());
+                myContext, def, initialData);
             wiz.open();
             return null;
     }
