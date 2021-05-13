@@ -38,8 +38,8 @@ suite('Command Handler', () => {
         sandboxDebug = sinon.createSandbox();
 
         stubs = new ClientStubs(sandbox);
-        stubs.outgoing.getServerHandles = sandbox.stub().resolves([ProtocolStubs.serverHandle]);
-        stubs.outgoing.getServerState = sandbox.stub().resolves(ProtocolStubs.unknownServerState);
+        stubs.outgoing.getServerHandles = sandbox.stub<[number]>().resolves([ProtocolStubs.serverHandle]);
+        stubs.outgoing.getServerState = sandbox.stub<[Protocol.ServerHandle, number]>().resolves(ProtocolStubs.unknownServerState);
 
         serverExplorer = ServerExplorer.getInstance();
         handler = new CommandHandler(serverExplorer);
@@ -255,12 +255,12 @@ suite('Command Handler', () => {
     suite('startServer', () => {
         let statusStub: sinon.SinonStub;
         let getClientStub: sinon.SinonStub;
-        let startStub: sinon.SinonStub;
+        let startStub: sinon.SinonStub<[Protocol.LaunchParameters, number]>;
 
         setup(() => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
             getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            startStub = sandbox.stub().resolves(ProtocolStubs.okStartServerResponse);
+            startStub = sandbox.stub<[Protocol.LaunchParameters, number]>().resolves(ProtocolStubs.okStartServerResponse);
             stubs.outgoing.startServerAsync = startStub;
         });
 
@@ -351,7 +351,7 @@ suite('Command Handler', () => {
     });
 
     suite('debugServer', () => {
-        let startStub: sinon.SinonStub;
+        let startStub: sinon.SinonStub<[Protocol.LaunchParameters, number]>;
         let getClientStub : sinon.SinonStub;
 
         const cmdDetails: Protocol.CommandLineDetails = {
@@ -369,9 +369,9 @@ suite('Command Handler', () => {
         };
 
         setup(() => {
-            startStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
+            sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.unknownServerState);
             getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            startStub = sandbox.stub().resolves(response);
+            startStub = sandbox.stub<[Protocol.LaunchParameters, number]>().resolves(response);
             stubs.outgoing.startServerAsync = startStub;
         });
 
@@ -413,7 +413,7 @@ suite('Command Handler', () => {
 
         test('display error if language is not supported', async () => {
             // given
-            stubs.outgoing.getLaunchCommand = sandbox.stub().resolves(cmdDetails);
+            stubs.outgoing.getLaunchCommand = sandbox.stub<[Protocol.LaunchParameters, number]>().resolves(cmdDetails);
             const debugInfo: DebugInfo = new DebugInfo(cmdDetails as Protocol.CommandLineDetails);
             sandbox.stub(debugInfo, 'isJavaType').returns(false);
             sandbox.stub(DebugInfoProvider, 'retrieve').resolves(debugInfo);
@@ -463,8 +463,8 @@ suite('Command Handler', () => {
         setup(() => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.startedServerState);
             getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            stopStub = stubs.outgoing.stopServerAsync = sandbox.stub().resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('id');
+            stopStub = stubs.outgoing.stopServerAsync = sandbox.stub<[Protocol.StopServerAttributes, number]>().resolves(ProtocolStubs.okStatus);
+            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
         });
 
         test('works with injected context', async () => {
@@ -563,7 +563,7 @@ suite('Command Handler', () => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(serverStateInternal);
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = stubs.outgoing.stopServerAsync.resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('id');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
         });
 
         test('works with injected context', async () => {
@@ -620,11 +620,11 @@ suite('Command Handler', () => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(serverStateInternal);
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             removeStub = stubs.outgoing.deleteServer.resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('id');
+            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
         });
 
         test('works with injected context', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves('Yes');
+            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
             const result = await handler.removeServer(ProtocolStubs.unknownServerState);
             const args: Protocol.ServerHandle = {
                 id: ProtocolStubs.serverHandle.id,
@@ -638,7 +638,7 @@ suite('Command Handler', () => {
         test('works without injected context', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves('Yes');
+            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
             const result = await handler.removeServer();
             const args: Protocol.ServerHandle = {
                 id: 'id',
@@ -650,7 +650,7 @@ suite('Command Handler', () => {
         });
 
         test('errors if the server is not stopped', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves('Yes');
+            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
             statusStub.returns(ServerState.STARTED);
 
             try {
@@ -662,7 +662,7 @@ suite('Command Handler', () => {
         });
 
         test('throws any errors coming from the rsp client', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves('Yes');
+            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
             removeStub.resolves(ProtocolStubs.errorStatus);
 
             try {
@@ -719,8 +719,8 @@ suite('Command Handler', () => {
         setup(() => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves(ProtocolStubs.serverHandle.id);
-            stubs.incoming.onServerStateChanged = sandbox.stub().resolves(ProtocolStubs.stoppedServerState);
+            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: ProtocolStubs.serverHandle.id });
+            stubs.incoming.onServerStateChanged = sandbox.stub<[(arg: Protocol.ServerState) => void], void>().resolves(ProtocolStubs.stoppedServerState);
         });
 
         test('should restart with given server', async () => {
@@ -791,10 +791,10 @@ suite('Command Handler', () => {
 
         setup(() => {
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
-            stubs.outgoing.getLaunchCommand = sandbox.stub().resolves(ProtocolStubs.javaCommandLine);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves(ProtocolStubs.serverHandle.id);
+            stubs.outgoing.getLaunchCommand = sandbox.stub<[Protocol.LaunchParameters, number], Promise<Protocol.CommandLineDetails>>().resolves(ProtocolStubs.javaCommandLine);
+            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: ProtocolStubs.serverHandle.id });
             sandbox.stub(handler, 'checkExtension' as any).resolves(undefined);
-            stubs.incoming.onServerStateChanged = sandbox.stub().resolves(ProtocolStubs.stoppedServerState);
+            stubs.incoming.onServerStateChanged = sandbox.stub<[(arg: Protocol.ServerState) => void], void>().resolves(ProtocolStubs.stoppedServerState);
         });
 
         test('should restart with given server', async () => {
@@ -957,14 +957,14 @@ suite('Command Handler', () => {
 
         test('check if runtime method is called if user picks Yes answer with context passed as param', async () => {
             const downloadRuntimeStub = sandbox.stub(handler, 'downloadRuntime');
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('Yes');
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('Yes');
             await handler.createServer(ProtocolStubs.rspState);
             expect(downloadRuntimeStub).calledOnceWith('id');
         });
 
         test('check if addLocation method is called if user picks No answer with context passed as param', async () => {
             const addLocationStub = sandbox.stub(handler, 'addLocation');
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('No');
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('No');
             await handler.createServer(ProtocolStubs.rspState);
             expect(addLocationStub).calledOnceWith('id');
         });
@@ -978,7 +978,7 @@ suite('Command Handler', () => {
         test('check if runtime method is called if user picks Yes answer without context passed as param', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             const downloadRuntimeStub = sandbox.stub(handler, 'downloadRuntime');
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('Yes');
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('Yes');
             await handler.createServer(undefined);
             expect(downloadRuntimeStub).calledOnceWith('id');
         });
@@ -986,7 +986,7 @@ suite('Command Handler', () => {
         test('check if addLocation method is called if user picks No answer without context passed as param', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             const addLocationStub = sandbox.stub(handler, 'addLocation');
-            sandbox.stub(vscode.window, 'showQuickPick').resolves('No');
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('No');
             await handler.createServer(undefined);
             expect(addLocationStub).calledOnceWith('id');
         });
@@ -1140,13 +1140,13 @@ suite('Command Handler', () => {
         });
 
         test('check if listServerActions is called correctly', async () => {
-            const listServerActions = stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            const listServerActions = stubs.outgoing.listServerActions = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ListServerActionResponse>>().resolves(listResponse);
             await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
             expect(listServerActions).calledOnceWith(ProtocolStubs.serverHandle);
         });
 
         test('display message if there are no actions to be displayed', async () => {
-            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            stubs.outgoing.listServerActions = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ListServerActionResponse>>().resolves(listResponse);
             const infoMessageStub = sandbox.stub(vscode.window, 'showInformationMessage');
             await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
             expect(infoMessageStub).calledOnceWith('there are no additional actions for this server');
@@ -1154,7 +1154,7 @@ suite('Command Handler', () => {
 
         test('check if quickpick is called with right params if there are actions to be displayed', async () => {
             listResponse.workflows = [serverActionWorkflow];
-            stubs.outgoing.listServerActions = sandbox.stub().resolves(listResponse);
+            stubs.outgoing.listServerActions = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ListServerActionResponse>>().resolves(listResponse);
             const quickPickStub = sandbox.stub(vscode.window, 'showQuickPick').resolves(undefined);
             await chooseServerActions(ProtocolStubs.serverHandle, stubs.client);
             expect(quickPickStub).calledOnceWith([{
@@ -1188,7 +1188,7 @@ suite('Command Handler', () => {
 
         setup(() => {
             executeServerAction = Reflect.get(handler, 'executeServerAction').bind(handler);
-            executeServerStub = stubs.outgoing.executeServerAction = sandbox.stub().resolves(response);
+            executeServerStub = stubs.outgoing.executeServerAction = sandbox.stub<[Protocol.ServerActionRequest, number], Promise<Protocol.WorkflowResponse>>().resolves(response);
         });
 
         test('check if executeServerAction method is called once with ok param', async () => {
@@ -1345,7 +1345,7 @@ suite('Command Handler', () => {
         });
 
         test('error if server properties object is undefined', async () => {
-            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.GetServerJsonResponse>>().callsFake(() => {
                 return undefined;
             });
 
@@ -1366,9 +1366,9 @@ suite('Command Handler', () => {
                 status: ProtocolStubs.okStatus
             };
 
-            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
-                return serverJsonResponse;
-            });
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox
+                                                        .stub<[Protocol.ServerHandle, number], Promise<Protocol.GetServerJsonResponse>>()
+                                                        .callsFake(() => { return Promise.resolve(serverJsonResponse);  });
 
             try {
                 await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
@@ -1388,8 +1388,8 @@ suite('Command Handler', () => {
                 status: ProtocolStubs.okStatus
             };
 
-            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub().callsFake(() => {
-                return serverJsonResponse;
+            serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.GetServerJsonResponse>>().callsFake(() => {
+                return Promise.resolve(serverJsonResponse);
             });
 
             await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
@@ -1485,7 +1485,7 @@ function givenDebugTypeIsSupported(sandbox: sinon.SinonSandbox, handler: Command
 }
 
 function givenProcessOutput(sandbox: sinon.SinonSandbox, stubs: ClientStubs) {
-    stubs.incoming.onServerProcessOutputAppended = sandbox.stub().callsFake((listener: (arg: Protocol.ServerProcessOutput) => void) => {
+    stubs.incoming.onServerProcessOutputAppended = sandbox.stub<[(arg: Protocol.ServerProcessOutput) => void], void>().callsFake((listener: (arg: Protocol.ServerProcessOutput) => void) => {
         // call listeners that's being registered with fake output
         listener({
             server: ProtocolStubs.serverHandle,

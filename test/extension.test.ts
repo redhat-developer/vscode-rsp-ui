@@ -53,7 +53,9 @@ suite('Extension Tests', () => {
         storageUri: undefined,
         logUri: undefined,
         extensionMode: undefined,
-        globalStorageUri: undefined
+        globalStorageUri: undefined,
+        secrets: undefined,
+        extension: undefined
     };
 
     setup(() => {
@@ -84,7 +86,7 @@ suite('Extension Tests', () => {
     test('Server is started at extension activation time', async () => {
         const serverInstance = sandbox.stub(ServerExplorer, 'getInstance').returns(serverExplorer);
         const registerCommandStub = sandbox.stub(vscode.commands, 'registerCommand').resolves();
-        await activate(context);
+        await activate(context);        
         expect(registerCommandStub.called).to.be.true;
         expect(serverInstance).calledOnce;
     });
@@ -92,7 +94,11 @@ suite('Extension Tests', () => {
     test('should register all server commands', async () => {
         // adding active for the extension so that commands are registered,
         // see https://github.com/redhat-developer/vscode-rsp-ui/issues/153
-        await activate(context);
+        try {
+            await activate(context);
+        } catch(e) {
+            // if already activated it fails because commands are already registered but we don't care
+        }        
         return await vscode.commands.getCommands(true).then(commands => {
             const SERVER_COMMANDS = [
                 'server.startRSP',
@@ -125,7 +131,7 @@ suite('Extension Tests', () => {
             });
             const t1 = foundServerCommands.length;
             const t2 = SERVER_COMMANDS.length;
-            assert.equal(t1, t2,
+            assert.strictEqual(t1, t2,
                 'Some server commands are not registered properly or a new command is not added to the test');
         });
     });

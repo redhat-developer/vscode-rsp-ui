@@ -50,8 +50,9 @@ suite('Server explorer', () => {
         sandbox = sinon.createSandbox();
 
         stubs = new ClientStubs(sandbox);
-        stubs.outgoing.getServerHandles = sandbox.stub().resolves([]);
-        stubs.outgoing.getServerState = sandbox.stub().resolves(ProtocolStubs.unknownServerState);
+        stubs.outgoing.getServerHandles = sandbox.stub<[number], Promise<Protocol.ServerHandle[]>>().resolves([]);
+        stubs.outgoing.getServerState = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ServerState>>().resolves(ProtocolStubs.unknownServerState);
+
 
         serverExplorer = ServerExplorer.getInstance();
         serverExplorer.serverOutputChannels.set('id', fakeChannel);
@@ -68,7 +69,7 @@ suite('Server explorer', () => {
     test('insertServer call should add server', async () => {
         // given
         sandbox.stub(serverExplorer, 'refresh');
-        stubs.outgoing.getServerState = sandbox.stub().resolves(ProtocolStubs.startedServerStateProtocol);
+        stubs.outgoing.getServerState = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ServerState>>().resolves(ProtocolStubs.startedServerStateProtocol);
         sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
         sandbox.stub(serverExplorer, 'convertToServerStateNode' as any).returns(ProtocolStubs.startedServerState);
         const insertStub = serverExplorer.RSPServersStatus.get('id').state.serverStates.push = sandbox.stub();
@@ -81,7 +82,7 @@ suite('Server explorer', () => {
     test('insertServer doesn\'t call should add server if client is unavailable', async () => {
         // given
         sandbox.stub(serverExplorer, 'refresh');
-        stubs.outgoing.getServerState = sandbox.stub().resolves(ProtocolStubs.startedServerStateProtocol);
+        stubs.outgoing.getServerState = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ServerState>>().resolves(ProtocolStubs.startedServerStateProtocol);
         sandbox.stub(serverExplorer, 'getClientByRSP').returns(undefined);
         sandbox.stub(serverExplorer, 'convertToServerStateNode' as any).returns(ProtocolStubs.startedServerState);
         const insertStub = serverExplorer.RSPServersStatus.get('id').state.serverStates.push = sandbox.stub();
@@ -431,7 +432,17 @@ suite('Server explorer', () => {
             attributes: { }
         };
 
-        const userSelectedPath = { fsPath: 'path/path' };
+        const userSelectedPath: Uri = { 
+            fsPath: 'path/path',
+            authority: 'authority',
+            fragment: 'fragment',
+            path: 'path/path',
+            query: 'query',
+            scheme: 'scheme',
+            toJSON: () => {},
+            toString: () => '',
+            with: undefined
+        };
 
         const discoveryPath: Protocol.DiscoveryPath = {
             filepath: userSelectedPath.fsPath
@@ -505,7 +516,17 @@ suite('Server explorer', () => {
             exploded = 'Exploded'
         }
 
-        const userSelectedPath = { fsPath: 'path/path' };
+        const userSelectedPath: Uri = { 
+            fsPath: 'path/path',
+            authority: 'authority',
+            fragment: 'fragment',
+            path: 'path/path',
+            query: 'query',
+            scheme: 'scheme',
+            toJSON: () => {},
+            toString: () => '',
+            with: undefined
+        };
 
         const rspProperties: RSPProperties = {
             client: undefined,
@@ -645,21 +666,21 @@ suite('Server explorer', () => {
     suite('removeDeployment', () => {
         test('check if removeDeployable is called once', async () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            const stubRemoveDeployable = stubs.outgoing.removeDeployable = sandbox.stub().resolves(ProtocolStubs.okStatus);
+            const stubRemoveDeployable = stubs.outgoing.removeDeployable = sandbox.stub<[Protocol.ServerDeployableReference, number], Promise<Protocol.Status>>().resolves(ProtocolStubs.okStatus);
             await serverExplorer.removeDeployment('id', ProtocolStubs.serverHandle, ProtocolStubs.deployableReference);
             expect(stubRemoveDeployable).calledOnce;
         });
 
         test('check if deployable is removed correctly', async () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            stubs.outgoing.removeDeployable = sandbox.stub().resolves(ProtocolStubs.okStatus);
+            stubs.outgoing.removeDeployable = sandbox.stub<[Protocol.ServerDeployableReference, number], Promise<Protocol.Status>>().resolves(ProtocolStubs.okStatus);
             const result = await serverExplorer.removeDeployment('id', ProtocolStubs.serverHandle, ProtocolStubs.deployableReference);
             expect(result).equals(ProtocolStubs.okStatus);
         });
 
         test('check if promise is rejected when removeDeployable fails', async () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
-            stubs.outgoing.removeDeployable = sandbox.stub().resolves(ProtocolStubs.errorStatus);
+            stubs.outgoing.removeDeployable = sandbox.stub<[Protocol.ServerDeployableReference, number], Promise<Protocol.Status>>().resolves(ProtocolStubs.errorStatus);
             try {
                 await serverExplorer.removeDeployment('id', ProtocolStubs.serverHandle, ProtocolStubs.deployableReference);
                 expect.fail();
