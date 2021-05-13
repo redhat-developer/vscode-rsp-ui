@@ -3,7 +3,7 @@ import * as chai from 'chai';
 import { initClient } from '../../src/rsp/client';
 import { ClientStubs } from '../clientstubs';
 import { JobProgress } from '../../src/jobprogress';
-import { RSPClient } from 'rsp-client';
+import { Protocol, RSPClient } from 'rsp-client';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import { ServerInfo } from 'vscode-server-connector-api';
@@ -40,13 +40,13 @@ suite('Client Tests', () => {
     });
 
     test('initClient - check if rspclient onPromptString is called', async () => {
-        const stubPrompt = stubs.incoming.onPromptString = sandbox.stub().resolves();
+        const stubPrompt = stubs.incoming.onPromptString = sandbox.stub<[(arg: Protocol.StringPrompt) => Promise<string>], void>().resolves();
         await initClient(serverInfo);
         expect(stubPrompt).calledOnce;
     });
 
     test('initClient - check if rspclient registerClientCapabilities is called', async () => {
-        const stubCapabilities = stubs.outgoing.registerClientCapabilities = sandbox.stub().resolves();
+        const stubCapabilities = stubs.outgoing.registerClientCapabilities = sandbox.stub<[Protocol.ClientCapabilitiesRequest, number], Promise<Protocol.ServerCapabilitiesResponse>>().resolves();
         await initClient(serverInfo);
         expect(stubCapabilities).calledOnce;
     });

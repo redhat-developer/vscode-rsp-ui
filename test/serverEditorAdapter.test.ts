@@ -72,8 +72,8 @@ suite('ServerEditorAdapter', () => {
         sandbox = sinon.createSandbox();
 
         stubs = new ClientStubs(sandbox);
-        stubs.outgoing.getServerHandles = sandbox.stub().resolves([ProtocolStubs.serverHandle]);
-        stubs.outgoing.getServerState = sandbox.stub().resolves(ProtocolStubs.unknownServerState);
+        stubs.outgoing.getServerHandles = sandbox.stub<[number], Promise<Protocol.ServerHandle[]>>().resolves([ProtocolStubs.serverHandle]);
+        stubs.outgoing.getServerState = sandbox.stub<[Protocol.ServerHandle, number], Promise<Protocol.ServerState>>().resolves(ProtocolStubs.unknownServerState);
 
         serverExplorer = ServerExplorer.getInstance();
 
@@ -423,7 +423,7 @@ suite('ServerEditorAdapter', () => {
         test('Return status ok if server is successfull updated', async () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             const updateStubs = stubs.outgoing.updateServer.callsFake(() => {
-                return ProtocolStubs.updateServerResponse;
+                return Promise.resolve(ProtocolStubs.updateServerResponse);
             });
             const result = await serverExplorer.saveServerProperties('id', ProtocolStubs.serverHandle, 'text');
 
@@ -435,7 +435,7 @@ suite('ServerEditorAdapter', () => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             const updateStubs = stubs.outgoing.updateServer.callsFake(() => {
                 ProtocolStubs.updateServerResponse.validation = ProtocolStubs.createResponseKO;
-                return ProtocolStubs.updateServerResponse;
+                return Promise.resolve(ProtocolStubs.updateServerResponse);
             });
             try {
                 await serverExplorer.saveServerProperties('id', ProtocolStubs.serverHandle, 'text');

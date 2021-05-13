@@ -274,7 +274,7 @@ suite('Utils', () => {
                     validResponses: null
                 }
             };
-            sandbox.stub(vscode.window, 'showInputBox').resolves(1);
+            sandbox.stub(vscode.window, 'showInputBox').resolves('1');
             const result = await Utils.promptUser(responseItemInt, workflowMap);
             expect(result).equals(false);
             expect(workflowMap['id']).equals(+1);
