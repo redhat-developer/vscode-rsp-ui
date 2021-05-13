@@ -464,7 +464,7 @@ suite('Command Handler', () => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(ProtocolStubs.startedServerState);
             getClientStub = sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = stubs.outgoing.stopServerAsync = sandbox.stub<[Protocol.StopServerAttributes, number]>().resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('id');
         });
 
         test('works with injected context', async () => {
@@ -563,7 +563,7 @@ suite('Command Handler', () => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(serverStateInternal);
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = stubs.outgoing.stopServerAsync.resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('id');
         });
 
         test('works with injected context', async () => {
@@ -620,11 +620,11 @@ suite('Command Handler', () => {
             statusStub = sandbox.stub(serverExplorer, 'getServerStateById').returns(serverStateInternal);
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             removeStub = stubs.outgoing.deleteServer.resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: 'id' });
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves('id');
         });
 
         test('works with injected context', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
+            sandbox.stub(vscode.window, 'showWarningMessage' as any).resolves('Yes');
             const result = await handler.removeServer(ProtocolStubs.unknownServerState);
             const args: Protocol.ServerHandle = {
                 id: ProtocolStubs.serverHandle.id,
@@ -638,7 +638,7 @@ suite('Command Handler', () => {
         test('works without injected context', async () => {
             sandbox.stub(handler, 'selectRSP' as any).resolves({id: 'id', label: 'rsp'});
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
+            sandbox.stub(vscode.window, 'showWarningMessage' as any).resolves('Yes');
             const result = await handler.removeServer();
             const args: Protocol.ServerHandle = {
                 id: 'id',
@@ -650,7 +650,7 @@ suite('Command Handler', () => {
         });
 
         test('errors if the server is not stopped', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
+            sandbox.stub(vscode.window, 'showWarningMessage' as any).resolves('Yes');
             statusStub.returns(ServerState.STARTED);
 
             try {
@@ -662,7 +662,7 @@ suite('Command Handler', () => {
         });
 
         test('throws any errors coming from the rsp client', async () => {
-            sandbox.stub(vscode.window, 'showWarningMessage').resolves({ title: 'Yes' });
+            sandbox.stub(vscode.window, 'showWarningMessage' as any).resolves('Yes');
             removeStub.resolves(ProtocolStubs.errorStatus);
 
             try {
@@ -719,7 +719,7 @@ suite('Command Handler', () => {
         setup(() => {
             sandbox.stub(serverExplorer, 'getClientByRSP').returns(stubs.client);
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: ProtocolStubs.serverHandle.id });
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves(ProtocolStubs.serverHandle.id);
             stubs.incoming.onServerStateChanged = sandbox.stub<[(arg: Protocol.ServerState) => void], void>().resolves(ProtocolStubs.stoppedServerState);
         });
 
@@ -792,7 +792,7 @@ suite('Command Handler', () => {
         setup(() => {
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
             stubs.outgoing.getLaunchCommand = sandbox.stub<[Protocol.LaunchParameters, number], Promise<Protocol.CommandLineDetails>>().resolves(ProtocolStubs.javaCommandLine);
-            sandbox.stub(vscode.window, 'showQuickPick').resolves({ label: ProtocolStubs.serverHandle.id });
+            sandbox.stub(vscode.window, 'showQuickPick' as any).resolves(ProtocolStubs.serverHandle.id);
             sandbox.stub(handler, 'checkExtension' as any).resolves(undefined);
             stubs.incoming.onServerStateChanged = sandbox.stub<[(arg: Protocol.ServerState) => void], void>().resolves(ProtocolStubs.stoppedServerState);
         });
