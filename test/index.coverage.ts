@@ -59,7 +59,7 @@ function _readCoverOptions(testsRoot: string): ITestRunnerOptions | undefined {
 }
 
 export function run(): any {
-    return new Promise( (c, e) => {
+    return new Promise<void>( (c, e) => {
         const testsRoot = paths.resolve(__dirname);
         const coverOptions = _readCoverOptions(testsRoot);
         let coverageRunner;
