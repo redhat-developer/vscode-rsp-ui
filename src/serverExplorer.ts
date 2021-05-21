@@ -209,14 +209,14 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         }
         channel.append(output.text);
         if (workspace.getConfiguration('vscodeAdapters').get<boolean>('showChannelOnServerOutput')) {
-            channel.show();
+            channel.show(true);
         }
     }
 
     public showOutput(state: ServerStateNode): void {
         const channel: OutputChannel = this.serverOutputChannels.get(state.server.id);
         if (channel && workspace.getConfiguration('vscodeAdapters').get<boolean>('showChannelOnServerOutput')) {
-            channel.show();
+            channel.show(true);
         }
     }
 
