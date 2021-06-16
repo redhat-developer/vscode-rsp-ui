@@ -2,7 +2,7 @@
   "name": "vscode-rsp-ui",
   "displayName": "Remote Server Protocol UI",
   "description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
-  "version": "0.23.9",
+  "version": "0.23.10",
   "license": "SEE LICENSE IN LICENSE",
   "publisher": "redhat",
   "author": "Red Hat",
@@ -15,9 +15,6 @@
   "engines": {
     "vscode": "^1.54.0"
   },
-  "extensionDependencies": [
-    "redhat.vscode-commons"
-  ],
   "categories": [
     "Other"
   ],
@@ -320,11 +317,6 @@
       "type": "object",
       "title": "Servers View",
       "properties": {
-        "vscodeAdapters.showChannelOnServerOutput": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show Server's output channel when new text added to output stream."
-        },
         "java.home": {
           "type": [
             "string",
@@ -333,6 +325,17 @@
           "default": null,
           "description": "Specifies the path to a JDK (version 8 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.\nOn Windows, backslashes must be escaped, i.e.\n\"java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk1.8.0_161\"",
           "scope": "window"
+        },
+        "redhat.telemetry.enabled": {
+          "type": "boolean",
+          "default": null,
+          "markdownDescription": "Enable usage data and errors to be sent to Red Hat servers. Read our [privacy statement](https://developers.redhat.com/article/tool-data-collection).",
+          "scope": "window"
+        },
+        "vscodeAdapters.showChannelOnServerOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Server's output channel when new text added to output stream."
         },
         "rsp-ui.newserverwebviewworkflow": {
           "type": "boolean",
@@ -405,7 +408,7 @@
     "vscode-test": "^1.5.2"
   },
   "dependencies": {
-    "@redhat-developer/vscode-redhat-telemetry": "0.0.18",
+    "@redhat-developer/vscode-redhat-telemetry": "0.1.1",
     "@redhat-developer/vscode-wizard": "^0.2.4",
     "path": "0.12.7",
     "rsp-client": "^0.23.1",
