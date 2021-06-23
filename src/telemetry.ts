@@ -32,7 +32,8 @@ export function createTrackingEvent(name: string, properties: any = {}): Telemet
 export async function sendTelemetry(actionName: string, properties?: any): Promise<void> {
     const service = await getTelemetryServiceInstance();
     if (actionName === 'activation') {
-        return service?.sendStartupEvent();
+        await service?.sendStartupEvent();
+    } else {
+        await service?.send(createTrackingEvent(actionName, properties));
     }
-    return service?.send(createTrackingEvent(actionName, properties));
 }

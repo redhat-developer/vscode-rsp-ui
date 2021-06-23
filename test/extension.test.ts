@@ -37,8 +37,13 @@ suite('Extension Tests', () => {
         }
     }
 
+    let extensionPath = process.cwd();
+    const testFolder = extensionPath.indexOf('.vscode-test');
+    if (testFolder > -1) {// when running on windows, need to find proper location
+        extensionPath = extensionPath.substring(0, testFolder);
+    }
     const context: vscode.ExtensionContext = {
-        extensionPath: 'path',
+        extensionPath: extensionPath,
         storagePath: 'string',
         subscriptions: [],
         workspaceState: new DummyMemento(),

@@ -15,7 +15,7 @@ import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
-import sendTelemetry from './telemetry';
+import { sendTelemetry } from './telemetry';
 
 export interface ServerActionItem {
     label: string;
