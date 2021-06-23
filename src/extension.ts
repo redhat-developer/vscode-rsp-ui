@@ -11,13 +11,14 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer } from './serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel } from 'vscode-server-connector-api';
-import sendTelemetry from './telemetry';
+import { initializeTelemetry, sendTelemetry}  from './telemetry';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;
 export let myContext: vscode.ExtensionContext;
 
 export async function activate(context: vscode.ExtensionContext): Promise<RSPModel> {
+    initializeTelemetry(context);
     serversExplorer = ServerExplorer.getInstance();
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
@@ -99,7 +100,6 @@ export function deactivate() {
             }
         }
     }
-    sendTelemetry('deactivation');
 }
 
 function onDidSaveTextDocument(doc: vscode.TextDocument) {
