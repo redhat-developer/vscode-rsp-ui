@@ -32,7 +32,7 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType, ServerInfo } from 'vscode-server-connector-api';
 import { sendTelemetry } from './telemetry';
-import { IWizardPage, Template, WebviewWizard, WizardDefinition,WizardPageFieldDefinition, WizardPageSectionDefinition } from '@redhat-developer/vscode-wizard';
+import { IWizardPage, SEVERITY, ValidatorResponseItem, WebviewWizard, WizardDefinition,WizardPageFieldDefinition, WizardPageSectionDefinition } from '@redhat-developer/vscode-wizard';
 import { PerformFinishResponse } from '@redhat-developer/vscode-wizard/lib/IWizardWorkflowManager';
 
 enum deploymentStatus {
@@ -531,11 +531,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                     description: "Fill in required and optional properties to create your server adapter.",
                     fields: fields,
                     validator: (parameters:any) => {
-                        let errors: Template[] = [];
+                        let errors: ValidatorResponseItem[] = [];
                         for( const key in req.attributes ) {
                             if( !parameters[key] || parameters[key] === "") {
-                              errors.push({ id: key+"Validation", 
-                              content: (key+" must not be empty.")});
+                              errors.push({
+                                        template: { id: key+"Validation", 
+                                                    content: (key+" must not be empty.")},
+                                        severity: SEVERITY.ERROR});
                             }
                         }
                         // Type validation
@@ -543,8 +545,10 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                           if( parameters[key] && parameters[key] !== "") {
                               let err: string = this.validateWizardDataType(req.attributes[key].type, parameters[key]);
                               if( err !== null ) {
-                                  errors.push({ id: key+"Validation", 
-                                  content: (key+" " + err)});
+                                errors.push({
+                                    template: { id: key+"Validation", 
+                                                content: (key+" " + err)},
+                                    severity: SEVERITY.ERROR});
                               }
                               console.log(err);
                           }
@@ -553,18 +557,22 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                           if( parameters[key] && parameters[key] !== "") {
                               let err: string = this.validateWizardDataType(opt.attributes[key].type, parameters[key]);
                               if( err !== null ) {
-                                  errors.push({ id: key+"Validation", 
-                                  content: (key+" " + err)});
+                                errors.push({
+                                    template: { id: key+"Validation", 
+                                                content: (key+" " + err)},
+                                    severity: SEVERITY.ERROR});
                               }
                           }
                         }
 
                         if( !parameters['id'] || parameters['id'] === "") {
-                          errors.push({ id: "idValidation", 
-                          content: ("id must not be empty.")});
+                            errors.push({
+                                template: { id: "idValidation", 
+                                            content: ("id must not be empty.")},
+                                severity: SEVERITY.ERROR});
                         }
                         return {
-                            errors: errors
+                            items: errors
                         }
                     }
                 }
@@ -594,12 +602,14 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
                             }
                             return {
                                 close: false,
+                                success: true,
                                 returnObject: {},
                                 templates: templates
                             };
                         } catch( e ) {
                             return {
                                 close: false,
+                                success: false,
                                 returnObject: {},
                                 templates: [
                                     { id: "description", content: (e)},
