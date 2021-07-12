@@ -8,9 +8,14 @@
  * Contributors:
  * Red Hat, Inc. - initial API and implementation
  ******************************************************************************/
-import { getTelemetryService, TelemetryEvent, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
+import { getRedHatService, TelemetryEvent, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
+import { ExtensionContext } from 'vscode';
 
-const telemetryService: Promise<TelemetryService> = getTelemetryService("redhat.vscode-rsp-ui");
+let telemetryService: Promise<TelemetryService>;
+
+export async function initializeTelemetry(context:ExtensionContext) {
+    telemetryService = (await getRedHatService(context)).getTelemetryService();
+}
 
 export async function getTelemetryServiceInstance(): Promise<TelemetryService> {
     return telemetryService;
@@ -24,10 +29,11 @@ export function createTrackingEvent(name: string, properties: any = {}): Telemet
     }
 }
 
-export default async function sendTelemetry(actionName: string, properties?: any): Promise<void> {
+export async function sendTelemetry(actionName: string, properties?: any): Promise<void> {
     const service = await getTelemetryServiceInstance();
     if (actionName === 'activation') {
-        return service?.sendStartupEvent();
+        await service?.sendStartupEvent();
+    } else {
+        await service?.send(createTrackingEvent(actionName, properties));
     }
-    return service?.send(createTrackingEvent(actionName, properties));
 }

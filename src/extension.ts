@@ -11,21 +11,22 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer } from './serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel } from 'vscode-server-connector-api';
-import sendTelemetry from './telemetry';
+import { initializeTelemetry, sendTelemetry}  from './telemetry';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;
 export let myContext: vscode.ExtensionContext;
 
 export async function activate(context: vscode.ExtensionContext): Promise<RSPModel> {
+    await initializeTelemetry(context);
     serversExplorer = ServerExplorer.getInstance();
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
-    registerCommands(commandHandler, context);
+    await registerCommands(commandHandler, context);
     return getAPI();
 }
 
-function registerCommands(commandHandler: CommandHandler, context: vscode.ExtensionContext) {
+async function registerCommands(commandHandler: CommandHandler, context: vscode.ExtensionContext) {
     const newLocal = [
         vscode.commands.registerCommand('server.startRSP', context => executeCommand(
             commandHandler.startRSP, commandHandler, context, 'Unable to start the server: ')),
@@ -84,9 +85,7 @@ function registerCommands(commandHandler: CommandHandler, context: vscode.Extens
     const subscriptions = newLocal;
     subscriptions.forEach(element => {  context.subscriptions.push(element); }, this);
 
-    sendTelemetry('activation').catch(err => {
-        vscode.window.showErrorMessage(err);
-    });
+    return sendTelemetry('activation');
 }
 
 export function deactivate() {
@@ -99,7 +98,6 @@ export function deactivate() {
             }
         }
     }
-    sendTelemetry('deactivation');
 }
 
 function onDidSaveTextDocument(doc: vscode.TextDocument) {

@@ -31,7 +31,7 @@ import {
 import { ServerEditorAdapter } from './serverEditorAdapter';
 import { Utils } from './utils/utils';
 import { RSPType, ServerInfo } from 'vscode-server-connector-api';
-import sendTelemetry from './telemetry';
+import { sendTelemetry } from './telemetry';
 import { IWizardPage, SEVERITY, ValidatorResponseItem, WebviewWizard, WizardDefinition,WizardPageFieldDefinition, WizardPageSectionDefinition } from '@redhat-developer/vscode-wizard';
 import { PerformFinishResponse } from '@redhat-developer/vscode-wizard/lib/IWizardWorkflowManager';
 
