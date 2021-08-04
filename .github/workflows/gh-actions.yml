@@ -32,3 +32,7 @@ jobs:
       uses: GabrielBB/xvfb-action@v1.0
       with:
         run: npm run ui-test
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        file: ./coverage/coverage-final.json
