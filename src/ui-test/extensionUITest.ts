@@ -37,8 +37,8 @@ export function extensionUIAssetsTest() {
             const bar = await explorerView.openView();
             const content = bar.getContent();
             const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
-            const actionButton = section.getAction(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
-            expect(actionButton.getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON)
+            const actionButton = await section.getAction(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
+            expect(await actionButton.getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON)
         });
 
         it('Servers tab is available under Explorer bar', async function() {
@@ -54,7 +54,7 @@ export function extensionUIAssetsTest() {
             expect(await section.getTitle()).to.equal(AdaptersConstants.RSP_SERVERS_LABEL);
             const actionsButton = await section.getActions();
             expect(actionsButton.length).to.equal(1);
-            expect(actionsButton[0].getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
+            expect(await actionsButton[0].getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
         });
 
         after(async function() {

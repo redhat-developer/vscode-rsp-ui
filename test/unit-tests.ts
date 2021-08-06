@@ -15,8 +15,8 @@ async function main() {
         // Passed to --extensionTestsPath
         const extensionTestsPath = path.resolve(__dirname, './');
 
-        // Download VS Code, unzip it and run the integration test
         console.log(extensionDevelopmentPath, extensionTestsPath);
+
         await runTests({ extensionDevelopmentPath, extensionTestsPath });
     } catch (err) {
         console.error(err);
