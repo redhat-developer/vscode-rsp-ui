@@ -25,6 +25,9 @@ suite('Extension Tests', () => {
     let serverExplorer: ServerExplorer;
 
     class DummyMemento implements vscode.Memento {
+        public keys(): readonly string[] {
+            throw new Error('Method not implemented.');
+        }
         public get<T>(key: string): Promise<T|undefined> {
             return Promise.resolve(undefined);
         }
