@@ -121,7 +121,7 @@ suite('Extension Tests', () => {
                 'server.terminate',
                 'server.remove',
                 'server.output',
-                `server.addDeployment`,
+                'server.addDeployment',
                 'server.removeDeployment',
                 'server.publishFull',
                 'server.publishIncremental',
@@ -158,7 +158,7 @@ suite('Extension Tests', () => {
             rspserverstdout: undefined,
             state: ProtocolStubs.rspState,
             info: {
-                host: "localhost",
+                host: 'localhost',
                 port: 12345,
                 spawned: true
             }
@@ -176,7 +176,7 @@ suite('Extension Tests', () => {
             rspserverstdout: undefined,
             state: ProtocolStubs.rspState,
             info: {
-                host: "localhost",
+                host: 'localhost',
                 port: 12345,
                 spawned: false
             }

@@ -4,7 +4,7 @@ import { ServerExplorer } from '../../serverExplorer';
 import { Utils } from '../../utils/utils';
 
 export class WorkflowResponseStrategyPromptSmall {
-    public static async doAction(item: Protocol.WorkflowResponseItem, workflowMap?: { [index: string]: any } ): Promise<boolean> {
+    public static async doAction(item: Protocol.WorkflowResponseItem, workflowMap?: { [index: string]: any }): Promise<boolean> {
         if (!item) {
             return true;
         }

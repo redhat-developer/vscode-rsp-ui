@@ -34,7 +34,7 @@ export class WorkflowResponseStrategyManager {
         });
     }
 
-    public getStrategy(name: string = 'workflow.prompt.small') {
+    public getStrategy(name = 'workflow.prompt.small') {
         return this.strategies.find(strategy => strategy.name === name);
     }
 }

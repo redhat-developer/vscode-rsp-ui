@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import {
-  runTests
+    runTests
 } from 'vscode-test';
 
 

@@ -102,14 +102,13 @@ suite('Utils', () => {
         });
 
         test('check if showErrorMessage method is called if activateExternalProvider fails', async () => {
-            const error = 'Failed to retrieve fakeId extension';
+            const error = new Error('Failed to retrieve fakeId extension');
             sandbox.stub(Utils, 'activateExternalProvider').rejects(error);
             const showErrorStub = sandbox.stub(vscode.window, 'showErrorMessage');
             try {
                 await Utils.getIcon('fakeId', 'fakeType');
+            } finally {
                 expect(showErrorStub).calledOnceWith(error);
-            } catch (err) {
-
             }
         });
 

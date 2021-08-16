@@ -1,6 +1,6 @@
 import { AdaptersConstants } from './common/adaptersContants';
 import { expect } from 'chai';
-import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, ExtensionsViewItem, InputBox } from 'vscode-extension-tester';
+import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, InputBox } from 'vscode-extension-tester';
 
 /**
  * @author Ondrej Dockal <odockal@redhat.com>
@@ -27,7 +27,7 @@ export function extensionUIAssetsTest() {
         it('Remote Server Protocol UI extension is installed', async function() {
             this.timeout(8000);
             const section = await sideBar.getContent().getSection('Installed') as ExtensionsViewSection;
-            const item = await section.findItem(`@installed ${AdaptersConstants.RSP_UI_NAME}`) as ExtensionsViewItem;
+            const item = await section.findItem(`@installed ${AdaptersConstants.RSP_UI_NAME}`);
             expect(item).not.undefined;
         });
 
@@ -38,7 +38,7 @@ export function extensionUIAssetsTest() {
             const content = bar.getContent();
             const section = await content.getSection(AdaptersConstants.RSP_SERVERS_LABEL);
             const actionButton = await section.getAction(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
-            expect(await actionButton.getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON)
+            expect(await actionButton.getLabel()).to.equal(AdaptersConstants.RSP_SERVER_ACTION_BUTTON);
         });
 
         it('Servers tab is available under Explorer bar', async function() {
@@ -84,10 +84,10 @@ async function verifyCommandPalette(quick: QuickOpenBox) {
     expect(await options[0].getText()).not.equal('No commands matching');
     expect(await options[0].getText()).not.equal('No results found');
     for (const element of AdaptersConstants.RSP_MAIN_COMMANDS) {
-        const expression = AdaptersConstants.RSP_COMMAND + ' ' + element;
+        const expression = `${AdaptersConstants.RSP_COMMAND  } ${  element}`;
         await quick.setText(`>${expression}`);
         const option = await quick.getQuickPicks();
         const optionsString = await Promise.all(option.map(item => item.getText()));
         expect(optionsString).to.have.members([expression]);
-    };
+    }
 }

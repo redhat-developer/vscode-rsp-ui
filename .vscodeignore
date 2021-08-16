@@ -19,3 +19,4 @@ test/**
 Jenkinsfile
 CONTRIBUTING.md
 *.tgz
+.eslintrc.json

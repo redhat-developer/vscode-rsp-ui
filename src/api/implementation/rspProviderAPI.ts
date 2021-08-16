@@ -15,8 +15,6 @@ export function getAPI(): RSPModel {
 }
 
 class RSPProviderAPIImpl implements RSPModel {
-    constructor() {}
-
     public async registerRSPProvider(rsp: RSPServer): Promise<void> {
         let error: string;
         if (!rsp) {
@@ -37,23 +35,23 @@ class RSPProviderAPIImpl implements RSPModel {
         const rspProperties: RSPProperties = {
             state: rspState,
             client: undefined,
-            rspserverstderr: rspserverstderr,
-            rspserverstdout: rspserverstdout,
+            rspserverstderr,
+            rspserverstdout,
             info: undefined
         };
         const serversExplorer = ServerExplorer.getInstance();
         serversExplorer.RSPServersStatus.set(rsp.type.id, rspProperties);
         serversExplorer.refresh();
         const startRSP = await this.updateRSPActivationSetting(rsp, serversExplorer);
-        if (startRSP ) {
-            if( vscode.window.state.focused) {
+        if (startRSP) {
+            if(vscode.window.state.focused) {
                 const commandHandler = new CommandHandler(serversExplorer);
                 executeCommandAndLog('server.startRSP', commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
             } else {
                 setTimeout(function() {
                     const commandHandler = new CommandHandler(serversExplorer);
                     executeCommandAndLog('server.startRSP', commandHandler.startRSP, commandHandler, rspState, 'Unable to start the RSP server: ');
-                    }, 3000);
+                }, 3000);
             }
         }
     }
@@ -61,21 +59,21 @@ class RSPProviderAPIImpl implements RSPModel {
     private async updateRSPActivationSetting(rsp: RSPServer, explorer: ServerExplorer): Promise<boolean> {
         let startRSP = true;
         let existingSettings: RSPProviderSetting[] = vscode.workspace.
-                                                            getConfiguration('rsp-ui').
-                                                            get<[RSPProviderSetting]>(`enableStartServerOnActivation`);
+            getConfiguration('rsp-ui').
+            get<[RSPProviderSetting]>('enableStartServerOnActivation');
         // unfortunately it seems that the get method (above) works with some cache because
         // if i try to register two or more providers at once for the first time it always return an empty array,
         // it means that the first provider will be overwritten by the second and so on...
         // to prevent this, if an empty array is returned i'll get the servers already registered from RSPServersStatus
         if (!existingSettings || existingSettings.length < 1) {
             existingSettings = Array.from(explorer.RSPServersStatus.values()).
-                                    map(server => {
-                                        return {
-                                            id: server.state.type.id,
-                                            name: server.state.type.visibilename,
-                                            startOnActivation: true
-                                        } as RSPProviderSetting;
-                                    });
+                map(server => {
+                    return {
+                        id: server.state.type.id,
+                        name: server.state.type.visibilename,
+                        startOnActivation: true
+                    } as RSPProviderSetting;
+                });
         } else {
             const rspAlreadyRegistered = existingSettings.find(setting => setting.id === rsp.type.id);
             if (!rspAlreadyRegistered) {
@@ -89,7 +87,7 @@ class RSPProviderAPIImpl implements RSPModel {
                 startRSP = rspAlreadyRegistered.startOnActivation;
             }
         }
-        await vscode.workspace.getConfiguration('rsp-ui').update(`enableStartServerOnActivation`, existingSettings, true);
+        await vscode.workspace.getConfiguration('rsp-ui').update('enableStartServerOnActivation', existingSettings, true);
         return startRSP;
     }
 
