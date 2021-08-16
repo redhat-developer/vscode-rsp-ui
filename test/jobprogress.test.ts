@@ -20,7 +20,7 @@ chai.use(chaipromise);
 class CancellationStub implements vscode.CancellationToken {
     public isCancellationRequested: boolean;
     public onCancellationRequested: vscode.Event<any> = () => {
-        return {dispose() {}};
+        return {dispose() { /* do nothing */ }};
     }
 }
 
@@ -38,10 +38,10 @@ suite('Job Progress', () => {
     let cancellationStub: vscode.CancellationToken;
     let progressStub: vscode.Progress<{ message: string, increment: number }>;
     let progressStubReport: sinon.SinonSpy<[{ message: string; increment: number; }], void>;
-    let progressTaskPromise: Thenable<{}>;
+    let progressTaskPromise: Thenable<unknown>;
     let withProgressFake: (
         options: vscode.ProgressOptions,
-        task: (progress: vscode.Progress<{ message: string; increment: number }>, token: vscode.CancellationToken) => Thenable<{}>) => Thenable<{}>;
+        task: (progress: vscode.Progress<{ message: string; increment: number }>, token: vscode.CancellationToken) => Thenable<unknown>) => Thenable<unknown>;
     let withProgressFakeSpy;
 
     setup(() => {
@@ -63,7 +63,7 @@ suite('Job Progress', () => {
             task: (
                 progress: vscode.Progress<{ message: string; increment: number }>, 
                 token: vscode.CancellationToken
-            ) => Thenable<{}>
+            ) => Thenable<unknown>
         ) => {
             progressTaskPromise = task(progressStub, cancellationStub);
             return progressTaskPromise;

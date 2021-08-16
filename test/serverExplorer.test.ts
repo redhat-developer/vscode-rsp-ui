@@ -25,12 +25,12 @@ suite('Server explorer', () => {
     let serverExplorer: ServerExplorer;
 
     const fakeChannel: OutputChannel = {
-        append: () => {},
-        show: () => {},
-        clear: () => {},
-        dispose: () => {},
-        appendLine: () => {},
-        hide: () => {},
+        append: () => { /* do nothing */ },
+        show: () => { /* do nothing */ },
+        clear: () => { /* do nothing */ },
+        dispose: () => { /* do nothing */ },
+        appendLine: () => { /* do nothing */ },
+        hide: () => { /* do nothing */ },
         name: 'fake'
     };
 
@@ -416,7 +416,7 @@ suite('Server explorer', () => {
             id: 'org.jboss',
             visibleName: 'org.jboss.visiblename',
             description: 'org.jboss.description'
-    }
+        };
 
         const serverBeanWithoutType: Protocol.ServerBean = {
             fullVersion: 'version',
@@ -439,7 +439,7 @@ suite('Server explorer', () => {
             path: 'path/path',
             query: 'query',
             scheme: 'scheme',
-            toJSON: () => {},
+            toJSON: () => { /* do nothing */ },
             toString: () => '',
             with: undefined
         };
@@ -457,7 +457,7 @@ suite('Server explorer', () => {
         });
 
         test('should open a webview for the given server type', async () => {
-            if( discoveryPath && noAttributes && orgJbossServerType && showOpenDialogStub) {
+            if(discoveryPath && noAttributes && orgJbossServerType && showOpenDialogStub) {
                 // this garbage just added so I don't have to comment out those lines
             }
         /*
@@ -523,7 +523,7 @@ suite('Server explorer', () => {
             path: 'path/path',
             query: 'query',
             scheme: 'scheme',
-            toJSON: () => {},
+            toJSON: () => { /* do nothing */ },
             toString: () => '',
             with: undefined
         };
@@ -551,7 +551,7 @@ suite('Server explorer', () => {
                 canSelectFiles: true,
                 canSelectMany: false,
                 canSelectFolders: false,
-                openLabel: `Select File Deployment`
+                openLabel: 'Select File Deployment'
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
@@ -571,7 +571,7 @@ suite('Server explorer', () => {
                 canSelectFiles: false,
                 canSelectMany: false,
                 canSelectFolders: true,
-                openLabel: `Select Exploded Deployment`
+                openLabel: 'Select Exploded Deployment'
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
@@ -591,7 +591,7 @@ suite('Server explorer', () => {
                 canSelectFiles: true,
                 canSelectMany: false,
                 canSelectFolders: false,
-                openLabel: `Select File Deployment`
+                openLabel: 'Select File Deployment'
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
@@ -611,7 +611,7 @@ suite('Server explorer', () => {
                 canSelectFiles: false,
                 canSelectMany: false,
                 canSelectFolders: true,
-                openLabel: `Select Exploded Deployment`
+                openLabel: 'Select Exploded Deployment'
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
@@ -631,7 +631,7 @@ suite('Server explorer', () => {
                 canSelectFiles: true,
                 canSelectMany: false,
                 canSelectFolders: true,
-                openLabel: `Select file or exploded Deployment`
+                openLabel: 'Select file or exploded Deployment'
             };
             const stubDialog = sandbox.stub(window, 'showOpenDialog');
             await serverExplorer.selectAndAddDeployment(ProtocolStubs.startedServerState);
@@ -721,7 +721,7 @@ suite('Server explorer', () => {
         });
 
         test('check if return right output channel when called with existing rsp id', async () => {
-            const stdout = window.createOutputChannel(`RSP (stdout)`);
+            const stdout = window.createOutputChannel('RSP (stdout)');
             const rspPropertiesWithStdOut  = {
                 client: undefined,
                 rspserverstderr: undefined,
@@ -745,7 +745,7 @@ suite('Server explorer', () => {
         });
 
         test('check if return right output channel when called with existing rsp id', async () => {
-            const stderr = window.createOutputChannel(`RSP (stderr)`);
+            const stderr = window.createOutputChannel('RSP (stderr)');
             const rspPropertiesWithStderr  = {
                 client: undefined,
                 rspserverstderr: stderr,
@@ -779,7 +779,7 @@ suite('Server explorer', () => {
                 description: '(Stopped)',
                 id: 'the type',
                 iconPath: iconPath,
-                contextValue: `RSPStopped`,
+                contextValue: 'RSPStopped',
                 collapsibleState: TreeItemCollapsibleState.Expanded
             };
 
@@ -886,7 +886,7 @@ suite('Server explorer', () => {
         });
 
         test('check if dispose stdout output channel if exist', async () => {
-            const rspserverstdout: OutputChannel = window.createOutputChannel(`(stdout)`);
+            const rspserverstdout: OutputChannel = window.createOutputChannel('(stdout)');
             serverExplorer.RSPServersStatus.get('id').rspserverstdout = rspserverstdout;
             const disposeStdOutStub = sandbox.stub(rspserverstdout, 'dispose');
             serverExplorer.disposeRSPProperties('id');
@@ -894,7 +894,7 @@ suite('Server explorer', () => {
         });
 
         test('check if dispose stderr output channel if exist', async () => {
-            const rspserverstderr = window.createOutputChannel(`(stderr)`);
+            const rspserverstderr = window.createOutputChannel('(stderr)');
             serverExplorer.RSPServersStatus.get('id').rspserverstderr = rspserverstderr;
             const disposeStdErrStub = sandbox.stub(rspserverstderr, 'dispose');
             serverExplorer.disposeRSPProperties('id');

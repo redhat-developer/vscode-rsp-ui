@@ -12,13 +12,10 @@ export class JavaDebugSession {
 
     private processOutputListener: { port: string, server: Protocol.ServerHandle, listener: ((output: Protocol.ServerProcessOutput) => void)};
 
-    constructor() {
-    }
-
     public start(server: Protocol.ServerHandle, port: string, client: RSPClient) {
         this.processOutputListener = {
-            port: port,
-            server: server,
+            port,
+            server,
             listener: output => {
                 if (output
                     && output.server
@@ -40,7 +37,7 @@ export class JavaDebugSession {
             request: 'attach',
             name: 'Debug (Remote)',
             hostName: 'localhost',
-            port: port
+            port
         });
     }
 

@@ -61,15 +61,15 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
         vscode.commands.registerCommand('server.publishIncremental', context => executeCommand(
             commandHandler.publishServer, commandHandler, ServerState.PUBLISH_INCREMENTAL, context, 'Unable to publish (Incremental) to the server: ')),
         vscode.commands.registerCommand('server.editServer', context => executeCommand(
-                commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
+            commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
         vscode.commands.registerCommand('server.actions', context => executeCommand(
-                commandHandler.serverActions, commandHandler, context, 'Unable to execute action')),
+            commandHandler.serverActions, commandHandler, context, 'Unable to execute action')),
         vscode.commands.registerCommand('server.saveSelectedNode', context => executeCommandAndLog('server.saveSelectedNode',
-                commandHandler.saveSelectedNode, commandHandler, context)),
+            commandHandler.saveSelectedNode, commandHandler, context)),
         vscode.commands.registerCommand('server.application.run', context => executeCommand(
-                commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to deploy and run application')),
+            commandHandler.runOnServer, commandHandler, context, 'run', 'Unable to deploy and run application')),
         vscode.commands.registerCommand('server.application.debug', context => executeCommand(
-                commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to deploy and debug application')),
+            commandHandler.runOnServer, commandHandler, context, 'debug', 'Unable to deploy and debug application')),
 
         vscode.commands.registerCommand('server.createServer', context => executeCommandAndLog('server.createServer',
             commandHandler.createServer, commandHandler, context, 'Unable to create the server: ')),
@@ -91,7 +91,7 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
 export function deactivate() {
     for (const rspProvider of serversExplorer.RSPServersStatus.values()) {
         if (rspProvider.client) {
-            if( rspProvider.info.spawned) {
+            if(rspProvider.info.spawned) {
                 rspProvider.client.shutdownServer();
             } else {
                 rspProvider.client.disconnect();
@@ -110,8 +110,8 @@ function onDidCloseTextDocument(doc: vscode.TextDocument) {
     ServerEditorAdapter.getInstance(serversExplorer).onDidCloseTextDocument(doc);
 }
 
-export function executeCommandAndLog(name: String, command: (...args: any[]) => Promise<any>, thisArg: any, ...params: any[]) {
-    let telemetryProps: any = {
+export function executeCommandAndLog(name: string, command: (...args: any[]) => Promise<any>, thisArg: any, ...params: any[]) {
+    const telemetryProps: any = {
         identifier: name,
     };
     const startTime = Date.now();
@@ -120,7 +120,7 @@ export function executeCommandAndLog(name: String, command: (...args: any[]) => 
         return command.call(thisArg, ...params).catch((err: string | Error) => {
             telemetryProps.error = err.toString();
             const error = typeof err === 'string' ? new Error(err) : err;
-            const msg = error.hasOwnProperty('message') ? error.message : '';
+            const msg = error.message ? error.message : '';
             if (commandErrorLabel === '' && msg === '') {
                 return;
             }
@@ -132,12 +132,11 @@ export function executeCommandAndLog(name: String, command: (...args: any[]) => 
     }
 }
 
-
 export function executeCommand(command: (...args: any[]) => Promise<any>, thisArg: any, ...params: any[]) {
     const commandErrorLabel = typeof params[params.length - 1] === 'string' ? params[params.length - 1] : '';
     return command.call(thisArg, ...params).catch((err: string | Error) => {
         const error = typeof err === 'string' ? new Error(err) : err;
-        const msg = error.hasOwnProperty('message') ? error.message : '';
+        const msg = error.message ? error.message : '';
         if (commandErrorLabel === '' && msg === '') {
             return;
         }

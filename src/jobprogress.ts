@@ -14,9 +14,9 @@ export class JobProgress {
     private readonly progress: vscode.Progress<{ message?: string, increment?: number }>;
     private readonly cancellation: vscode.CancellationToken;
     private readonly reject: (reason?: any) => void;
-    private readonly resolve: (value?: {} | PromiseLike<{}>) => void;
+    private readonly resolve: (value?: Protocol.JobHandle | PromiseLike<Protocol.JobHandle>) => void;
     private timeoutId: NodeJS.Timeout;
-    private percents: number = 0;
+    private percents = 0;
 
     public static create(client: RSPClient) {
         client.getIncomingHandler().onJobAdded((jobHandle: Protocol.JobHandle) => {
@@ -29,8 +29,7 @@ export class JobProgress {
                 (progress, token) => {
                     return new Promise<Protocol.JobHandle>((resolve, reject) => {
                         new JobProgress(jobHandle, client, progress, token, reject, resolve);
-                    })
-                    .catch(error => {
+                    }).catch(error => {
                         if (error) {
                             vscode.window.showErrorMessage(error);
                         }
@@ -41,11 +40,11 @@ export class JobProgress {
     }
 
     private constructor(job: Protocol.JobHandle,
-                        client: RSPClient,
-                        progress: vscode.Progress<{ message?: string, increment?: number }>,
-                        cancellation: vscode.CancellationToken,
-                        reject: (reason?: any) => void,
-                        resolve: (value?: {} | PromiseLike<{}>) => void) {
+        client: RSPClient,
+        progress: vscode.Progress<{ message?: string, increment?: number }>,
+        cancellation: vscode.CancellationToken,
+        reject: (reason?: any) => void,
+        resolve: (value?: Protocol.JobHandle | PromiseLike<Protocol.JobHandle>) => void) {
         this.job = job;
         this.client = client;
         this.progress = progress;
@@ -96,7 +95,7 @@ export class JobProgress {
             if (status.trace) {
                 const match = /Caused by:([^\n]+)/gm.exec(status.trace);
                 if (match && match.length && match.length > 1) {
-                    message += ':' + match[1];
+                    message += `:${  match[1]}`;
                 }
             }
         }

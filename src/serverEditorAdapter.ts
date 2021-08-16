@@ -33,7 +33,7 @@ export class ServerEditorAdapter {
 
     public async showEditor(fileSuffix: string, content: string, path?: string) {
         if (!path) {
-            const newFile = vscode.Uri.parse('untitled:' + fileSuffix);
+            const newFile = vscode.Uri.parse(`untitled:${  fileSuffix}`);
             await vscode.workspace.openTextDocument(newFile).then(async document => {
                 const edit = new vscode.WorkspaceEdit();
                 edit.insert(newFile, new vscode.Position(0, 0), content);
@@ -111,7 +111,7 @@ export class ServerEditorAdapter {
             let serverId: string;
             for (rspId of this.RSPServerProperties.keys()) {
                 const docInfo = this.RSPServerProperties.get(rspId).find(prop =>
-                                        prop.file.toLowerCase() === doc.uri.fsPath.toLowerCase());
+                    prop.file.toLowerCase() === doc.uri.fsPath.toLowerCase());
                 if (docInfo) {
                     serverId = docInfo.server;
                     break;
@@ -135,14 +135,14 @@ export class ServerEditorAdapter {
     public async postSaveEditor(rspId: string, serverHandle: Protocol.ServerHandle, updateStatus: any, success: boolean): Promise<Protocol.Status> {
         const file: string = this.RSPServerProperties.get(rspId).find(prop => prop.server === serverHandle.id).file;
 
-        if( success ) {
+        if(success) {
             this.saveAndShowEditor(file, updateStatus.serverJson.serverJson);
             vscode.window.showInformationMessage(`Server ${serverHandle.id} correctly saved`);
             return updateStatus.validation.status;
         }
 
-        let check: string = typeof updateStatus;
-        if( check !== 'object' ) {
+        const check: string = typeof updateStatus;
+        if(check !== 'object') {
             return Promise.reject(updateStatus);
         }
 
@@ -151,7 +151,7 @@ export class ServerEditorAdapter {
             vscode.window.showTextDocument(doc)
         );
 
-        let msg = updateStatus.validation.status.message.concat('\n', updateStatus.validation.status.trace);
+        const msg = updateStatus.validation.status.message.concat('\n', updateStatus.validation.status.trace);
         return Promise.reject(msg);
     }
 

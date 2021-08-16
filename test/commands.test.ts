@@ -78,7 +78,7 @@ suite('Command Handler', () => {
                 getHost: () => 'localhost',
                 getPort: () => 8080,
                 getImage: (type: string) => vscode.Uri.parse('path'),
-                onRSPServerStateChanged: () => {},
+                onRSPServerStateChanged: () => { /* do nothing */ },
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
             };
@@ -111,7 +111,7 @@ suite('Command Handler', () => {
                 await handler.startRSP(ProtocolStubs.rspState);
                 expect.fail();
             } catch (err) {
-                expect(err).equals(`Failed to retrieve id extension`);
+                expect(err).equals('Failed to retrieve id extension');
             }
         });
 
@@ -156,7 +156,7 @@ suite('Command Handler', () => {
                 getHost: () => 'localhost',
                 getPort: () => 8080,
                 getImage: (type: string) => vscode.Uri.parse('path'),
-                onRSPServerStateChanged: () => {},
+                onRSPServerStateChanged: () => { /* do nothing */ },
                 startRSP: (stdOut: (data: string) => void, stdErr: (data: string) => void) => Promise.resolve(serverInfo),
                 stopRSP: () => Promise.resolve()
             };
@@ -405,9 +405,10 @@ suite('Command Handler', () => {
             });
             try {
                 await handler.debugServer(ProtocolStubs.unknownServerState);
-                expect(retrieveStub).calledOnceWith(ProtocolStubs.serverHandle, stubs.client);
             } catch (err) {
-
+                console.log(err);
+            } finally {
+                expect(retrieveStub).calledOnceWith(ProtocolStubs.serverHandle, stubs.client);
             }
         });
 
@@ -421,7 +422,7 @@ suite('Command Handler', () => {
             try {
                 await handler.debugServer(ProtocolStubs.unknownServerState);
             } catch (err) {
-                expect(err).equals(`vscode-rsp-ui doesn't support debugging with c# language at this time.`);
+                expect(err).equals('vscode-rsp-ui doesn\'t support debugging with c# language at this time.');
             }
         });
 
@@ -1229,9 +1230,9 @@ suite('Command Handler', () => {
                 serverId: 'id'
             };
             sandbox.stub(handler, 'handleWorkflow' as any).
-                    onFirstCall().resolves(ProtocolStubs.infoStatus).
-                    onSecondCall().resolves(ProtocolStubs.infoStatus).
-                    onThirdCall().resolves(undefined);
+                onFirstCall().resolves(ProtocolStubs.infoStatus).
+                onSecondCall().resolves(ProtocolStubs.infoStatus).
+                onThirdCall().resolves(undefined);
             await executeServerAction(serverActionWorkflow, ProtocolStubs.unknownServerState, stubs.client);
             executeServerStub.secondCall.calledWith(actionRequest);
         });
@@ -1367,8 +1368,8 @@ suite('Command Handler', () => {
             };
 
             serverJsonResponseStub = stubs.outgoing.getServerAsJson = sandbox
-                                                        .stub<[Protocol.ServerHandle, number], Promise<Protocol.GetServerJsonResponse>>()
-                                                        .callsFake(() => { return Promise.resolve(serverJsonResponse);  });
+                .stub<[Protocol.ServerHandle, number], Promise<Protocol.GetServerJsonResponse>>()
+                .callsFake(() => { return Promise.resolve(serverJsonResponse);  });
 
             try {
                 await serverExplorer.editServer('id', ProtocolStubs.serverHandle);
@@ -1384,7 +1385,7 @@ suite('Command Handler', () => {
             const showStub = sandbox.stub(ServerEditorAdapter.getInstance(serverExplorer), 'showServerJsonResponse');
             const serverJsonResponse: Protocol.GetServerJsonResponse = {
                 serverHandle: ProtocolStubs.serverHandle,
-                serverJson: `{ test: 'test'}`,
+                serverJson: '{ test: \'test\'}',
                 status: ProtocolStubs.okStatus
             };
 
@@ -1417,7 +1418,6 @@ suite('Command Handler', () => {
             const filter = server => server.state.state === ServerState.STOPPED;
             await selectRSPWithHandlerInjected('test', filter);
             sandbox.assert.notCalled(quickPickStub);
-
         });
 
         test('showQuickPick called with 2 server after filtering', async () => {
@@ -1432,7 +1432,6 @@ suite('Command Handler', () => {
             await selectRSPWithHandlerInjected('test', filter);
             expect(quickPickStub).calledOnceWith([unknownServer, unknownServer], { placeHolder: 'test' });
             serverExplorer.RSPServersStatus.delete('id2');
-
         });
     });
 
@@ -1443,11 +1442,11 @@ suite('Command Handler', () => {
             const selectServerWithHandlerInjected = Reflect.get(handler, 'selectServer').bind(handler);
             try {
                 await selectServerWithHandlerInjected('id', 'test', undefined);
-                expect(getStateStub).calledOnceWith('id');
             } catch (err) {
-
+                // in this setup the call ends in error
+            } finally {
+                expect(getStateStub).calledOnceWith('id');
             }
-
         });
 
         test('error if filter for STOPPED status is passed but map contains only server with STARTED state', async () => {

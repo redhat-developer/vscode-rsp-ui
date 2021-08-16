@@ -26,7 +26,7 @@ export function createTrackingEvent(name: string, properties: any = {}): Telemet
         type: 'track',
         name,
         properties
-    }
+    };
 }
 
 export async function sendTelemetry(actionName: string, properties?: any): Promise<void> {

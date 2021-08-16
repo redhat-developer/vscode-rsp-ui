@@ -24,9 +24,8 @@ export class Utils {
             const imageUri: vscode.Uri = rspProvider.getImage(serverType);
             if (imageUri && imageUri.fsPath) {
                 return imageUri.fsPath;
-            } else {
-                return null;
             }
+            return null;
         }).catch(error => {
             vscode.window.showErrorMessage(error);
             return null;
@@ -37,7 +36,7 @@ export class Utils {
         return content && content.indexOf('\n') !== -1;
     }
 
-    public static async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: {}): Promise<boolean> {
+    public static async promptUser(item: Protocol.WorkflowResponseItem, workflowMap: Record<string, unknown>): Promise<boolean> {
         const prompt = item.label + (item.content ? `\n${item.content}` : '');
         let userInput: any = null;
         if (item.prompt == null || item.prompt.responseType === 'none') {
@@ -73,10 +72,10 @@ export class Utils {
             } else {
                 if (item.prompt.validResponses) {
                     userInput = await vscode.window.showQuickPick(item.prompt.validResponses,
-                            { placeHolder: item.label, ignoreFocusOut: true });
+                        { placeHolder: item.label, ignoreFocusOut: true });
                 } else {
                     const oneProp = await vscode.window.showInputBox(
-                        { prompt: prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
+                        { prompt, ignoreFocusOut: true, password: item.prompt.responseSecret });
                     if (item.prompt.responseType === 'int') {
                         userInput = +oneProp;
                     } else {

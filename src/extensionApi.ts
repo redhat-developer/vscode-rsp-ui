@@ -47,7 +47,7 @@ export class CommandHandler {
             return Promise.reject(`The RSP server ${context.type.visibilename} is already running.`);
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.type.id,
         };
         sendTelemetry('server.startRSP', telemetryProps);
@@ -68,23 +68,22 @@ export class CommandHandler {
             this.explorer.disposeRSPProperties(context.type.id);
             this.explorer.updateRSPServer(context.type.id, ServerState.STOPPED);
         });
-    
 
         const rspProperties: RSPProperties = this.explorer.RSPServersStatus.get(context.type.id);
         rspProperties.client = client;
         rspProperties.state.serverStates = [];
         rspProperties.info = serverInfo;
-        
+
         this.explorer.RSPServersStatus.set(context.type.id, rspProperties);
         await this.activate(context.type.id, client);
         this.explorer.initRSPNode(context.type.id);
     }
 
     public async disconnectRSP(context?: RSPState): Promise<void> {
-        if( context === undefined )
-            return Promise.reject(`No RSP selected`);
+        if(context === undefined)
+        {return Promise.reject('No RSP selected');}
         const id = context.type.id;
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: id,
         };
         sendTelemetry('server.disconnectRSP', telemetryProps);
@@ -111,7 +110,7 @@ export class CommandHandler {
             context = this.explorer.RSPServersStatus.get(rsp.id).state;
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.type.id,
             force: forced,
         };
@@ -164,7 +163,7 @@ export class CommandHandler {
         if (!client) {
             return Promise.reject('Failed to contact the RSP server.');
         }
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
             debug: false,
         };
@@ -176,7 +175,7 @@ export class CommandHandler {
                 id: context.server.id,
                 attributes: new Map<string, any>()
             },
-            mode: mode
+            mode
         });
         if (!StatusSeverity.isOk(response.status)) {
             return Promise.reject(response.status.message);
@@ -194,9 +193,9 @@ export class CommandHandler {
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
-            forced: forced,
+            forced,
         };
         sendTelemetry('server.stop', telemetryProps);
 
@@ -218,9 +217,9 @@ export class CommandHandler {
                 return Promise.reject(status.message);
             }
             return status;
-        } else {
-            return Promise.reject('The server is already stopped.');
         }
+        return Promise.reject('The server is already stopped.');
+
     }
 
     public async debugServer(context?: ServerStateNode): Promise<Protocol.StartServerResponse> {
@@ -242,7 +241,7 @@ export class CommandHandler {
         if (extensionIsRequired) {
             return Promise.reject(extensionIsRequired);
         }
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
             debug: true
         };
@@ -269,7 +268,7 @@ export class CommandHandler {
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
         };
         sendTelemetry('server.remove', telemetryProps);
@@ -303,7 +302,7 @@ export class CommandHandler {
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
         };
         sendTelemetry('server.output', telemetryProps);
@@ -319,9 +318,9 @@ export class CommandHandler {
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
-            mode: mode,
+            mode,
         };
         sendTelemetry('server.restart', telemetryProps);
 
@@ -381,14 +380,14 @@ export class CommandHandler {
         }
 
         if (this.explorer) {
-            let telemetryProps: any = {
+            const telemetryProps: any = {
                 type: context.server.type.id,
             };
             sendTelemetry('server.addDeployment', telemetryProps);
             return this.explorer.selectAndAddDeployment(context);
-        } else {
-            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
         }
+        return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+
     }
 
     public async removeDeployment(context?: DeployableStateNode): Promise<Protocol.Status> {
@@ -412,7 +411,7 @@ export class CommandHandler {
             context = deployment.deployable;
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             type: context.server.type.id,
         };
         sendTelemetry('server.removeDeployment', telemetryProps);
@@ -428,12 +427,12 @@ export class CommandHandler {
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
-        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>(`enableAsyncPublish`);
+        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>('enableAsyncPublish');
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             rspType: context.rsp,
             serverType: context.server.type.id,
-            publishType: publishType,
+            publishType,
             async: isAsync,
         };
         const startTime = Date.now();
@@ -479,9 +478,9 @@ export class CommandHandler {
                 rspId = rsp.id;
             }
             return this.explorer.addLocation(rspId);
-        } else {
-            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
         }
+        return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+
     }
 
     public async downloadRuntime(rspId: string): Promise<Protocol.Status> {
@@ -491,7 +490,7 @@ export class CommandHandler {
             rspId = rsp.id;
         }
 
-        let telemetryProps: any = { rspType: rspId };
+        const telemetryProps: any = { rspType: rspId };
         const startTime = Date.now();
 
         const client = this.explorer.getClientByRSP(rspId);
@@ -557,7 +556,7 @@ export class CommandHandler {
             return;
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             rsp: context.rsp,
             type: context.server.type.id,
         };
@@ -572,15 +571,15 @@ export class CommandHandler {
 
     private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<ServerActionItem> {
         const actionsList: ServerActionItem[] = await client.getOutgoingHandler().listServerActions(server)
-           .then((response: Protocol.ListServerActionResponse) => {
-               return response.workflows.map(action => {
-                   return {
-                       label: action.actionLabel,
-                       id: action.actionId,
-                       actionWorkflow: action.actionWorkflow
-                   };
-               });
-           });
+            .then((response: Protocol.ListServerActionResponse) => {
+                return response.workflows.map(action => {
+                    return {
+                        label: action.actionLabel,
+                        id: action.actionId,
+                        actionWorkflow: action.actionWorkflow
+                    };
+                });
+            });
 
         if (actionsList.length === 0) {
             vscode.window.showInformationMessage('there are no additional actions for this server');
@@ -591,15 +590,15 @@ export class CommandHandler {
             { placeHolder: 'Please choose the action you want to execute.' });
         if (!answer) {
             return;
-        } else {
-            return answer;
         }
+        return answer;
+
     }
 
     private async executeServerAction(action: ServerActionItem, context: ServerStateNode, client: RSPClient): Promise<Protocol.Status> {
         const workflowMap = {};
         const status1 = await this.handleWorkflow(action.actionWorkflow, workflowMap);
-        if( !status1) {
+        if(!status1) {
             // Only way status1 is undefined is if the user canceled an input, and thus canceled the request
             return;
         }
@@ -631,7 +630,7 @@ export class CommandHandler {
     }
 
     // Should only return undefined if user cancels
-    private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any } ): Promise<Protocol.Status> {
+    private async handleWorkflow(response: Protocol.WorkflowResponse, workflowMap?: { [index: string]: any }): Promise<Protocol.Status> {
         if (StatusSeverity.isError(response.status)
                     || StatusSeverity.isCancel(response.status)) {
             // error
@@ -664,7 +663,7 @@ export class CommandHandler {
             context = this.explorer.getServerStateById(rsp.id, serverId);
         }
 
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             rsp: context.rsp,
             type: context.server.type.id,
         };
@@ -672,9 +671,9 @@ export class CommandHandler {
 
         if (this.explorer) {
             return this.explorer.editServer(context.rsp, context.server);
-        } else {
-            return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
         }
+        return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
+
     }
 
     public async runOnServer(uri: vscode.Uri, mode?: string): Promise<void> {
@@ -687,11 +686,10 @@ export class CommandHandler {
         if (!serverId) return;
         const context = this.explorer.getServerStateById(rsp.id, serverId);
 
-
-        let telemetryProps: any = {
+        const telemetryProps: any = {
             rsp: context.rsp,
             type: context.server.type.id,
-            mode: mode,
+            mode,
         };
         const startTime = Date.now();
         try {
@@ -704,7 +702,7 @@ export class CommandHandler {
     public async runOnServerImpl(context:ServerStateNode, uri:vscode.Uri, mode?: string): Promise<void> {
 
         await this.explorer.addDeployment([uri], context);
-        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>(`enableAsyncPublish`);
+        const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>('enableAsyncPublish');
         await this.explorer.publish(context.rsp, context.server, ServerState.PUBLISH_FULL, isAsync);
         if (context.state === ServerState.STOPPED ||
             context.state === ServerState.UNKNOWN) {
@@ -731,13 +729,13 @@ export class CommandHandler {
         const vals = Array.from(this.explorer.RSPServersStatus.values());
         const predicateFilter2 = predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED;
         const rspProviders = vals.filter(predicateFilter2).map(rsp => {
-                                    return {
-                                        label: (!rsp.state.type.visibilename ?
-                                                rsp.state.type.id :
-                                                rsp.state.type.visibilename),
-                                        id: rsp.state.type.id
-                                    };
-                                });
+            return {
+                label: (!rsp.state.type.visibilename ?
+                    rsp.state.type.id :
+                    rsp.state.type.visibilename),
+                id: rsp.state.type.id
+            };
+        });
         if (rspProviders.length < 1) {
             return Promise.reject('There are no RSP providers to choose from.');
         }
@@ -804,18 +802,18 @@ export class CommandHandler {
         console.log(`${answer} was chosen`);
         if (!answer) {
             return null;
-        } else {
-            return answer.id;
         }
+        return answer.id;
+
     }
 
     private async checkExtension(debugInfo: DebugInfo): Promise<string> {
         if (!debugInfo) {
-            return `Could not find server debug info.`;
+            return 'Could not find server debug info.';
         }
 
         if (!debugInfo.isJavaType()) {
-            return `vscode-rsp-ui doesn\'t support debugging with ${debugInfo.getType()} language at this time.`;
+            return `vscode-rsp-ui doesn't support debugging with ${debugInfo.getType()} language at this time.`;
         }
 
         if (this.hasJavaDebugExtension()) {
@@ -837,7 +835,7 @@ export class CommandHandler {
         this.displayLog(rspserverstderr, data.toString());
     }
 
-    private displayLog(outputPanel: vscode.OutputChannel, message: string, show: boolean = true) {
+    private displayLog(outputPanel: vscode.OutputChannel, message: string, show = true) {
         if (outputPanel) {
             if (show) outputPanel.show();
             outputPanel.appendLine(message);
