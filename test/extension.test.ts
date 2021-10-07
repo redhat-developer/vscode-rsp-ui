@@ -14,7 +14,7 @@ import { RSPProperties, ServerExplorer } from '../src/serverExplorer';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import * as vscode from 'vscode';
-
+import * as fs from 'fs';
 const expect = chai.expect;
 chai.use(sinonChai);
 
@@ -45,6 +45,10 @@ suite('Extension Tests', () => {
     if (testFolder > -1) {// when running on windows, need to find proper location
         extensionPath = extensionPath.substring(0, testFolder);
     }
+
+    const temporaryStorage = extensionPath + "/out/tmp/inner/temporaryGlobalStorage";
+    fs.mkdirSync(temporaryStorage, {recursive:true});
+
     const context: vscode.ExtensionContext = {
         extensionPath: extensionPath,
         storagePath: 'string',
@@ -61,7 +65,7 @@ suite('Extension Tests', () => {
         storageUri: undefined,
         logUri: undefined,
         extensionMode: undefined,
-        globalStorageUri: undefined,
+        globalStorageUri: vscode.Uri.file(temporaryStorage),
         secrets: undefined,
         extension: undefined
     };
