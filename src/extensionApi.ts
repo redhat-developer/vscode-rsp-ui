@@ -837,7 +837,7 @@ export class CommandHandler {
 
     private displayLog(outputPanel: vscode.OutputChannel, message: string, show = true) {
         if (outputPanel) {
-            if (show) outputPanel.show();
+            if (show) outputPanel.show(true);
             outputPanel.appendLine(message);
         }
     }
