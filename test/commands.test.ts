@@ -1173,7 +1173,8 @@ suite('Command Handler', () => {
             status: ProtocolStubs.okStatus,
             items: undefined,
             jobId: 'id',
-            requestId: 1
+            requestId: 1,
+            invalidFields: []
         };
         const serverActionWorkflow: ServerActionItem = {
             id: 'id',
@@ -1246,7 +1247,8 @@ suite('Command Handler', () => {
             status: ProtocolStubs.infoStatus,
             items: [],
             jobId: 'id',
-            requestId: 1
+            requestId: 1,
+            invalidFields: []
         };
 
         setup(() => {
@@ -1259,7 +1261,8 @@ suite('Command Handler', () => {
                 status: ProtocolStubs.okStatus,
                 items: undefined,
                 jobId: 'id',
-                requestId: 1
+                requestId: 1,
+                invalidFields: []
             };
 
             const result = await handleWorkflow(response);
@@ -1271,7 +1274,8 @@ suite('Command Handler', () => {
                 status: ProtocolStubs.errorStatus,
                 items: undefined,
                 jobId: 'id',
-                requestId: 1
+                requestId: 1,
+                invalidFields: []
             };
 
             try {

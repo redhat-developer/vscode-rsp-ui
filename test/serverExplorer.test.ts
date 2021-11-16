@@ -511,9 +511,10 @@ suite('Server explorer', () => {
     });
 
     suite('addDeployment', () => {
-        const enum deploymentStatus {
-            file = 'File',
-            exploded = 'Exploded'
+        enum FilePickerType {
+            FILE = 'FILE',
+            FOLDER = 'FOLDER',
+            BOTH = 'BOTH'
         }
 
         const userSelectedPath: Uri = { 
@@ -545,7 +546,7 @@ suite('Server explorer', () => {
             Object.defineProperty(process, 'platform', {
                 value: 'win32'
             });
-            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(deploymentStatus.file);
+            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(FilePickerType.FILE);
 
             const filePickerResponseWindows = {
                 canSelectFiles: true,
@@ -565,7 +566,7 @@ suite('Server explorer', () => {
             Object.defineProperty(process, 'platform', {
                 value: 'win32'
             });
-            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(deploymentStatus.exploded);
+            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(FilePickerType.FOLDER);
 
             const folderPickerResponseWindows = {
                 canSelectFiles: false,
@@ -585,7 +586,7 @@ suite('Server explorer', () => {
             Object.defineProperty(process, 'platform', {
                 value: 'linux'
             });
-            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(deploymentStatus.file);
+            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(FilePickerType.FILE);
 
             const filePickerResponseLinux = {
                 canSelectFiles: true,
@@ -605,7 +606,7 @@ suite('Server explorer', () => {
             Object.defineProperty(process, 'platform', {
                 value: 'linux'
             });
-            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(deploymentStatus.exploded);
+            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(FilePickerType.FOLDER);
 
             const folderPickerResponseLinux: OpenDialogOptions = {
                 canSelectFiles: false,
@@ -625,7 +626,7 @@ suite('Server explorer', () => {
             Object.defineProperty(process, 'platform', {
                 value: 'darwin'
             });
-            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves('file or exploded');
+            sandbox.stub(serverExplorer, 'quickPickDeploymentType' as any).resolves(FilePickerType.BOTH);
 
             const pickerResponseDialog: OpenDialogOptions = {
                 canSelectFiles: true,
