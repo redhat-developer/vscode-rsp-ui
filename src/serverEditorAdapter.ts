@@ -24,14 +24,14 @@ export class ServerEditorAdapter {
     private constructor(private explorer: ServerExplorer) {
     }
 
-    public static getInstance(explorer: ServerExplorer) {
+    public static getInstance(explorer: ServerExplorer) : ServerEditorAdapter {
         if (!ServerEditorAdapter.instance) {
             ServerEditorAdapter.instance = new ServerEditorAdapter(explorer);
         }
         return ServerEditorAdapter.instance;
     }
 
-    public async showEditor(fileSuffix: string, content: string, path?: string) {
+    public async showEditor(fileSuffix: string, content: string, path?: string) : Promise<void> {
         if (!path) {
             const newFile = vscode.Uri.parse(`untitled:${  fileSuffix}`);
             await vscode.workspace.openTextDocument(newFile).then(async document => {

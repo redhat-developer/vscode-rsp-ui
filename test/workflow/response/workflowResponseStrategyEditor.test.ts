@@ -61,11 +61,6 @@ suite('WorkflowResponseStrategyEditor', () => {
             expect(result).equals(true);
         });
 
-        test('return false if no error occurs', async () => {
-            const result = await WorkflowResponseStrategyEditor.doAction(item);
-            expect(result).equals(false);
-        });
-
     });
 
 });
