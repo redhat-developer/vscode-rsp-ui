@@ -74,18 +74,14 @@ This extension supports a number of commands for interacting with supported serv
 
 
 ## Q&A
----
 
 ### 1. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
 Yes. This is the video you can watch to learn more about this extension https://www.youtube.com/watch?v=sP2Hlw-C_7I
 
-   
-
------------------------------------------------------------------------------------------------------------
 ## Install extension locally
 This is an open source project open to anyone. This project welcomes contributions and suggestions!!
 
-Download the most recent `adapters-<version>.vsix` file and install it by following the instructions [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix). 
+Download the most recent `rsp-ui-<version>.vsix` file and install it by following the instructions [here](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix). 
 
 Stable releases are archived under http://download.jboss.org/jbosstools/adapters/snapshots/vscode-middleware-tools/rsp-ui/
 
