@@ -1,0 +1,51 @@
+name: Generate plugin archive for new release
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 15
+    - name: Install dependencies
+      run: npm install
+    - name: Build 
+      run: npm run compile
+    - name: Run Unit tests
+      uses: GabrielBB/xvfb-action@v1.0
+      with:
+        run: npm test
+    - name: Run UI tests
+      uses: GabrielBB/xvfb-action@v1.0
+      with:
+        run: npm run ui-test
+    - name: Get current package version
+      id: package_version
+      uses: martinbeentjes/npm-get-version-action@v1.1.0
+    - name: Create a Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name : ${{ steps.package_version.outputs.current-version}}
+        release_name: ${{ steps.package_version.outputs.current-version}}
+        body: Publish ${{ steps.package_version.outputs.current-version}}
+    - name: Create vsix
+      id: create_vsix
+      uses: HaaLeo/publish-vscode-extension@v0
+      with:
+        pat: 'no_necessary_as_we_do_not_publish_on_marketplace'
+        dryRun: true
+    - name: Attach vsix to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.create_vsix.outputs.vsixPath}}
+        asset_name: ${{ steps.create_vsix.outputs.vsixPath}}
+        asset_content_type: application/vsix
