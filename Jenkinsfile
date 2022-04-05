@@ -47,8 +47,8 @@ node('rhel8'){
 	if(params.UPLOAD_LOCATION) {
 		stage('Snapshot') {
 			def filesToPush = findFiles(glob: '**.vsix')
-			sh "sftp -C ${UPLOAD_LOCATION}/snapshots/vscode-middleware-tools/rsp-ui/ <<< \$'put -p  ${filesToPush[0].path}'"
-		}
+			sh "sftp -C ${UPLOAD_LOCATION}/snapshots/vscode-middleware-tools/rsp-ui/ <<< \$'put -p ${filesToPush[0].path}'"
+        }
 	}
 	if(publishToMarketPlace.equals('true')){
 		timeout(time:5, unit:'DAYS') {
