@@ -408,7 +408,7 @@
   },
   "dependencies": {
     "@redhat-developer/vscode-redhat-telemetry": "0.4.2",
-    "@redhat-developer/vscode-wizard": "^0.2.21",
+    "@redhat-developer/vscode-wizard": "^0.2.28",
     "path": "0.12.7",
     "rsp-client": "^0.25.0",
     "tmp": "^0.2.1",
