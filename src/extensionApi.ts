@@ -202,7 +202,8 @@ export class CommandHandler {
         const serverState = this.explorer.getServerStateById(context.rsp, context.server.id).state;
         if ((!forced && serverState === ServerState.STARTED)
             || (forced && (serverState === ServerState.STARTING
-                            || serverState === ServerState.STOPPING))) {
+                            || serverState === ServerState.STOPPING
+                            || serverState === ServerState.UNKNOWN))) {
             const client: RSPClient = this.explorer.getClientByRSP(context.rsp);
             if (!client) {
                 return Promise.reject('Failed to contact the RSP server.');

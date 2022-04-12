@@ -223,7 +223,7 @@
         },
         {
           "command": "server.start",
-          "when": "view =~ '/(servers)/' && viewItem =~ '/^Stopped/'",
+          "when": "view =~ '/(servers)/' && viewItem =~ '/^(Stopped|Unknown)/'",
           "group": "1_server-startstop@1"
         },
         {
@@ -233,7 +233,7 @@
         },
         {
           "command": "server.stop",
-          "when": "view =~ '/(servers)/' && viewItem =~ '/^(Started|Debugging)/'",
+          "when": "view =~ '/(servers)/' && viewItem =~ '/^(Started|Debugging|Unknown)/'",
           "group": "1_server-startstop@3"
         },
         {
@@ -248,12 +248,12 @@
         },
         {
           "command": "server.terminate",
-          "when": "view =~ '/(servers)/' && viewItem =~ /^(Starting|Stopping)/",
+          "when": "view =~ '/(servers)/' && viewItem =~ /^(Starting|Stopping|Unknown)/",
           "group": "1_server-startstop@6"
         },
         {
           "command": "server.remove",
-          "when": "view =~ '/(servers)/' && viewItem =~ '/^Stopped/'",
+          "when": "view =~ '/(servers)/' && viewItem =~ '/^(Stopped|Unknown)/'",
           "group": "2_server-remove@1"
         },
         {
