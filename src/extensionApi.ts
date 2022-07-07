@@ -803,7 +803,8 @@ export class CommandHandler {
 
         const latestOfEach: Protocol.DownloadRuntimeDescription[] = [];
         for(let i = 0; i < uniquePrefixes.length; i++) {
-            const latest = rts.filter((x) => x.name.startsWith(uniquePrefixes[i])).reverse()[0];
+            const valid = Array.from(Array(10).keys()).map((x) => uniquePrefixes[i] + x);
+            const latest = rts.filter((x) => valid.includes(x.name.substring(0, uniquePrefixes[i].length+1))).reverse()[0];
             latestOfEach.push(latest);
         }
 
