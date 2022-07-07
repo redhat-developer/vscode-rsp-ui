@@ -423,7 +423,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             throw new Error(`Could not detect any server at ${folders[0].fsPath}!`);
         }
 
-        const useWebviews = workspace.getConfiguration('rsp-ui').get<boolean>('newserverwebviewworkflow');
+        const useWebviews = workspace.getConfiguration('rsp-ui').get<boolean>('newServerWebviewWorkflow');
         if(useWebviews) {
             return this.addLocationWizardImplementation(serverBeans[0], rspId, client, telemetryProps, startTime);
         }
