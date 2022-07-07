@@ -788,24 +788,35 @@ export class CommandHandler {
     }
 
     private async promptDownloadableRuntimes(client: RSPClient): Promise<string> {
-        const newlist = client.getOutgoingHandler().listDownloadableRuntimes(CommandHandler.LIST_RUNTIMES_TIMEOUT)
-            .then(async (list: Protocol.ListDownloadRuntimeResponse) => {
-                const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-                const rts: Protocol.DownloadRuntimeDescription[] = list.runtimes.sort((runtimeA, runtimeB) => collator.compare(runtimeA.name, runtimeB.name));
-                const newlist: any[] = [];
-                for (const rt of rts) {
-                    newlist.push({ label: rt.name, id: rt.id });
-                }
-                return newlist;
-            });
-        const answer = await vscode.window.showQuickPick(newlist,
+        const fromRsp: Protocol.ListDownloadRuntimeResponse = await client.getOutgoingHandler().listDownloadableRuntimes(CommandHandler.LIST_RUNTIMES_TIMEOUT);
+        const runtimes = fromRsp.runtimes;
+        const uniquePrefixes = [];
+        for(let i = 0; i < runtimes.length; i++) {
+            const numInd = runtimes[i].name.search(/[0-9]/);
+            const sub = numInd === -1 ? runtimes[i].name : runtimes[i].name.substring(0,numInd);
+            if(!uniquePrefixes.includes(sub)) 
+                uniquePrefixes.push(sub);
+        }
+        uniquePrefixes.sort();
+        const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+        const rts: Protocol.DownloadRuntimeDescription[] = runtimes.sort((runtimeA, runtimeB) => collator.compare(runtimeA.name, runtimeB.name));
+
+        const latestOfEach: Protocol.DownloadRuntimeDescription[] = [];
+        for(let i = 0; i < uniquePrefixes.length; i++) {
+            const latest = rts.filter((x) => x.name.startsWith(uniquePrefixes[i])).reverse()[0];
+            latestOfEach.push(latest);
+        }
+
+        const latestQuickPick: {label:string,id:string}[] = latestOfEach.map((x) => { return {label: x.name, id: x.id };});
+        const separator: {label:string, id: string}[] = [{label:'-----------', id: null}];
+        const newListQuickPick: {label:string,id:string}[] = rts.map((x) => { return {label: x.name, id: x.id };});
+        const answer = await vscode.window.showQuickPick(latestQuickPick.concat(separator).concat(newListQuickPick),
             { placeHolder: 'Please choose a server to download.' });
         console.log(`${answer} was chosen`);
         if (!answer) {
             return null;
         }
         return answer.id;
-
     }
 
     private async checkExtension(debugInfo: DebugInfo): Promise<string> {
