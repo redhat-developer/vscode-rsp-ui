@@ -1,6 +1,6 @@
 import { AdaptersConstants } from './common/adaptersContants';
 import { expect } from 'chai';
-import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, InputBox } from 'vscode-extension-tester';
+import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, InputBox, WebDriver, VSBrowser, Key } from 'vscode-extension-tester';
 
 /**
  * @author Ondrej Dockal <odockal@redhat.com>
@@ -11,12 +11,19 @@ export function extensionUIAssetsTest() {
         let view: ViewControl;
         let sideBar: SideBarView;
         let quickBox: InputBox;
+        let driver: WebDriver;
 
         before(async function() {
             this.timeout(4000);
             view = await new ActivityBar().getViewControl('Extensions');
             sideBar = await view.openView();
-            quickBox = (await new Workbench().openCommandPrompt()) as InputBox;
+            driver = VSBrowser.instance.driver;
+            if (process.platform === 'darwin') {
+                await driver.actions().sendKeys(Key.F1).perform();
+                quickBox = await InputBox.create();
+            } else {
+                quickBox = (await new Workbench().openCommandPrompt()) as InputBox;
+            }
         });
 
         it('Command Palette prompt knows RSP commands', async function() {
