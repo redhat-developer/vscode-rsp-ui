@@ -13,26 +13,47 @@ jobs:
     strategy:
       matrix:
         os: [macOS-latest, windows-latest, ubuntu-latest]
-        node: [15]
+        node: [16]
       fail-fast: false
 
     steps:
+    
+    # SCM Checkout
     - uses: actions/checkout@v2
     - name: Setup node
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node }}
+
+    # NPM install and build
     - run: npm install
     - run: npm run build
+
+    # Run unit tests
     - name: Run Unit tests
       uses: GabrielBB/xvfb-action@v1.0
       with:
         run: npm test
+
+    # Run UI Tests
     - name: Run UI tests
-      uses: GabrielBB/xvfb-action@v1.0
+      uses: GabrielBB/xvfb-action@v1.6
       with:
         run: npm run ui-test
+        options: -screen 0 2560x1440x24
+
+    # Uploade codecov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
         file: ./coverage/coverage-final.json
+
+    # Archiving integration tests artifacts
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v2
+      if: failure() && runner.os == 'Linux'
+      with: 
+        name: artifacts-${{ matrix.os }}
+        path: |
+          test-resources/screenshots/*.png
+        retention-days: 2
