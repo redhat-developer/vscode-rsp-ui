@@ -80,8 +80,9 @@ export class CommandHandler {
     }
 
     public async disconnectRSP(context?: RSPState): Promise<void> {
-        if(context === undefined)
-        {return Promise.reject('No RSP selected');}
+        if(context === undefined) {
+            return Promise.reject('No RSP selected');
+        }
         const id = context.type.id;
         const telemetryProps: any = {
             type: id,
@@ -738,7 +739,13 @@ export class CommandHandler {
             };
         });
         if (rspProviders.length < 1) {
-            return Promise.reject('There are no RSP providers to choose from.');
+            if (vals.length === 0) {
+                return Promise.reject('There are no RSP providers registered.');
+            }
+            if (predicateFilter) {
+                return Promise.reject('There are no RSP providers to choose from that match this command\'s required state.');
+            }
+            return Promise.reject('There are no RSP providers currently running to choose from. They may still be initializing.');
         }
         if (rspProviders.length === 1) {
             return rspProviders[0];
