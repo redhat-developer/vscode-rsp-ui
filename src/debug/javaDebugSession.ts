@@ -40,7 +40,8 @@ export class JavaDebugSession {
         const val = await window.showInputBox({prompt: 'Please input a project name to be used by the java debugger.',
             value: currVal || ''});
         if(val !== currVal) {
-            myContext.globalState.update(key, val);
+            if(myContext && myContext.globalState)
+                myContext.globalState.update(key, val);
         }
         return val;
     }
