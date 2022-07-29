@@ -431,7 +431,7 @@ suite('Command Handler', () => {
             // given
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
-            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves(undefined);
+            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
@@ -448,7 +448,7 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
-            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves(undefined);
+            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
