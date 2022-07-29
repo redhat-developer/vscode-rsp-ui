@@ -41,7 +41,7 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
         vscode.commands.registerCommand('server.restart', context => executeCommand(
             commandHandler.restartServer, commandHandler, 'run', context, 'Unable to restart in run mode the server: ')),
         vscode.commands.registerCommand('server.debug', context => executeCommand(
-            commandHandler.debugServer, commandHandler, context, 'Unable to debug the server: ')),
+            commandHandler.debugServer, commandHandler, context, 'Unable to debug the server! ')),
         vscode.commands.registerCommand('server.restartDebug', context => executeCommand(
             commandHandler.restartServer, commandHandler, 'debug', context, 'Unable to restart in debug mode the server: ')),
         vscode.commands.registerCommand('server.stop', context => executeCommand(
