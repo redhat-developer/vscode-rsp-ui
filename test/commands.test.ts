@@ -21,7 +21,6 @@ import { Utils } from '../src/utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategyManager } from '../src/workflow/response/workflowResponseStrategyManager';
-import { window } from 'vscode';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -431,7 +430,7 @@ suite('Command Handler', () => {
             // given
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
-            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves('');
+            const projectNameStub = sandbox.stub(vscode.window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
@@ -448,7 +447,7 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
-            const projectNameStub = sandbox.stub(window, 'showInputBox').resolves('');
+            const projectNameStub = sandbox.stub(vscode.window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
