@@ -430,12 +430,15 @@ suite('Command Handler', () => {
             // given
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
+            const projectNameStub = sandbox.stub(vscode.window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
             await handler.debugServer(ProtocolStubs.unknownServerState);
+            await new Promise(f => setTimeout(f, 1000));
             // then
             sandbox.assert.calledOnce(startServerStub);
+            sandbox.assert.calledOnce(projectNameStub);
             sandbox.assert.calledOnce(startDebuggingStub);
         });
 
@@ -445,12 +448,15 @@ suite('Command Handler', () => {
             sandbox.stub(handler, 'selectServer' as any).resolves('id');
             givenDebugTypeIsSupported(sandbox, handler);
             const startServerStub = givenServerStarted(sandbox, handler);
+            const projectNameStub = sandbox.stub(vscode.window, 'showInputBox').resolves('');
             const startDebuggingStub = sandbox.stub(vscode.debug, 'startDebugging');
             givenProcessOutput(sandbox, stubs);
             // when
             await handler.debugServer(undefined);
+            await new Promise(f => setTimeout(f, 1000));
             // then
             sandbox.assert.calledOnce(startServerStub);
+            sandbox.assert.calledOnce(projectNameStub);
             sandbox.assert.calledOnce(startDebuggingStub);
         });
 
@@ -1411,7 +1417,7 @@ suite('Command Handler', () => {
                 await selectRSPWithHandlerInjected('');
                 expect.fail();
             } catch (err) {
-                expect(err).equals('There are no RSP providers to choose from.');
+                expect(err).equals('There are no RSP providers currently running to choose from. They may still be initializing.');
             }
         });
 
