@@ -435,6 +435,7 @@ suite('Command Handler', () => {
             givenProcessOutput(sandbox, stubs);
             // when
             await handler.debugServer(ProtocolStubs.unknownServerState);
+            await new Promise(f => setTimeout(f, 1000));
             // then
             sandbox.assert.calledOnce(startServerStub);
             sandbox.assert.calledOnce(projectNameStub);
@@ -452,6 +453,7 @@ suite('Command Handler', () => {
             givenProcessOutput(sandbox, stubs);
             // when
             await handler.debugServer(undefined);
+            await new Promise(f => setTimeout(f, 1000));
             // then
             sandbox.assert.calledOnce(startServerStub);
             sandbox.assert.calledOnce(projectNameStub);
