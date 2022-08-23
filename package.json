@@ -379,7 +379,7 @@
     "watch": "tsc -watch -p ./",
     "clean": "rm -rf out || rmdir out /s /q",
     "test": "npm run clean && npm run compile && nyc node ./out/test/unit-tests.js",
-    "ui-test": "npm run compile && extest setup-and-run -i out/src/ui-test/allTestsSuite.js",
+    "ui-test": "npm run compile && extest setup-and-run -c 1.69.2 -i out/src/ui-test/allTestsSuite.js",
     "update-deps": "node_modules/.bin/ncu --upgrade --loglevel verbose --packageFile package.json && npm update",
     "coverage:upload": "codecov -f coverage/coverage-final.json",
     "build": "npm run compile",

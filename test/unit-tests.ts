@@ -17,7 +17,12 @@ async function main() {
 
         console.log(extensionDevelopmentPath, extensionTestsPath);
 
-        await runTests({ extensionDevelopmentPath, extensionTestsPath });
+        const options = {
+            extensionDevelopmentPath: extensionDevelopmentPath,
+            extensionTestsPath: extensionTestsPath,
+            version: '1.69.2',
+        };
+        await runTests(options);
     } catch (err) {
         console.error(err);
         process.exit(1);
