@@ -1,6 +1,6 @@
 import { AdaptersConstants } from './common/adaptersContants';
 import { expect } from 'chai';
-import { ActivityBar, SideBarView, ViewControl, Workbench, QuickOpenBox, ExtensionsViewSection, InputBox, WebDriver, VSBrowser, Key } from 'vscode-extension-tester';
+import { ActivityBar, SideBarView, ViewControl, Workbench, ExtensionsViewSection, InputBox, WebDriver, VSBrowser, Key, By, TitleActionButton } from 'vscode-extension-tester';
 
 /**
  * @author Ondrej Dockal <odockal@redhat.com>
@@ -65,12 +65,12 @@ export function extensionUIAssetsTest() {
         });
 
         after(async function() {
-            this.timeout(4000);
+            this.timeout(5000);
             if (sideBar && await sideBar.isDisplayed()) {
                 const viewControl = await new ActivityBar().getViewControl('Extensions');
                 sideBar = await viewControl.openView();
                 const titlePart = sideBar.getTitlePart();
-                const actionButton = await titlePart.getAction('Clear Extensions Search Results');
+                const actionButton = new TitleActionButton(By.xpath('.//a[@aria-label="Clear Extensions Search Results"]'), titlePart);
                 if (actionButton.isEnabled()) {
                     await actionButton.click();
                 }
@@ -82,18 +82,18 @@ export function extensionUIAssetsTest() {
     });
 }
 
-async function verifyCommandPalette(quick: QuickOpenBox) {
-    if (!quick || ! await quick.isDisplayed()) {
-        quick = await new Workbench().openCommandPrompt();
+async function verifyCommandPalette(input: InputBox) {
+    if (!input || ! await input.isDisplayed()) {
+        input = await new Workbench().openCommandPrompt() as InputBox;
     }
-    await quick.setText(`>${AdaptersConstants.RSP_COMMAND}`);
-    const options = await quick.getQuickPicks();
+    await input.setText(`>${AdaptersConstants.RSP_COMMAND}`);
+    const options = await input.getQuickPicks();
     expect(await options[0].getText()).not.equal('No commands matching');
     expect(await options[0].getText()).not.equal('No results found');
     for (const element of AdaptersConstants.RSP_MAIN_COMMANDS) {
         const expression = `${AdaptersConstants.RSP_COMMAND  } ${  element}`;
-        await quick.setText(`>${expression}`);
-        const option = await quick.getQuickPicks();
+        await input.setText(`>${expression}`);
+        const option = await input.getQuickPicks();
         const optionsString = await Promise.all(option.map(item => item.getText()));
         expect(optionsString).to.have.members([expression]);
     }
