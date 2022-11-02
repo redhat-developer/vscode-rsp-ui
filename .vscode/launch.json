@@ -57,6 +57,22 @@
                 "VSCA_TEST_MODE": "coverage",
                 "VSCODE_REDHAT_TELEMETRY_DEBUG":"true"
             }
+        },
+        {
+            "name": "Debug UI Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/extest",
+            "args": [
+                "setup-and-run",
+                "${workspaceFolder}/out/src/ui-test/*.js",
+                "-c",
+                "max",
+                "--mocha_config",
+                "${workspaceFolder}/src/ui-test/.mocharc-debug.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
         }
     ]
 }
