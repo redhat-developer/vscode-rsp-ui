@@ -402,7 +402,9 @@ export class CommandHandler {
                                            server.publishState === ServerState.PUBLISH_STATE_UNKNOWN;
             const serverId = await this.selectServer(rsp.id, 'Select server to remove deployment from', serverFilter);
             if (!serverId) return null;
-            const deployables = this.explorer.getServerStateById(rsp.id, serverId).deployableStates.map(value => {
+            const state: ServerStateNode | undefined = this.explorer.getServerStateById(rsp.id, serverId);
+            const deployableStates: DeployableStateNode[] = (!state || !state.deployableStates) ? [] : state.deployableStates;
+            const deployables = deployableStates.map(value => {
                 return {
                     label: value.reference.label,
                     deployable: value
@@ -574,7 +576,8 @@ export class CommandHandler {
     private async chooseServerActions(server: Protocol.ServerHandle, client: RSPClient): Promise<ServerActionItem> {
         const actionsList: ServerActionItem[] = await client.getOutgoingHandler().listServerActions(server)
             .then((response: Protocol.ListServerActionResponse) => {
-                return response.workflows.map(action => {
+                const entries = (!response || !response.workflows) ? [] : response.workflows;
+                return entries.map(action => {
                     return {
                         label: action.actionLabel,
                         id: action.actionId,
@@ -730,7 +733,7 @@ export class CommandHandler {
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
         const vals = Array.from(this.explorer.RSPServersStatus.values());
         const predicateFilter2 = predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED;
-        const rspProviders = vals.filter(predicateFilter2).map(rsp => {
+        const rspProviders = (vals.filter(predicateFilter2) || []).map(rsp => {
             return {
                 label: (!rsp.state.type.visibilename ?
                     rsp.state.type.id :
@@ -796,7 +799,7 @@ export class CommandHandler {
 
     private async promptDownloadableRuntimes(client: RSPClient): Promise<string> {
         const fromRsp: Protocol.ListDownloadRuntimeResponse = await client.getOutgoingHandler().listDownloadableRuntimes(CommandHandler.LIST_RUNTIMES_TIMEOUT);
-        const runtimes = fromRsp.runtimes;
+        const runtimes = fromRsp.runtimes || [];
         const uniquePrefixes = [];
         for(let i = 0; i < runtimes.length; i++) {
             const numInd = runtimes[i].name.search(/[0-9]/);

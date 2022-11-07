@@ -968,12 +968,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         return undefined;
     }
 
-    public getServerStateById(rspId: string, serverId: string): ServerStateNode {
+    public getServerStateById(rspId: string, serverId: string): ServerStateNode | undefined {
         return this.RSPServersStatus.get(rspId).state.serverStates.find(x => x.server.id === serverId);
     }
 
     public getServerStatesByRSP(rspId: string): ServerStateNode[] {
-        return this.RSPServersStatus.get(rspId).state.serverStates;
+        const props: RSPProperties = this.RSPServersStatus.get(rspId);
+        return props ? props.state.serverStates : [];
     }
 
     private isRSPElement(element: RSPState | ServerStateNode | DeployableStateNode): boolean {
