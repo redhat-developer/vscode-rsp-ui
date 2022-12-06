@@ -248,7 +248,7 @@
         },
         {
           "command": "server.terminate",
-          "when": "view =~ '/(servers)/' && viewItem =~ /^(Starting|Stopping|Unknown)/",
+          "when": "view =~ '/(servers)/' && viewItem =~ /^(Starting|Stopping|Started|Stopped|Unknown)/",
           "group": "1_server-startstop@6"
         },
         {

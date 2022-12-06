@@ -70,7 +70,7 @@ export function extensionUIAssetsTest() {
                 const viewControl = await new ActivityBar().getViewControl('Extensions');
                 sideBar = await viewControl.openView();
                 const titlePart = sideBar.getTitlePart();
-                const actionButton = new TitleActionButton(By.xpath('.//a[@aria-label="Clear Extensions Search Results"]'), titlePart);
+                const actionButton = new TitleActionButton(By.xpath('.//a[@aria-label="Clear Extensions Search Results"]').toString(), titlePart);
                 if (actionButton.isEnabled()) {
                     await actionButton.click();
                 }
