@@ -31,20 +31,20 @@ jobs:
 
     # Run unit tests
     - name: Run Unit tests
-      uses: GabrielBB/xvfb-action@v1.0
+      uses: GabrielBB/xvfb-action@fe2609f8182a9ed5aee7d53ff3ed04098a904df2 #v1.0
       with:
         run: npm test
 
     # Run UI Tests
     - name: Run UI tests
-      uses: GabrielBB/xvfb-action@v1.6
+      uses: GabrielBB/xvfb-action@86d97bde4a65fe9b290c0b3fb92c2c4ed0e5302d #v1.6
       with:
         run: npm run ui-test
         options: -screen 0 2560x1440x24
 
     # Uploade codecov
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b #v2
       with:
         file: ./coverage/coverage-final.json
 
