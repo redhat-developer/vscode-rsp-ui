@@ -3,8 +3,8 @@
 [![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/redhat.vscode-rsp-ui?style=for-the-badge&label=VS%20Marketplace&logo=visual-studio-code&color=blue)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-rsp-ui)
 [![Downloads](https://img.shields.io/visual-studio-marketplace/d/redhat.vscode-rsp-ui?style=for-the-badge&color=purple)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-rsp-ui)
 [![Gitter](https://img.shields.io/gitter/room/redhat-developer/server-connector?style=for-the-badge&logo=gitter)](https://gitter.im/redhat-developer/server-connector)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/redhat-developer/vscode-server-connector/gh-actions.yml?style=for-the-badge&logo=github)](https://github.com/redhat-developer/vscode-rsp-ui/actions)
-[![License](https://img.shields.io/badge/license-EPLv2.0-brightgreen.png?style=for-the-badge)](https://github.com/redhat-developer/vscode-server-connector/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/redhat-developer/vscode-rsp-ui/gh-actions.yml?style=for-the-badge&logo=github)](https://github.com/redhat-developer/vscode-rsp-ui/actions)
+[![License](https://img.shields.io/badge/license-EPLv2.0-brightgreen.png?style=for-the-badge)](https://github.com/redhat-developer/vscode-rsp-ui/blob/master/LICENSE)
 
 A Visual Studio Code extension that provides a unified UI for any RSP (Runtime Server Protocol) provider to contribute their RSP implementation to. 
 
