@@ -181,7 +181,7 @@
       "view/title": [
         {
           "command": "server.createServer",
-          "when": "view =~ '/(servers)/'",
+          "when": "view == servers",
           "group": "navigation"
         }
       ],
