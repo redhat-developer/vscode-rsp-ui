@@ -563,6 +563,7 @@ export class CommandHandler {
         const telemetryProps: any = {
             rsp: context.rsp,
             type: context.server.type.id,
+            action: action.id,
         };
         const startTime = Date.now();
         try {
