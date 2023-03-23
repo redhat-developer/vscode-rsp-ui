@@ -170,7 +170,7 @@
       }
     ],
     "views": {
-      "serverView": [
+      "explorer": [
         {
           "id": "servers",
           "name": "Servers"
