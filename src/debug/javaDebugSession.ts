@@ -38,7 +38,7 @@ export class JavaDebugSession {
         const key = GLOBAL_STATE_SERVER_DEBUG_PROJECT_NAME_PREFIX + '/' + serverId;
         const currVal: string | undefined = myContext && myContext.globalState ? myContext.globalState.get(key) : undefined;
         const val = await window.showInputBox({prompt: 'Please input a project name to be used by the java debugger.',
-            value: currVal || ''});
+            value: currVal || '', ignoreFocusOut: true});
         if(val !== currVal) {
             if(myContext && myContext.globalState)
                 myContext.globalState.update(key, val);
