@@ -522,8 +522,8 @@ export class CommandHandler {
         }
 
         try {
+            const workflowMap = {};
             while (true) {
-                const workflowMap = {};
                 const status = await this.handleWorkflow(response, workflowMap);
                 if (!status) {
                     telemetryProps.errorMessage = 'User did not complete download runtime workflow';
@@ -620,7 +620,6 @@ export class CommandHandler {
             return;
         }
         while (true) {
-            const workflowMap = {};
             const status = await this.handleWorkflow(response, workflowMap);
             if (!status) {
                 return;
