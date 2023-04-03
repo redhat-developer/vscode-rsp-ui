@@ -42,6 +42,15 @@ vsce package
 echo "Did the package work?"
 read -p "Press enter to continue"
 
+echo "Go to Jenkins and do a proper release there first."
+echo "Come back when that's green."
+read -p "Press enter to continue"
+
+echo "It's green? Run it again with a release flag"
+echo "Did it succeed? Great. Let's continue with tagging and more"
+read -p "Press enter to continue"
+
+
 
 echo "Old version is $oldver"
 echo "Let's tag the release"
