@@ -31,7 +31,7 @@ export function extensionUIAssetsTest() {
             await verifyCommandPalette(quickBox);
         });
 
-        it('Remote Server Protocol UI extension is installed', async function() {
+        it('Runtime Server Protocol UI extension is installed', async function() {
             this.timeout(8000);
             const section = await sideBar.getContent().getSection('Installed') as ExtensionsViewSection;
             const item = await section.findItem(`@installed ${AdaptersConstants.RSP_UI_NAME}`);

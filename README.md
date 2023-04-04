@@ -1,4 +1,4 @@
-# Remote Server Protocol UI
+# Runtime Server Protocol UI
 
 [![Visual Studio Marketplace](https://img.shields.io/visual-studio-marketplace/v/redhat.vscode-rsp-ui?style=for-the-badge&label=VS%20Marketplace&logo=visual-studio-code&color=blue)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-rsp-ui)
 [![Downloads](https://img.shields.io/visual-studio-marketplace/d/redhat.vscode-rsp-ui?style=for-the-badge&color=purple)](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-rsp-ui)
