@@ -1,0 +1,1 @@
+export const JAVA_DEBUG_EXTENSION: string = 'vscjava.vscode-java-debug';
