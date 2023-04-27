@@ -800,7 +800,8 @@ suite('Command Handler', () => {
             stopStub = sandbox.stub(handler, 'stopServer').resolves(ProtocolStubs.okStatus);
             stubs.outgoing.getLaunchCommand = sandbox.stub<[Protocol.LaunchParameters, number], Promise<Protocol.CommandLineDetails>>().resolves(ProtocolStubs.javaCommandLine);
             sandbox.stub(vscode.window, 'showQuickPick' as any).resolves(ProtocolStubs.serverHandle.id);
-            sandbox.stub(handler, 'checkExtension' as any).resolves(undefined);
+            sandbox.stub(handler, 'checkDebuggerPrereqs' as any).resolves(undefined);
+            sandbox.stub(handler, 'checkDebuggerPresent' as any).resolves(true);
             stubs.incoming.onServerStateChanged = sandbox.stub<[(arg: Protocol.ServerState) => void], void>().resolves(ProtocolStubs.stoppedServerState);
         });
 
@@ -1490,7 +1491,8 @@ function givenServerStarted(sandbox: sinon.SinonSandbox, handler: CommandHandler
 function givenDebugTypeIsSupported(sandbox: sinon.SinonSandbox, handler: CommandHandler) {
     const debugInfo: DebugInfo = new DebugInfo(sandbox.stub() as unknown as Protocol.CommandLineDetails);
     sandbox.stub(DebugInfoProvider, 'retrieve').resolves(debugInfo);
-    sandbox.stub(handler, 'checkExtension' as any).resolves(undefined);
+    sandbox.stub(handler, 'checkDebuggerPrereqs' as any).resolves(undefined);
+    sandbox.stub(handler, 'checkDebuggerPresent' as any).resolves(true);
 }
 
 function givenProcessOutput(sandbox: sinon.SinonSandbox, stubs: ClientStubs) {

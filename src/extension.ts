@@ -11,7 +11,9 @@ import { ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer } from './serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel } from 'vscode-server-connector-api';
-import { initializeTelemetry, sendTelemetry}  from './telemetry';
+import { getTelemetryServiceInstance, initializeTelemetry, sendTelemetry}  from './telemetry';
+import { IRecommendationService, RecommendationCore } from '@redhat-developer/vscode-extension-proposals/lib';
+import { JAVA_DEBUG_EXTENSION } from './constants';
 
 let serversExplorer: ServerExplorer;
 let commandHandler: CommandHandler;
@@ -23,9 +25,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<RSPMod
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
     await registerCommands(commandHandler, context);
+    registerRecommendations(context);
     return getAPI();
 }
 
+async function registerRecommendations(context: vscode.ExtensionContext) {
+    const recommendService: IRecommendationService = RecommendationCore.getService(context, await getTelemetryServiceInstance());
+    const r1 = recommendService.create(JAVA_DEBUG_EXTENSION, "Debugger for Java", 
+        "This extension is required to launch a server in debug mode and connect to it with a debugger.", false);
+    recommendService.register([r1]);
+
+}
 async function registerCommands(commandHandler: CommandHandler, context: vscode.ExtensionContext) {
     const newLocal = [
         vscode.commands.registerCommand('server.startRSP', context => executeCommand(

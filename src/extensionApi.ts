@@ -15,7 +15,10 @@ import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
-import { sendTelemetry } from './telemetry';
+import { getTelemetryServiceInstance, sendTelemetry } from './telemetry';
+import { JAVA_DEBUG_EXTENSION } from './constants';
+import { IRecommendationService, RecommendationCore} from '@redhat-developer/vscode-extension-proposals/lib';
+import { myContext } from './extension';
 
 export interface ServerActionItem {
     label: string;
@@ -224,7 +227,7 @@ export class CommandHandler {
 
     }
 
-    public async debugServer(context?: ServerStateNode): Promise<Protocol.StartServerResponse> {
+    public async debugServer(context?: ServerStateNode): Promise<Protocol.StartServerResponse | undefined> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
             if (!rsp || !rsp.id) return null;
@@ -239,10 +242,15 @@ export class CommandHandler {
             return Promise.reject('Failed to contact the RSP server.');
         }
         const debugInfo: DebugInfo = await DebugInfoProvider.retrieve(context.server, client);
-        const extensionIsRequired = await this.checkExtension(debugInfo);
-        if (extensionIsRequired) {
-            return Promise.reject(extensionIsRequired);
+        const preReqError = await this.checkDebuggerPrereqs(debugInfo);
+        if (preReqError) {
+            return Promise.reject(preReqError);
         }
+        const extensionPresent = this.checkDebuggerPresent();
+        if (!extensionPresent) {
+            return undefined;
+        }
+
         const telemetryProps: any = {
             type: context.server.type.id,
             debug: true
@@ -341,7 +349,7 @@ export class CommandHandler {
     }
 
     public getRestartListener(mode: string, context: ServerStateNode, client: RSPClient) {
-        const listener = async (state: Protocol.ServerState) => {
+        const listener = async (state: Protocol.ServerState): Promise<void> => {
             try {
                 if (state
                     && state.server
@@ -352,10 +360,12 @@ export class CommandHandler {
                     if (state.state === ServerState.STOPPED) {
                         switch (mode) {
                         case ServerState.RUN_MODE_DEBUG: {
-                            return await this.debugServer(context);
+                            await this.debugServer(context);
+                            return;
                         }
                         case ServerState.RUN_MODE_RUN: {
-                            return await this.startServer(ServerState.RUN_MODE_RUN, context);
+                            await this.startServer(ServerState.RUN_MODE_RUN, context);
+                            return;
                         }
                         default: {
                             vscode.window.showErrorMessage(`Could not restart server: unknown mode ${mode}`);
@@ -830,7 +840,7 @@ export class CommandHandler {
         return answer.id;
     }
 
-    private async checkExtension(debugInfo: DebugInfo): Promise<string> {
+    private async checkDebuggerPrereqs(debugInfo: DebugInfo): Promise<string | undefined> {
         if (!debugInfo) {
             return 'Could not find server debug info.';
         }
@@ -838,14 +848,23 @@ export class CommandHandler {
         if (!debugInfo.isJavaType()) {
             return `vscode-rsp-ui doesn't support debugging with ${debugInfo.getType()} language at this time.`;
         }
-
+        return undefined;
+    }
+    private checkDebuggerPresent(): boolean {
         if (this.hasJavaDebugExtension()) {
-            return 'Debugger for Java extension is required. Install/Enable it before proceeding.';
+            getTelemetryServiceInstance().then((x) => {
+                const recommendService: IRecommendationService = RecommendationCore.getService(myContext, x );
+                /*const result: UserChoice | undefined = */
+                recommendService.show(JAVA_DEBUG_EXTENSION, true);
+                // TODO do something with the result? Store it? Maybe don't show again?
+            });
+            return false;
         }
+        return true;
     }
 
     private hasJavaDebugExtension(): boolean {
-        return vscode.extensions.getExtension('vscjava.vscode-java-debug') === undefined;
+        return vscode.extensions.getExtension(JAVA_DEBUG_EXTENSION) === undefined;
     }
 
     private onStdoutData(rspId: string, data: string) {
