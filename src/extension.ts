@@ -25,17 +25,22 @@ export async function activate(context: vscode.ExtensionContext): Promise<RSPMod
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
     await registerCommands(commandHandler, context);
+    console.log("Inside activate: context is " + context);
     registerRecommendations(context);
     return getAPI();
 }
 
 async function registerRecommendations(context: vscode.ExtensionContext) {
-    const recommendService: IRecommendationService = RecommendationCore.getService(context, await getTelemetryServiceInstance());
-    const r1 = recommendService.create(JAVA_DEBUG_EXTENSION, "Debugger for Java", 
-        "This extension is required to launch a server in debug mode and connect to it with a debugger.", false);
-    recommendService.register([r1]);
-
+    console.log("Inside registerRecommendations: context is " + context);
+    const telem = await getTelemetryServiceInstance();
+    const recommendService: IRecommendationService | undefined = RecommendationCore.getService(context, telem);
+    if( recommendService ) {
+        const r1 = recommendService.create(JAVA_DEBUG_EXTENSION, "Debugger for Java", 
+            "This extension is required to launch a server in debug mode and connect to it with a debugger.", false);
+        recommendService.register([r1]);
+    }
 }
+
 async function registerCommands(commandHandler: CommandHandler, context: vscode.ExtensionContext) {
     const newLocal = [
         vscode.commands.registerCommand('server.startRSP', context => executeCommand(

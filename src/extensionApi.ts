@@ -854,9 +854,11 @@ export class CommandHandler {
         if (this.hasJavaDebugExtension()) {
             getTelemetryServiceInstance().then((x) => {
                 const recommendService: IRecommendationService = RecommendationCore.getService(myContext, x );
-                /*const result: UserChoice | undefined = */
-                recommendService.show(JAVA_DEBUG_EXTENSION, true, undefined, Level.Warn);
-                // TODO do something with the result? Store it? Maybe don't show again?
+                if( recommendService ) {
+                    /*const result: UserChoice | undefined = */
+                    recommendService.show(JAVA_DEBUG_EXTENSION, true, undefined, Level.Warn);
+                    // TODO do something with the result? Store it? Maybe don't show again?
+            }
             });
             return false;
         }

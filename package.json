@@ -1,418 +1,424 @@
 {
-  "name": "vscode-rsp-ui",
-  "displayName": "Runtime Server Protocol UI",
-  "description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
-  "version": "0.24.1",
-  "license": "SEE LICENSE IN LICENSE",
-  "publisher": "redhat",
-  "author": "Red Hat",
-  "preview": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/redhat-developer/vscode-rsp-ui.git"
-  },
-  "bugs": "https://github.com/redhat-developer/vscode-rsp-ui/issues/",
-  "engines": {
-    "vscode": "^1.54.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "keywords": [
-    "server",
-    "runtimes",
-    "adapters",
-    "RSP"
-  ],
-  "icon": "images/rsp_ui_icon.png",
-  "activationEvents": [
-    "onCommand:server.createServer",
-    "onCommand:server.addLocation",
-    "onCommand:server.downloadRuntime",
-    "onCommand:server.startRSP",
-    "onCommand:server.disconnectRSP",
-    "onCommand:server.stopRSP",
-    "onCommand:server.terminateRSP",
-    "onCommand:server.start",
-    "onCommand:server.debug",
-    "onCommand:server.stop",
-    "onCommand:server.terminate",
-    "onCommand:server.restart",
-    "onCommand:server.restartDebug",
-    "onCommand:server.remove",
-    "onCommand:server.output",
-    "onCommand:server.add",
-    "onCommand:server.publishFull",
-    "onCommand:server.publishIncremental",
-    "onCommand:server.actions",
-    "onView:servers",
-    "onLanguage:plaintext"
-  ],
-  "main": "./out/src/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "server.createServer",
-        "title": "Create New Server...",
-        "icon": "resources/dark/new-server.svg",
-        "category": "Servers"
-      },
-      {
-        "command": "server.addLocation",
-        "title": "Add Local Server...",
-        "icon": "resources/dark/add-location.svg",
-        "category": "Servers"
-      },
-      {
-        "command": "server.downloadRuntime",
-        "title": "Download Server...",
-        "category": "Servers"
-      },
-      {
-        "command": "server.startRSP",
-        "title": "Start / Connect to RSP Provider",
-        "category": "Servers"
-      },
-      {
-        "command": "server.disconnectRSP",
-        "title": "Disconnect from RSP Provider",
-        "category": "Servers"
-      },
-      {
-        "command": "server.stopRSP",
-        "title": "Stop RSP Provider",
-        "category": "Servers"
-      },
-      {
-        "command": "server.terminateRSP",
-        "title": "Terminate RSP Provider",
-        "category": "Servers"
-      },
-      {
-        "command": "server.start",
-        "title": "Start Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.debug",
-        "title": "Debug Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.stop",
-        "title": "Stop Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.terminate",
-        "title": "Terminate Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.restart",
-        "title": "Restart in Run Mode",
-        "category": "Servers"
-      },
-      {
-        "command": "server.restartDebug",
-        "title": "Restart in Debug Mode",
-        "category": "Servers"
-      },
-      {
-        "command": "server.remove",
-        "title": "Remove Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.output",
-        "title": "Show Output Channel",
-        "category": "Servers"
-      },
-      {
-        "command": "server.addDeployment",
-        "title": "Add Deployment",
-        "category": "Servers"
-      },
-      {
-        "command": "server.removeDeployment",
-        "title": "Remove Deployment",
-        "category": "Servers"
-      },
-      {
-        "command": "server.publishIncremental",
-        "title": "Publish Server (Incremental)",
-        "category": "Servers"
-      },
-      {
-        "command": "server.publishFull",
-        "title": "Publish Server (Full)",
-        "category": "Servers"
-      },
-      {
-        "command": "server.actions",
-        "title": "Server Actions...",
-        "category": "Servers"
-      },
-      {
-        "command": "server.editServer",
-        "title": "Edit Server",
-        "category": "Servers"
-      },
-      {
-        "command": "server.application.run",
-        "title": "Run on Server",
-        "category": "Application"
-      },
-      {
-        "command": "server.application.debug",
-        "title": "Debug on Server",
-        "category": "Application"
-      }
-    ],
-    "views": {
-      "explorer": [
-        {
-          "id": "servers",
-          "name": "Servers"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "command": "server.createServer",
-          "when": "view == servers",
-          "group": "navigation"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "server.application.run",
-          "when": "never"
-        },
-        {
-          "command": "server.application.debug",
-          "when": "never"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "server.startRSP",
-          "when": "view == servers && viewItem =~ /^(RSPUnknown|RSPStopped)/",
-          "group": "0_server-rspstartstop@1"
-        },
-        {
-          "command": "server.disconnectRSP",
-          "when": "view == servers && viewItem =~ /^(RSPConnected)/",
-          "group": "0_server-rspstartstop@2"
-        },
-        {
-          "command": "server.stopRSP",
-          "when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/",
-          "group": "0_server-rspstartstop@2"
-        },
-        {
-          "command": "server.terminateRSP",
-          "when": "view == servers && viewItem =~ /^(RSPStarted|RSPStarting|RSPStopping)/",
-          "group": "0_server-rspstartstop@2"
-        },
-        {
-          "command": "server.createServer",
-          "when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/",
-          "group": "0_server-rspstartstop@3"
-        },
-        {
-          "command": "server.start",
-          "when": "view == servers && viewItem =~ /^(Stopped|Unknown)/",
-          "group": "1_server-startstop@1"
-        },
-        {
-          "command": "server.debug",
-          "when": "view == servers && viewItem =~ /^Stopped/",
-          "group": "1_server-startstop@2"
-        },
-        {
-          "command": "server.stop",
-          "when": "view == servers && viewItem =~ /^(Started|Debugging|Unknown)/",
-          "group": "1_server-startstop@3"
-        },
-        {
-          "command": "server.restart",
-          "when": "view == servers && viewItem =~ /^(Started|Debugging)/",
-          "group": "1_server-startstop@4"
-        },
-        {
-          "command": "server.restartDebug",
-          "when": "view == servers && viewItem =~ /^(Started|Debugging)/",
-          "group": "1_server-startstop@5"
-        },
-        {
-          "command": "server.terminate",
-          "when": "view == servers && viewItem =~ /^(Starting|Stopping|Started|Stopped|Unknown)/",
-          "group": "1_server-startstop@6"
-        },
-        {
-          "command": "server.remove",
-          "when": "view == servers && viewItem =~ /^(Stopped|Unknown)/",
-          "group": "2_server-remove@1"
-        },
-        {
-          "command": "server.publishIncremental",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
-          "group": "3_server-deployments@6"
-        },
-        {
-          "command": "server.publishFull",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
-          "group": "3_server-deployments@7"
-        },
-        {
-          "command": "server.addDeployment",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|^Unknown)/",
-          "group": "3_server-deployments@1"
-        },
-        {
-          "command": "server.removeDeployment",
-          "when": "view == servers && viewItem =~ /^(Synchronized|[+|-|Full]* Publish|Unknown)/",
-          "group": "3_server-deployments@2"
-        },
-        {
-          "command": "server.output",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped)/",
-          "group": "4_server-status@1"
-        },
-        {
-          "command": "server.downloadRuntime",
-          "when": "view == servers && !viewItem",
-          "group": "5_rsp@1"
-        },
-        {
-          "command": "server.addLocation",
-          "when": "view == servers && !viewItem",
-          "group": "5_rsp@2"
-        },
-        {
-          "command": "server.actions",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
-          "group": "6_server-info@1"
-        },
-        {
-          "command": "server.editServer",
-          "when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
-          "group": "6_server-info@2"
-        }
-      ],
-      "explorer/context": [
-        {
-          "command": "server.application.run",
-          "group": "1_server-application@1"
-        },
-        {
-          "command": "server.application.debug",
-          "group": "1_server-application@2"
-        }
-      ]
-    },
-    "configuration": {
-      "type": "object",
-      "title": "Servers View",
-      "properties": {
-        "rsp-ui.rsp.java.home": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null,
-          "description": "Specifies the path to a full JDK (version 11 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.\nOn Windows, backslashes must be escaped, i.e.\n\"rsp-ui.rsp.java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk-11.0.13\"",
-          "scope": "window"
-        },
-        "redhat.telemetry.enabled": {
-          "type": "boolean",
-          "default": null,
-          "markdownDescription": "Enable usage data and errors to be sent to Red Hat servers. Read our [privacy statement](https://developers.redhat.com/article/tool-data-collection).",
-          "scope": "window"
-        },
-        "vscodeAdapters.showChannelOnServerOutput": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show Server's output channel when new text added to output stream."
-        },
-        "rsp-ui.newServerWebviewWorkflow": {
-          "type": "boolean",
-          "default": true,
-          "title": "Use webviews when creating a new server",
-          "description": "If true, use the webviews workflow when creating a new server. If false, use a series of prompts."
-        },
-        "rsp-ui.enableStartServerOnActivation": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "List RSP Servers",
-            "properties": {
-              "id": {
-                "type": "string",
-                "description": "Id external RSP Provider"
-              },
-              "name": {
-                "type": "string",
-                "description": "Name of external RSP Provider (as seen in Tree View)"
-              },
-              "startOnActivation": {
-                "type": "boolean",
-                "description": "Enable automatic start of RSP Server during activation"
-              }
-            }
-          },
-          "rsp-ui.enableAsyncPublish": {
-            "type": "boolean",
-            "default": false,
-            "description": "Enable async publishing."
-          },
-          "description": "Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu"
-        }
-      }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "clean": "rm -rf out || rmdir out /s /q",
-    "test": "npm run clean && npm run compile && nyc node ./out/test/unit-tests.js",
-    "ui-test": "npm run compile && extest setup-and-run -i out/src/ui-test/allTestsSuite.js -c max",
-    "update-deps": "node_modules/.bin/ncu --upgrade --loglevel verbose --packageFile package.json && npm update",
-    "coverage:upload": "codecov -f coverage/coverage-final.json",
-    "build": "npm run compile",
-    "lint": "eslint src test --fix"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^15.3.0",
-    "@types/sinon": "^10.0.0",
-    "@types/vscode": "^1.54.0",
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
-    "@typescript-eslint/parser": "^4.29.1",
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "eslint": "^7.32.0",
-    "glob": "^7.1.7",
-    "mocha": "^10.0.0",
-    "mocha-jenkins-reporter": "^0.4.8",
-    "nyc": "^15.1.0",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0",
-    "typescript": "^4.3.5",
-    "vscode-extension-tester": "^5.0.0",
-    "vscode-test": "^1.5.2"
-  },
-  "dependencies": {
-    "@redhat-developer/vscode-extension-proposals": "^0.0.11",
-    "@redhat-developer/vscode-redhat-telemetry": "0.4.2",
-    "@redhat-developer/vscode-wizard": "^0.2.28",
-    "path": "0.12.7",
-    "rsp-client": "^0.25.0",
-    "tmp": "^0.2.1",
-    "vscode-server-connector-api": "0.1.7"
-  }
+	"name": "vscode-rsp-ui",
+	"displayName": "Runtime Server Protocol UI",
+	"description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
+	"version": "0.24.1",
+	"license": "SEE LICENSE IN LICENSE",
+	"publisher": "redhat",
+	"author": "Red Hat",
+	"preview": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/redhat-developer/vscode-rsp-ui.git"
+	},
+	"bugs": "https://github.com/redhat-developer/vscode-rsp-ui/issues/",
+	"engines": {
+		"vscode": "^1.54.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"server",
+		"runtimes",
+		"adapters",
+		"RSP"
+	],
+	"icon": "images/rsp_ui_icon.png",
+	"activationEvents": [
+		"onCommand:server.createServer",
+		"onCommand:server.addLocation",
+		"onCommand:server.downloadRuntime",
+		"onCommand:server.startRSP",
+		"onCommand:server.disconnectRSP",
+		"onCommand:server.stopRSP",
+		"onCommand:server.terminateRSP",
+		"onCommand:server.start",
+		"onCommand:server.debug",
+		"onCommand:server.stop",
+		"onCommand:server.terminate",
+		"onCommand:server.restart",
+		"onCommand:server.restartDebug",
+		"onCommand:server.remove",
+		"onCommand:server.output",
+		"onCommand:server.add",
+		"onCommand:server.publishFull",
+		"onCommand:server.publishIncremental",
+		"onCommand:server.actions",
+		"onView:servers",
+		"onLanguage:plaintext"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "server.createServer",
+				"title": "Create New Server...",
+				"icon": "resources/dark/new-server.svg",
+				"category": "Servers"
+			},
+			{
+				"command": "server.addLocation",
+				"title": "Add Local Server...",
+				"icon": "resources/dark/add-location.svg",
+				"category": "Servers"
+			},
+			{
+				"command": "server.downloadRuntime",
+				"title": "Download Server...",
+				"category": "Servers"
+			},
+			{
+				"command": "server.startRSP",
+				"title": "Start / Connect to RSP Provider",
+				"category": "Servers"
+			},
+			{
+				"command": "server.disconnectRSP",
+				"title": "Disconnect from RSP Provider",
+				"category": "Servers"
+			},
+			{
+				"command": "server.stopRSP",
+				"title": "Stop RSP Provider",
+				"category": "Servers"
+			},
+			{
+				"command": "server.terminateRSP",
+				"title": "Terminate RSP Provider",
+				"category": "Servers"
+			},
+			{
+				"command": "server.start",
+				"title": "Start Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.debug",
+				"title": "Debug Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.stop",
+				"title": "Stop Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.terminate",
+				"title": "Terminate Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.restart",
+				"title": "Restart in Run Mode",
+				"category": "Servers"
+			},
+			{
+				"command": "server.restartDebug",
+				"title": "Restart in Debug Mode",
+				"category": "Servers"
+			},
+			{
+				"command": "server.remove",
+				"title": "Remove Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.output",
+				"title": "Show Output Channel",
+				"category": "Servers"
+			},
+			{
+				"command": "server.addDeployment",
+				"title": "Add Deployment",
+				"category": "Servers"
+			},
+			{
+				"command": "server.removeDeployment",
+				"title": "Remove Deployment",
+				"category": "Servers"
+			},
+			{
+				"command": "server.publishIncremental",
+				"title": "Publish Server (Incremental)",
+				"category": "Servers"
+			},
+			{
+				"command": "server.publishFull",
+				"title": "Publish Server (Full)",
+				"category": "Servers"
+			},
+			{
+				"command": "server.actions",
+				"title": "Server Actions...",
+				"category": "Servers"
+			},
+			{
+				"command": "server.editServer",
+				"title": "Edit Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.application.run",
+				"title": "Run on Server",
+				"category": "Application"
+			},
+			{
+				"command": "server.application.debug",
+				"title": "Debug on Server",
+				"category": "Application"
+			}
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "servers",
+					"name": "Servers"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "server.createServer",
+					"when": "view == servers",
+					"group": "navigation"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "server.application.run",
+					"when": "never"
+				},
+				{
+					"command": "server.application.debug",
+					"when": "never"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "server.startRSP",
+					"when": "view == servers && viewItem =~ /^(RSPUnknown|RSPStopped)/",
+					"group": "0_server-rspstartstop@1"
+				},
+				{
+					"command": "server.disconnectRSP",
+					"when": "view == servers && viewItem =~ /^(RSPConnected)/",
+					"group": "0_server-rspstartstop@2"
+				},
+				{
+					"command": "server.stopRSP",
+					"when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/",
+					"group": "0_server-rspstartstop@2"
+				},
+				{
+					"command": "server.terminateRSP",
+					"when": "view == servers && viewItem =~ /^(RSPStarted|RSPStarting|RSPStopping)/",
+					"group": "0_server-rspstartstop@2"
+				},
+				{
+					"command": "server.createServer",
+					"when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/",
+					"group": "0_server-rspstartstop@3"
+				},
+				{
+					"command": "server.start",
+					"when": "view == servers && viewItem =~ /^(Stopped|Unknown)/",
+					"group": "1_server-startstop@1"
+				},
+				{
+					"command": "server.debug",
+					"when": "view == servers && viewItem =~ /^Stopped/",
+					"group": "1_server-startstop@2"
+				},
+				{
+					"command": "server.stop",
+					"when": "view == servers && viewItem =~ /^(Started|Debugging|Unknown)/",
+					"group": "1_server-startstop@3"
+				},
+				{
+					"command": "server.restart",
+					"when": "view == servers && viewItem =~ /^(Started|Debugging)/",
+					"group": "1_server-startstop@4"
+				},
+				{
+					"command": "server.restartDebug",
+					"when": "view == servers && viewItem =~ /^(Started|Debugging)/",
+					"group": "1_server-startstop@5"
+				},
+				{
+					"command": "server.terminate",
+					"when": "view == servers && viewItem =~ /^(Starting|Stopping|Started|Stopped|Unknown)/",
+					"group": "1_server-startstop@6"
+				},
+				{
+					"command": "server.remove",
+					"when": "view == servers && viewItem =~ /^(Stopped|Unknown)/",
+					"group": "2_server-remove@1"
+				},
+				{
+					"command": "server.publishIncremental",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+					"group": "3_server-deployments@6"
+				},
+				{
+					"command": "server.publishFull",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+					"group": "3_server-deployments@7"
+				},
+				{
+					"command": "server.addDeployment",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|^Unknown)/",
+					"group": "3_server-deployments@1"
+				},
+				{
+					"command": "server.removeDeployment",
+					"when": "view == servers && viewItem =~ /^(Synchronized|[+|-|Full]* Publish|Unknown)/",
+					"group": "3_server-deployments@2"
+				},
+				{
+					"command": "server.output",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped)/",
+					"group": "4_server-status@1"
+				},
+				{
+					"command": "server.downloadRuntime",
+					"when": "view == servers && !viewItem",
+					"group": "5_rsp@1"
+				},
+				{
+					"command": "server.addLocation",
+					"when": "view == servers && !viewItem",
+					"group": "5_rsp@2"
+				},
+				{
+					"command": "server.actions",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+					"group": "6_server-info@1"
+				},
+				{
+					"command": "server.editServer",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+					"group": "6_server-info@2"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "server.application.run",
+					"group": "1_server-application@1"
+				},
+				{
+					"command": "server.application.debug",
+					"group": "1_server-application@2"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Servers View",
+			"properties": {
+				"rsp-ui.rsp.java.home": {
+					"type": [
+						"string",
+						"null"
+					],
+					"default": null,
+					"description": "Specifies the path to a full JDK (version 11 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.\nOn Windows, backslashes must be escaped, i.e.\n\"rsp-ui.rsp.java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk-11.0.13\"",
+					"scope": "window"
+				},
+				"redhat.telemetry.enabled": {
+					"type": "boolean",
+					"default": null,
+					"markdownDescription": "Enable usage data and errors to be sent to Red Hat servers. Read our [privacy statement](https://developers.redhat.com/article/tool-data-collection).",
+					"scope": "window"
+				},
+				"vscodeAdapters.showChannelOnServerOutput": {
+					"type": "boolean",
+					"default": true,
+					"description": "Show Server's output channel when new text added to output stream."
+				},
+				"rsp-ui.newServerWebviewWorkflow": {
+					"type": "boolean",
+					"default": true,
+					"title": "Use webviews when creating a new server",
+					"description": "If true, use the webviews workflow when creating a new server. If false, use a series of prompts."
+				},
+				"rsp-ui.enableStartServerOnActivation": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"title": "List RSP Servers",
+						"properties": {
+							"id": {
+								"type": "string",
+								"description": "Id external RSP Provider"
+							},
+							"name": {
+								"type": "string",
+								"description": "Name of external RSP Provider (as seen in Tree View)"
+							},
+							"startOnActivation": {
+								"type": "boolean",
+								"description": "Enable automatic start of RSP Server during activation"
+							}
+						}
+					},
+					"rsp-ui.enableAsyncPublish": {
+						"type": "boolean",
+						"default": false,
+						"description": "Enable async publishing."
+					},
+					"description": "Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"clean": "rm -rf out || rmdir out /s /q",
+		"test": "npm run clean && npm run compile && nyc node ./out/test/unit-tests.js",
+		"ui-test": "npm run compile && extest setup-and-run -i out/src/ui-test/allTestsSuite.js -c max",
+		"update-deps": "node_modules/.bin/ncu --upgrade --loglevel verbose --packageFile package.json && npm update",
+		"coverage:upload": "codecov -f coverage/coverage-final.json",
+		"build": "npm run compile",
+		"lint": "eslint src test --fix"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^9.1.1",
+		"@types/node": "^15.3.0",
+		"@types/sinon": "^10.0.0",
+		"@types/vscode": "^1.54.0",
+		"@typescript-eslint/eslint-plugin": "^4.29.1",
+		"@typescript-eslint/parser": "^4.29.1",
+		"chai": "^4.3.4",
+		"chai-as-promised": "^7.1.1",
+		"eslint": "^7.32.0",
+		"glob": "^7.1.7",
+		"mocha": "^10.0.0",
+		"mocha-jenkins-reporter": "^0.4.8",
+		"nyc": "^15.1.0",
+		"sinon": "^10.0.0",
+		"sinon-chai": "^3.6.0",
+		"typescript": "^4.3.5",
+		"vscode-extension-tester": "^5.0.0",
+		"vscode-test": "^1.5.2"
+	},
+	"dependencies": {
+		"@redhat-developer/vscode-extension-proposals": "^0.0.12",
+		"@redhat-developer/vscode-redhat-telemetry": "0.4.2",
+		"@redhat-developer/vscode-wizard": "^0.2.28",
+		"path": "0.12.7",
+		"rsp-client": "^0.25.0",
+		"tmp": "^0.2.1",
+		"vscode-server-connector-api": "0.1.7"
+	},
+	"__metadata": {
+		"id": "8a56feef-5612-4ee5-ad7f-31d60c30ab32",
+		"publisherDisplayName": "Red Hat",
+		"publisherId": "eed56242-9699-4317-8bc7-e9f4b9bdd3ff",
+		"isPreReleaseVersion": false
+	}
 }
