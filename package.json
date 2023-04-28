@@ -407,7 +407,7 @@
     "vscode-test": "^1.5.2"
   },
   "dependencies": {
-    "@redhat-developer/vscode-extension-proposals": "^0.0.10",
+    "@redhat-developer/vscode-extension-proposals": "^0.0.11",
     "@redhat-developer/vscode-redhat-telemetry": "0.4.2",
     "@redhat-developer/vscode-wizard": "^0.2.28",
     "path": "0.12.7",
