@@ -23,16 +23,16 @@ node('rhel8'){
 		sh "npm run build"
 	}
 
-    stage('Run Unit Test && UI Tests & Codecov') {
-        wrap([$class: 'Xvnc']) {
-            try {
-                sh "npm test --silent"
-                sh "npm run ui-test"
-            } finally {
-                junit 'test-resources/test-report.xml'
-                archiveArtifacts artifacts: 'test-resources/**/*.xml, test-resources/**/*.png, test-resources/*.log, **/*.log, **/*.png'
-            }
-        }
+    	stage('Run Unit Test && UI Tests & Codecov') {
+		wrap([$class: 'Xvnc']) {
+		    try {
+		        sh "npm test --silent"
+		        sh "npm run ui-test"
+		    } finally {
+		        junit 'test-resources/test-report.xml'
+		        archiveArtifacts artifacts: 'test-resources/**/*.xml, test-resources/**/*.png, test-resources/*.log, **/*.log, **/*.png'
+		    }
+		}
 	}
 
 	stage('Package') {
@@ -50,6 +50,18 @@ node('rhel8'){
 			sh "sftp -C ${UPLOAD_LOCATION}/snapshots/vscode-middleware-tools/rsp-ui/ <<< \$'put -p  ${filesToPush[0].path}'"
 		}
 	}
+	// Open-VSX Marketplace
+	if (publishToOVSX.equals('true')) {
+		timeout(time:5, unit:'DAYS') {
+			input message:'Approve deployment to OVSX?', submitter: 'rstryker'
+		}
+
+		withCredentials([[$class: 'StringBinding', credentialsId: 'open-vsx-access-token', variable: 'OVSX_TOKEN']]) {
+			def vsix = findFiles(glob: '**.vsix')
+			sh 'ovsx publish -p ${OVSX_TOKEN} --packagePath ' + " ${vsix[0].path}"
+		}
+	}
+	
 	if(publishToMarketPlace.equals('true')){
 		timeout(time:5, unit:'DAYS') {
 			input message:'Approve deployment?', submitter: 'rstryker'
