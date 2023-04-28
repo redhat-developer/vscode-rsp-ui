@@ -17,7 +17,7 @@ import { RSPController, ServerInfo } from 'vscode-server-connector-api';
 import { WorkflowResponseStrategy, WorkflowResponseStrategyManager } from './workflow/response/workflowResponseStrategyManager';
 import { getTelemetryServiceInstance, sendTelemetry } from './telemetry';
 import { JAVA_DEBUG_EXTENSION } from './constants';
-import { IRecommendationService, RecommendationCore} from '@redhat-developer/vscode-extension-proposals/lib';
+import { IRecommendationService, Level, RecommendationCore} from '@redhat-developer/vscode-extension-proposals/lib';
 import { myContext } from './extension';
 
 export interface ServerActionItem {
@@ -855,7 +855,7 @@ export class CommandHandler {
             getTelemetryServiceInstance().then((x) => {
                 const recommendService: IRecommendationService = RecommendationCore.getService(myContext, x );
                 /*const result: UserChoice | undefined = */
-                recommendService.show(JAVA_DEBUG_EXTENSION, true);
+                recommendService.show(JAVA_DEBUG_EXTENSION, true, undefined, Level.Warn);
                 // TODO do something with the result? Store it? Maybe don't show again?
             });
             return false;
