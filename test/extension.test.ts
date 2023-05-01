@@ -72,7 +72,7 @@ suite('Extension Tests', () => {
             extensionUri: undefined,
             extensionPath: undefined,
             isActive: true,
-            packageJSON: undefined,
+            packageJSON: {},
             extensionKind: vscode.ExtensionKind.UI,
             exports: undefined,
             activate: undefined,
