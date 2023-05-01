@@ -104,12 +104,14 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
 }
 
 export function deactivate() {
-    for (const rspProvider of serversExplorer.RSPServersStatus.values()) {
-        if (rspProvider.client) {
-            if(rspProvider.info.spawned) {
-                rspProvider.client.shutdownServer();
-            } else {
-                rspProvider.client.disconnect();
+    if( serversExplorer && serversExplorer.RSPServersStatus) {
+        for (const rspProvider of serversExplorer.RSPServersStatus.values()) {
+            if (rspProvider.client) {
+                if(rspProvider.info.spawned) {
+                    rspProvider.client.shutdownServer();
+                } else {
+                    rspProvider.client.disconnect();
+                }
             }
         }
     }
