@@ -25,13 +25,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<RSPMod
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
     await registerCommands(commandHandler, context);
-    console.log("Inside activate: context is " + context);
     registerRecommendations(context);
     return getAPI();
 }
 
 async function registerRecommendations(context: vscode.ExtensionContext) {
-    console.log("Inside registerRecommendations: context is " + context);
     const telem = await getTelemetryServiceInstance();
     const recommendService: IRecommendationService | undefined = RecommendationCore.getService(context, telem);
     if( recommendService ) {

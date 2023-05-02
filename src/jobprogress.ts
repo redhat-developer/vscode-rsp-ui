@@ -72,7 +72,6 @@ export class JobProgress {
         }
         this.progress.report({ message: `${jobProgress.percent}%`, increment: jobProgress.percent - this.percents });
         this.percents = jobProgress.percent;
-        console.log(`Job ${jobProgress.handle.name} completion is at ${jobProgress.percent}`);
         this.restartTimeout();
     }
 

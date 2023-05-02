@@ -833,7 +833,6 @@ export class CommandHandler {
         const newListQuickPick: {label:string,id:string}[] = rts.map((x) => { return {label: x.name, id: x.id };});
         const answer = await vscode.window.showQuickPick(latestQuickPick.concat(separator).concat(newListQuickPick),
             { placeHolder: 'Please choose a server to download.' });
-        console.log(`${answer} was chosen`);
         if (!answer) {
             return null;
         }
