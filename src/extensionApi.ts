@@ -855,7 +855,7 @@ export class CommandHandler {
                 const recommendService: IRecommendationService = RecommendationCore.getService(myContext, x );
                 if( recommendService ) {
                     /*const result: UserChoice | undefined = */
-                    recommendService.show(JAVA_DEBUG_EXTENSION, true, undefined, Level.Warn);
+                    recommendService.show(JAVA_DEBUG_EXTENSION, true, undefined, Level.Warn, true);
                     // TODO do something with the result? Store it? Maybe don't show again?
             }
             });
