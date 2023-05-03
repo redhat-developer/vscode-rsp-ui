@@ -127,7 +127,7 @@ newver=$newverPrefix.$newLastSegment
 echo "New version is $newver"
 
 echo "Updating package.json with new version"
-cat package.json | sed "s/  \"version\": \"$oldver\",/  \"version\": \"$newver\",/g" > package2
+cat package.json | sed "s/\"version\": \"$oldver\",/\"version\": \"$newver\",/g" > package2
 mv package2 package.json
 echo "Running npm install"
 npm install
