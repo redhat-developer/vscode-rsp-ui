@@ -2,7 +2,7 @@
 	"name": "vscode-rsp-ui",
 	"displayName": "Runtime Server Protocol UI",
 	"description": "Provides a unified UI to interact with runtimes and servers managed over the RSP protocol.",
-	"version": "0.24.3",
+	"version": "0.24.4",
 	"license": "SEE LICENSE IN LICENSE",
 	"publisher": "redhat",
 	"author": "Red Hat",
@@ -407,7 +407,7 @@
 		"vscode-test": "^1.5.2"
 	},
 	"dependencies": {
-		"@redhat-developer/vscode-extension-proposals": "^0.0.13",
+		"@redhat-developer/vscode-extension-proposals": "^0.0.14",
 		"@redhat-developer/vscode-redhat-telemetry": "0.4.2",
 		"@redhat-developer/vscode-wizard": "^0.2.28",
 		"path": "0.12.7",
