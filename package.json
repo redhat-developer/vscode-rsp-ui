@@ -403,7 +403,7 @@
 		"sinon": "^10.0.0",
 		"sinon-chai": "^3.6.0",
 		"typescript": "^4.3.5",
-		"vscode-extension-tester": "^5.0.0",
+		"vscode-extension-tester": "^5.5.3",
 		"vscode-test": "^1.5.2"
 	},
 	"dependencies": {
