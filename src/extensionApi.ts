@@ -741,14 +741,15 @@ export class CommandHandler {
     }
 
     private async selectRSP(message: string, predicateFilter?: (value: RSPProperties) => unknown): Promise<{ label: string; id: string; }> {
-        const vals = Array.from(this.explorer.RSPServersStatus.values());
+        const vals: RSPProperties[] = Array.from(this.explorer.RSPServersStatus.values());
         const predicateFilter2 = predicateFilter ? predicateFilter : value => value.state.state === ServerState.STARTED;
-        const rspProviders = (vals.filter(predicateFilter2) || []).map(rsp => {
+        const rspProviders = (vals.filter(predicateFilter2) || [])
+        .map(rsp => {
+            const label = (!rsp || !rsp.state || !rsp.state.type) ? "unknown" : rsp.state.type.visibilename ? rsp.state.type.visibilename : rsp.state.type.id;
+            const id = (!rsp || !rsp.state || !rsp.state.type) ? "unknown" : rsp.state.type.id;
             return {
-                label: (!rsp.state.type.visibilename ?
-                    rsp.state.type.id :
-                    rsp.state.type.visibilename),
-                id: rsp.state.type.id
+                label: label,
+                id: id,
             };
         });
         if (rspProviders.length < 1) {
