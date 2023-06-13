@@ -293,12 +293,12 @@
 				},
 				{
 					"command": "server.actions",
-					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
 					"group": "6_server-info@1"
 				},
 				{
 					"command": "server.editServer",
-					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/'",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
 					"group": "6_server-info@2"
 				}
 			],
