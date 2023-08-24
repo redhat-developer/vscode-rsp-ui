@@ -343,6 +343,11 @@
 					"title": "Use webviews when creating a new server",
 					"description": "If true, use the webviews workflow when creating a new server. If false, use a series of prompts."
 				},
+				"rsp-ui.enableAsyncPublish": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable asynchronous publishing."
+				},
 				"rsp-ui.enableStartServerOnActivation": {
 					"type": "array",
 					"items": {
@@ -362,11 +367,6 @@
 								"description": "Enable automatic start of RSP Server during activation"
 							}
 						}
-					},
-					"rsp-ui.enableAsyncPublish": {
-						"type": "boolean",
-						"default": false,
-						"description": "Enable async publishing."
 					},
 					"description": "Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu"
 				}
