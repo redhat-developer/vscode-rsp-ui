@@ -231,7 +231,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     public selectNode(data: RSPState | ServerStateNode): void {
         this.nodeSelected = data;
         const tmpViewer = this.viewer;
-        tmpViewer.reveal(data, { focus: true, select: true });
+        tmpViewer.reveal(data, { focus: false, select: true });
     }
 
     private changeViewer(_e: TreeViewVisibilityChangeEvent) {
