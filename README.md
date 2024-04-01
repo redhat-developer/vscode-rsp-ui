@@ -56,16 +56,17 @@ This extension supports a number of commands for interacting with supported serv
    These settings are valid for all servers
 
    * `"id"` - id server (read-only field, it cannot be changed)
-   * `"args.override.boolean"` - allow to override program and vm arguments if set to true. The first time this flag is set to true and the server is started, two other parameters will be generated "args.vm.override.string" and "args.program.override.string". 
    * `"server.home.dir"` - the path where the server runtime is stored (read-only field, it cannot be changed)
-   * `"deployables"` - the list of deployables. It contains all informations related to each deployable.
    * `"server.autopublish.enabled"` - Enable the autopublisher
    * `"server.autopublish.inactivity.limit"` - Set the inactivity limit before the autopublisher runs
+   * `"server.timeout.startup"` - set how long (ms) to wait for a server to be recognized as started before giving up
+   * `"server.timeout.shutdown"` - set how long (ms) to wait for a server to be recognized as stopped before giving up
    * `"vm.install.path"` - A string representation pointing to a java home. If not set, rsp-ui.rsp.java.home will be used instead
+   * `"deployables"` - the list of deployables. It contains all informations related to each deployable.
 
 ### Provisional Global Server Parameters
    These settings may eventually be supported by all servers, but these settings are Provisional and may be changed before becoming official API. 
-
+   * `"args.override.boolean"` - allow to override program and vm arguments if set to true. The first time this flag is set to true and the server is started, two other parameters will be generated "args.vm.override.string" and "args.program.override.string". 
    * `"args.vm.override.string"` - allow to override vm arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
    * `"args.program.override.string"` - allow to override program arguments. Once you edited this flag, *make sure "args.override.boolean" is set to true before launching your server. Otherwise the server will attempt to auto-generate the launch arguments as it normally does.*
    * `"mapProperty.launch.env"` - allow to override or add to the environment being passed to a server upon startup. This property's value should be a object with a set of key-value pairs, where the key should be a desired environment variable, and the value being the value of that object.*
