@@ -20,9 +20,28 @@ export async function initClient(serverInfo: ServerInfo): Promise<RSPClient> {
                 });
         });
     });
+    client.getIncomingHandler().onMessageBox(event => {
+        return new Promise<string>((resolve, reject) => {
+            if( event.severity === 1 ) {
+                // info
+                vscode.window.showInformationMessage(event.message);
+            } else if( event.severity === 2 ) {
+                // warning
+                vscode.window.showWarningMessage(event.message);
+            } else if( event.severity === 4 ) {
+                // error
+                vscode.window.showErrorMessage(event.message);
+            }
+        })
+    });
 
-    client.getOutgoingHandler().registerClientCapabilities(
-        { map: { 'protocol.version': PROTOCOL_VERSION, 'prompt.string': 'true' } });
+    client.getOutgoingHandler().registerClientCapabilities({ 
+            map: { 
+                'protocol.version': PROTOCOL_VERSION, 
+                'prompt.string': 'true',
+                'messagebox': 'true',
+            } 
+        });
     JobProgress.create(client);
 
     return client;
