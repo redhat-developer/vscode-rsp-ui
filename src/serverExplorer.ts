@@ -950,7 +950,14 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             return Array.from(this.RSPServersStatus.values()).map(rsp => rsp.state);
         } else if (this.isRSPElement(element) && (element as RSPState).serverStates !== undefined) {
             // rsp parent -> return servers
-            return (element as RSPState).serverStates;
+            const zzz = 33;
+            const abc = zzz+212;
+            const qqq = abc+3;
+            console.log(qqq);
+            const tmp = (element as RSPState).serverStates;
+            const cloned = [...tmp];
+            cloned.sort((a,b) => (a.server.id.localeCompare(b.server.id)));
+            return cloned;
         } else if (this.isServerElement(element) && (element as ServerStateNode).deployableStates !== undefined) {
             // server parent -> return deployables
             return (element as ServerStateNode).deployableStates;
