@@ -230,8 +230,6 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
     public selectNode(data: RSPState | ServerStateNode): void {
         this.nodeSelected = data;
-        const tmpViewer = this.viewer;
-        tmpViewer.reveal(data, { focus: false, select: true });
     }
 
     private changeViewer(_e: TreeViewVisibilityChangeEvent) {
@@ -950,13 +948,9 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             return Array.from(this.RSPServersStatus.values()).map(rsp => rsp.state);
         } else if (this.isRSPElement(element) && (element as RSPState).serverStates !== undefined) {
             // rsp parent -> return servers
-            const zzz = 33;
-            const abc = zzz+212;
-            const qqq = abc+3;
-            console.log(qqq);
             const tmp = (element as RSPState).serverStates;
             const cloned = [...tmp];
-            cloned.sort((a,b) => (a.server.id.localeCompare(b.server.id)));
+            cloned.sort((a,b) => a.server.id.localeCompare(b.server.id));
             return cloned;
         } else if (this.isServerElement(element) && (element as ServerStateNode).deployableStates !== undefined) {
             // server parent -> return deployables
