@@ -45,7 +45,7 @@ This extension supports a number of commands for interacting with supported serv
    This extension contributes the following settings:
 
    * `vscodeAdapters.showChannelOnServerOutput`: enable/disable the server output channel logs
-   * `rsp-ui.rsp.java.home`: Specifies the path to a full JDK (version 11 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.<br>On Windows, backslashes must be escaped, i.e.<br>\"rsp-ui.rsp.java.home\":\"C:\\\\Program Files\\\\Java\\\\jdk-11.0.13\"
+   * `rsp-ui.rsp.java.home`: Specifies the path to a full JDK (version 11 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.<br>On Windows, backslashes must be escaped, i.e.<br>`"rsp-ui.rsp.java.home":"C:\\Program Files\\Java\\jdk-11.0.13"`
    * `rsp-ui.enableStartServerOnActivation`: Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu
    * `rsp-ui.enableAsyncPublish`: enable/disable async publishing
 
@@ -104,7 +104,7 @@ An example packaging file may look like this:
 }
 ```
 
-A single top-level element name mappings has a value of an array of individual mappings. Each mapping has a source-path and a deploy-path. It is assuemd that the same file may be in multiple folders. A xml file, for example, may be available as a source file, but also exist in a build output directory. A .class file, on the other hand, may exist in a java incremental builder output folder, as well as in a build system output folder. 
+A single top-level element name mappings has a value of an array of individual mappings. Each mapping has a source-path and a deploy-path. It is assumed that the same file may be in multiple folders. An xml file, for example, may be available as a source file, but also exist in a build output directory. A .class file, on the other hand, may exist in a java incremental builder output folder, as well as in a build system output folder. 
 
 Mappings should be arranged such that the most up-to-date folder is near the bottom of the list, so that if the server iterates through them in order, the most recent change will be the last one copied in. 
 
@@ -116,7 +116,7 @@ Mappings should be arranged such that the most up-to-date folder is near the bot
 
 ## Q&A
 
-### 1. Is there a video that explain how the VSCode Server Connector extension and the Runtime Server Protocol work?
+### 1. Is there a video that explain how the VS Code Server Connector extension and the Runtime Server Protocol work?
 Yes. This is the video you can watch to learn more about this extension https://www.youtube.com/watch?v=sP2Hlw-C_7I
 
 ## Install extension locally
