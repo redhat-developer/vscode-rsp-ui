@@ -67,6 +67,7 @@ suite('Extension Tests', () => {
         extensionMode: undefined,
         globalStorageUri: vscode.Uri.file(temporaryStorage),
         secrets: undefined,
+        languageModelAccessInformation: undefined,
         extension: {
             id: 'redhat.vscode-rsp-ui',
             extensionUri: undefined,
