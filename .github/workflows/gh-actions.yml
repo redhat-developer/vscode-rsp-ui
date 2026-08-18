@@ -57,7 +57,6 @@ jobs:
 
     # Run UI tests
     - name: Run UI tests
-      if: runner.os == 'Linux'
       uses: GabrielBB/xvfb-action@v1.0
       with:
         run: npm run ui-test
