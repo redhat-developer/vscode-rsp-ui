@@ -23,70 +23,60 @@ on:
             - 'true'
             - 'false'
           default: 'false'
-          
+
 jobs:
   test:
     runs-on: ${{ matrix.os }} # runs a test on Ubuntu, Windows and macOS
 
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
-        node: [20]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        node: [22]
       fail-fast: false
 
     steps:
-    
-    # SCM Checkout
+
+    # Checkout
     - uses: actions/checkout@v4
     - name: Setup node
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node }}
 
-    # NPM install and build
+    # Install from npm
     - run: npm install
+
+    # Build the component
     - run: npm run build
 
-    # Run unit tests
+    # Run Unit tests
     - name: Run Unit tests
-      uses: GabrielBB/xvfb-action@fe2609f8182a9ed5aee7d53ff3ed04098a904df2 #v1.0
+      uses: GabrielBB/xvfb-action@v1.0
       with:
         run: npm test
 
-    # Run UI Tests
+    # Run UI tests
     - name: Run UI tests
-      uses: GabrielBB/xvfb-action@86d97bde4a65fe9b290c0b3fb92c2c4ed0e5302d #v1.6
+      if: runner.os == 'Linux'
+      uses: GabrielBB/xvfb-action@v1.0
       with:
         run: npm run ui-test
-        options: -screen 0 2560x1440x24
 
     # Archive test artifacts
     - name: Archiving test artifacts
       uses: actions/upload-artifact@v4
       if: failure()
-      with: 
+      with:
         name: artifacts-${{ matrix.os }}
         path: |
           test-resources/screenshots/*.png
         retention-days: 2
 
-
-    # Uploade codecov
+    # Upload code coverage
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b #v2
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage/coverage-final.json
-
-    # Archiving integration tests artifacts
-    - name: Upload test artifacts
-      uses: actions/upload-artifact@v4
-      if: failure() && runner.os == 'Linux'
-      with: 
-        name: artifacts-${{ matrix.os }}
-        path: |
-          test-resources/screenshots/*.png
-        retention-days: 2
-        
 
   packaging-job:
     runs-on: ubuntu-latest
@@ -97,7 +87,7 @@ jobs:
       - name: Set Up NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install NodeJS dependencies
         run: npm install -g typescript "@vscode/vsce" "ovsx"
       - name: Cache Version
@@ -126,7 +116,7 @@ jobs:
       - name: Set Up NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install dependencies
         run: |
           npm install -g typescript "@vscode/vsce" "ovsx"

@@ -53,7 +53,8 @@ suite('ServerEditorAdapter', () => {
         offsetAt: undefined,
         positionAt: undefined,
         validatePosition: undefined,
-        validateRange: undefined
+        validateRange: undefined,
+        encoding: undefined
     };
 
     const {uri, ...rest} = textDocument;
