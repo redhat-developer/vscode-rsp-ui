@@ -881,7 +881,8 @@ export class CommandHandler {
 
     private displayLog(outputPanel: vscode.OutputChannel, message: string, show = true) {
         if (outputPanel) {
-            if (show) outputPanel.show(true);
+            const showChannel = vscode.workspace.getConfiguration('vscodeAdapters').get<boolean>('showChannelOnServerOutput');
+            if (show && showChannel) outputPanel.show(true);
             outputPanel.appendLine(message);
         }
     }
