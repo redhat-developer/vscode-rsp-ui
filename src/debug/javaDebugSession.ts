@@ -37,28 +37,41 @@ export class JavaDebugSession {
     private async discoverProjectName(serverId: string): Promise<string | undefined> {
         const key = GLOBAL_STATE_SERVER_DEBUG_PROJECT_NAME_PREFIX + '/' + serverId;
         const currVal: string | undefined = myContext && myContext.globalState ? myContext.globalState.get(key) : undefined;
-        const val = await window.showInputBox({prompt: 'Please input a project name to be used by the java debugger.',
-            value: currVal || '', ignoreFocusOut: true});
-        if(val !== currVal) {
-            if(myContext && myContext.globalState)
-                myContext.globalState.update(key, val);
+        if (currVal) {
+            return currVal;
+        }
+        const val = await window.showInputBox({prompt: 'Please input a project name to be used by the java debugger. This will be remembered for future debug sessions.',
+            value: '', ignoreFocusOut: true});
+        if (val && myContext && myContext.globalState) {
+            myContext.globalState.update(key, val);
         }
         return val;
+    }
+
+    public async promptProjectName(serverId: string): Promise<void> {
+        const key = GLOBAL_STATE_SERVER_DEBUG_PROJECT_NAME_PREFIX + '/' + serverId;
+        const currVal: string | undefined = myContext && myContext.globalState ? myContext.globalState.get(key) : undefined;
+        const val = await window.showInputBox({prompt: 'Set the project name used by the java debugger for this server.',
+            value: currVal || '', ignoreFocusOut: true});
+        if (val !== undefined && myContext && myContext.globalState) {
+            myContext.globalState.update(key, val || undefined);
+        }
     }
 
     private async startDebugger(port: string, serverId: string) {
         this.port = port;
         const pName: string | undefined = await this.discoverProjectName(serverId);
-        const props = {
+        const props: vscode.DebugConfiguration = {
             type: 'java',
             request: 'attach',
             name: 'Debug (Remote)',
             hostName: 'localhost',
             port,
-            projectName: pName,
         };
-        const props2 = pName ? {...props, projectName: pName} : props;
-        vscode.debug.startDebugging(undefined, props2);
+        if (pName) {
+            props.projectName = pName;
+        }
+        vscode.debug.startDebugging(undefined, props);
     }
 
     public isDebuggerStarted(): boolean {
