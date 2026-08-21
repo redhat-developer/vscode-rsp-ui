@@ -227,6 +227,17 @@ export class CommandHandler {
 
     }
 
+    public async setDebugProjectName(context?: ServerStateNode): Promise<void> {
+        if (context === undefined) {
+            const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
+            if (!rsp || !rsp.id) return;
+            const serverId = await this.selectServer(rsp.id, 'Select server to set debug project name for');
+            if (!serverId) return;
+            context = this.explorer.getServerStateById(rsp.id, serverId);
+        }
+        await this.debugSession.promptProjectName(context.server.id);
+    }
+
     public async debugServer(context?: ServerStateNode): Promise<Protocol.StartServerResponse | undefined> {
         if (context === undefined) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
