@@ -35,6 +35,7 @@
 		"onCommand:server.terminateRSP",
 		"onCommand:server.start",
 		"onCommand:server.debug",
+		"onCommand:server.debug.setProjectName",
 		"onCommand:server.stop",
 		"onCommand:server.terminate",
 		"onCommand:server.restart",
@@ -96,6 +97,11 @@
 			{
 				"command": "server.debug",
 				"title": "Debug Server",
+				"category": "Servers"
+			},
+			{
+				"command": "server.debug.setProjectName",
+				"title": "Set Debug Project Name...",
 				"category": "Servers"
 			},
 			{
@@ -300,6 +306,11 @@
 					"command": "server.editServer",
 					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
 					"group": "6_server-info@2"
+				},
+				{
+					"command": "server.debug.setProjectName",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
+					"group": "6_server-info@3"
 				}
 			],
 			"explorer/context": [
