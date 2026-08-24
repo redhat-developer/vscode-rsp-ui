@@ -15,11 +15,29 @@ export interface ServerProperties {
     file: string;
 }
 
+export const RSP_READONLY_SCHEME = 'rsp-readonly';
+
+export class ReadonlyContentProvider implements vscode.TextDocumentContentProvider {
+    private contents = new Map<string, string>();
+    private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+    public readonly onDidChange = this._onDidChange.event;
+
+    public setContent(uri: vscode.Uri, content: string): void {
+        this.contents.set(uri.toString(), content);
+        this._onDidChange.fire(uri);
+    }
+
+    public provideTextDocumentContent(uri: vscode.Uri): string {
+        return this.contents.get(uri.toString()) || '';
+    }
+}
+
 export class ServerEditorAdapter {
 
     private static instance: ServerEditorAdapter;
     public RSPServerProperties: Map<string, ServerProperties[]> = new Map<string, ServerProperties[]>();
     private readonly PREFIX_TMP = 'tmpServerConnector';
+    public readonly contentProvider = new ReadonlyContentProvider();
 
     private constructor(private explorer: ServerExplorer) {
     }
@@ -33,18 +51,10 @@ export class ServerEditorAdapter {
 
     public async showEditor(fileSuffix: string, content: string, path?: string) : Promise<void> {
         if (!path) {
-            const newFile = vscode.Uri.parse(`untitled:${  fileSuffix}`);
-            await vscode.workspace.openTextDocument(newFile).then(async document => {
-                const edit = new vscode.WorkspaceEdit();
-                edit.insert(newFile, new vscode.Position(0, 0), content);
-                const success = await vscode.workspace.applyEdit(edit);
-                if (success) {
-                    vscode.window.showTextDocument(document);
-                }
-                else {
-                    vscode.window.showInformationMessage('Error Displaying Editor Content');
-                }
-            });
+            const uri = vscode.Uri.parse(`${RSP_READONLY_SCHEME}:${fileSuffix}`);
+            this.contentProvider.setContent(uri, content);
+            const document = await vscode.workspace.openTextDocument(uri);
+            await vscode.window.showTextDocument(document, { preview: true });
         } else {
             await vscode.workspace.openTextDocument(path).then(doc => {
                 vscode.window.showTextDocument(doc);

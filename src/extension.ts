@@ -7,7 +7,7 @@
 import { CommandHandler } from './extensionApi';
 import { ServerState } from 'rsp-client';
 import { getAPI } from './api/implementation/rspProviderAPI';
-import { ServerEditorAdapter } from './serverEditorAdapter';
+import { RSP_READONLY_SCHEME, ServerEditorAdapter } from './serverEditorAdapter';
 import { ServerExplorer } from './serverExplorer';
 import * as vscode from 'vscode';
 import { RSPModel } from 'vscode-server-connector-api';
@@ -24,6 +24,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<RSPMod
     serversExplorer = ServerExplorer.getInstance();
     commandHandler = new CommandHandler(serversExplorer);
     myContext = context;
+    const editorAdapter = ServerEditorAdapter.getInstance(serversExplorer);
+    context.subscriptions.push(
+        vscode.workspace.registerTextDocumentContentProvider(RSP_READONLY_SCHEME, editorAdapter.contentProvider)
+    );
     await registerCommands(commandHandler, context);
     registerRecommendations(context);
     return getAPI();
