@@ -67,18 +67,18 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
             commandHandler.stopServer, commandHandler, false, context, 'Unable to stop the server: ')),
         vscode.commands.registerCommand('server.terminate', context => executeCommand(
             commandHandler.stopServer, commandHandler, true, context, 'Unable to terminate the server: ')),
-        vscode.commands.registerCommand('server.remove', context => executeCommand(
-            commandHandler.removeServer, commandHandler, context, 'Unable to remove the server: ')),
+        vscode.commands.registerCommand('server.remove', (context, selected) => executeCommand(
+            commandHandler.removeServer, commandHandler, context, selected, 'Unable to remove the server: ')),
         vscode.commands.registerCommand('server.output', context => executeCommand(
             commandHandler.showServerOutput, commandHandler, context, 'Unable to show server output channel')),
         vscode.commands.registerCommand('server.addDeployment', context => executeCommand(
             commandHandler.addDeployment, commandHandler, context, 'Unable to add deployment to the server: ')),
-        vscode.commands.registerCommand('server.removeDeployment', context => executeCommand(
-            commandHandler.removeDeployment, commandHandler, context, 'Unable to remove deployment from the server: ')),
-        vscode.commands.registerCommand('server.publishFull', context => executeCommand(
-            commandHandler.publishServer, commandHandler, ServerState.PUBLISH_FULL, context, 'Unable to publish (Full) to the server: ')),
-        vscode.commands.registerCommand('server.publishIncremental', context => executeCommand(
-            commandHandler.publishServer, commandHandler, ServerState.PUBLISH_INCREMENTAL, context, 'Unable to publish (Incremental) to the server: ')),
+        vscode.commands.registerCommand('server.removeDeployment', (context, selected) => executeCommand(
+            commandHandler.removeDeployment, commandHandler, context, selected, 'Unable to remove deployment from the server: ')),
+        vscode.commands.registerCommand('server.publishFull', (context, selected) => executeCommand(
+            commandHandler.publishServer, commandHandler, ServerState.PUBLISH_FULL, context, selected, 'Unable to publish (Full) to the server: ')),
+        vscode.commands.registerCommand('server.publishIncremental', (context, selected) => executeCommand(
+            commandHandler.publishServer, commandHandler, ServerState.PUBLISH_INCREMENTAL, context, selected, 'Unable to publish (Incremental) to the server: ')),
         vscode.commands.registerCommand('server.editServer', context => executeCommand(
             commandHandler.editServer, commandHandler, context, 'Unable to edit server properties')),
         vscode.commands.registerCommand('server.actions', context => executeCommand(
