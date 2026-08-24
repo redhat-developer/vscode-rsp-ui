@@ -90,41 +90,35 @@ suite('ServerEditorAdapter', () => {
     suite('showEditor', () => {
         test('check if parse method is called with right params', async () => {
             const parseStub = sandbox.stub(vscode.Uri, 'parse').returns(uriDoc);
+            sandbox.stub(vscode.workspace, 'openTextDocument').resolves(textDocument);
+            sandbox.stub(vscode.window, 'showTextDocument');
             await serverEditorAdapter.showEditor('suffix', 'content');
-            expect(parseStub).calledOnceWith('untitled:suffix');
+            expect(parseStub).calledOnceWith('rsp-readonly:suffix');
         });
 
         test('check if openTextDocument is called with right params', async () => {
             sandbox.stub(vscode.Uri, 'parse').returns(uriDoc);
             const openTextStub = sandbox.stub(vscode.workspace, 'openTextDocument').resolves(textDocument);
+            sandbox.stub(vscode.window, 'showTextDocument');
             await serverEditorAdapter.showEditor('suffix', 'content');
             expect(openTextStub).calledOnceWith(uriDoc);
         });
 
-        test('check if insert method is called with right params', async () => {
-            const edit = new vscode.WorkspaceEdit();
+        test('check if content is stored in the content provider', async () => {
             sandbox.stub(vscode.Uri, 'parse').returns(uriDoc);
             sandbox.stub(vscode.workspace, 'openTextDocument').resolves(textDocument);
-            sandbox.stub(vscode, 'WorkspaceEdit').returns(edit);
-            const insertStub = sandbox.stub(edit, 'insert');
+            sandbox.stub(vscode.window, 'showTextDocument');
+            const setContentStub = sandbox.stub(serverEditorAdapter.contentProvider, 'setContent');
             await serverEditorAdapter.showEditor('suffix', 'content');
-            expect(insertStub).calledOnceWith(uriDoc, new vscode.Position(0, 0), 'content');
+            expect(setContentStub).calledOnceWith(uriDoc, 'content');
         });
 
-        test('check if showTextDocument is called with right param if applyEdit succeed', async () => {
-            sandbox.stub(vscode.workspace, 'applyEdit').resolves(true);
+        test('check if showTextDocument is called with right params', async () => {
+            sandbox.stub(vscode.Uri, 'parse').returns(uriDoc);
             sandbox.stub(vscode.workspace, 'openTextDocument').resolves(textDocument);
             const showTextStub = sandbox.stub(vscode.window, 'showTextDocument');
             await serverEditorAdapter.showEditor('suffix', 'content');
-            expect(showTextStub).calledOnceWith(textDocument);
-        });
-
-        test('check if showInformationMessage is called with right param if applyEdit fails', async () => {
-            sandbox.stub(vscode.workspace, 'applyEdit').resolves(false);
-            sandbox.stub(vscode.workspace, 'openTextDocument').resolves(textDocument);
-            const showInfoStub = sandbox.stub(vscode.window, 'showInformationMessage');
-            await serverEditorAdapter.showEditor('suffix', 'content');
-            expect(showInfoStub).calledOnceWith('Error Displaying Editor Content');
+            expect(showTextStub).calledOnceWith(textDocument, { preview: true });
         });
     });
 
