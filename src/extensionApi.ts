@@ -280,20 +280,38 @@ export class CommandHandler {
             });
     }
 
-    public async removeServer(context?: ServerStateNode): Promise<Protocol.Status> {
-        if (context === undefined) {
+    public async removeServer(context?: ServerStateNode, selected?: ServerStateNode[]): Promise<Protocol.Status> {
+        const nodes = this.resolveNodes(context, selected);
+        if (!nodes || nodes.length === 0) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
             if (!rsp || !rsp.id) return null;
             const serverFilter = server => server.state === ServerState.STOPPED || server.state === ServerState.UNKNOWN;
             const serverId = await this.selectServer(rsp.id, 'Select server to remove', serverFilter);
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
+            return this.removeSingleServer(context);
         }
-        const telemetryProps: any = {
-            type: context.server.type.id,
-        };
-        sendTelemetry('server.remove', telemetryProps);
+        if (!this.allSameRSP(nodes)) {
+            vscode.window.showErrorMessage('Cannot remove servers from different RSP providers at once.');
+            return null;
+        }
+        if (nodes.length === 1) {
+            return this.removeSingleServer(nodes[0]);
+        }
+        const names = nodes.map(n => n.server.id).join(', ');
+        const remove = await vscode.window.showWarningMessage(
+            `Remove ${nodes.length} servers (${names})?`, { modal: true }, 'Yes');
+        if (!remove) return null;
+        let lastStatus: Protocol.Status = null;
+        for (const node of nodes) {
+            sendTelemetry('server.remove', { type: node.server.type.id });
+            lastStatus = await this.removeStoppedServer(node.rsp, node.server);
+        }
+        return lastStatus;
+    }
 
+    private async removeSingleServer(context: ServerStateNode): Promise<Protocol.Status> {
+        sendTelemetry('server.remove', { type: context.server.type.id });
         const remove = await vscode.window.showWarningMessage(
             `Remove server ${context.server.id}?`, { modal: true }, 'Yes');
         return remove && this.removeStoppedServer(context.rsp, context.server);
@@ -413,8 +431,9 @@ export class CommandHandler {
 
     }
 
-    public async removeDeployment(context?: DeployableStateNode): Promise<Protocol.Status> {
-        if (context === undefined) {
+    public async removeDeployment(context?: DeployableStateNode, selected?: DeployableStateNode[]): Promise<Protocol.Status> {
+        const nodes = this.resolveNodes(context, selected);
+        if (!nodes || nodes.length === 0) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
             if (!rsp || !rsp.id) return null;
             const serverFilter = server => server.publishState === ServerState.PUBLISH_STATE_NONE ||
@@ -434,24 +453,43 @@ export class CommandHandler {
             const deployment = await vscode.window.showQuickPick(deployables, { placeHolder: 'Select deployment to remove' });
             if (!deployment || !deployment.deployable) return null;
             context = deployment.deployable;
+            sendTelemetry('server.removeDeployment', { type: context.server.type.id });
+            return this.explorer.removeDeployment(context.rsp, context.server, context.reference);
         }
-
-        const telemetryProps: any = {
-            type: context.server.type.id,
-        };
-        sendTelemetry('server.removeDeployment', telemetryProps);
-
-        return this.explorer.removeDeployment(context.rsp, context.server, context.reference);
+        if (!this.allSameServer(nodes)) {
+            vscode.window.showErrorMessage('Cannot remove deployments from different servers at once.');
+            return null;
+        }
+        let lastStatus: Protocol.Status = null;
+        for (const node of nodes) {
+            sendTelemetry('server.removeDeployment', { type: node.server.type.id });
+            lastStatus = await this.explorer.removeDeployment(node.rsp, node.server, node.reference);
+        }
+        return lastStatus;
     }
 
-    public async publishServer(publishType: number, context?: ServerStateNode): Promise<Protocol.Status> {
-        if (context === undefined) {
+    public async publishServer(publishType: number, context?: ServerStateNode, selected?: ServerStateNode[]): Promise<Protocol.Status> {
+        const nodes = this.resolveNodes(context, selected);
+        if (!nodes || nodes.length === 0) {
             const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
             if (!rsp || !rsp.id) return null;
             const serverId = await this.selectServer(rsp.id, 'Select server to publish');
             if (!serverId) return null;
             context = this.explorer.getServerStateById(rsp.id, serverId);
+            return this.publishSingleServer(publishType, context);
         }
+        if (!this.allSameRSP(nodes)) {
+            vscode.window.showErrorMessage('Cannot publish servers from different RSP providers at once.');
+            return null;
+        }
+        let lastStatus: Protocol.Status = null;
+        for (const node of nodes) {
+            lastStatus = await this.publishSingleServer(publishType, node);
+        }
+        return lastStatus;
+    }
+
+    private async publishSingleServer(publishType: number, context: ServerStateNode): Promise<Protocol.Status> {
         const isAsync = vscode.workspace.getConfiguration('rsp-ui').get<boolean>('enableAsyncPublish');
 
         const telemetryProps: any = {
@@ -920,5 +958,23 @@ export class CommandHandler {
         client.getIncomingHandler().onServerProcessOutputAppended(event => {
             this.explorer.addServerOutput(event);
         });
+    }
+
+    private resolveNodes<T>(context: T | undefined, selected: T[] | undefined): T[] | undefined {
+        if (selected && selected.length > 0) {
+            return selected;
+        }
+        if (context) {
+            return [context];
+        }
+        return undefined;
+    }
+
+    private allSameRSP(nodes: ServerStateNode[]): boolean {
+        return nodes.every(n => n.rsp === nodes[0].rsp);
+    }
+
+    private allSameServer(nodes: DeployableStateNode[]): boolean {
+        return nodes.every(n => n.rsp === nodes[0].rsp && n.server.id === nodes[0].server.id);
     }
 }

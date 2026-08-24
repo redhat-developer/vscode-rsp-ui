@@ -87,7 +87,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
     public nodeSelected: RSPState | ServerStateNode;
 
     private constructor() {
-        this.viewer = window.createTreeView('servers', { treeDataProvider: this });
+        this.viewer = window.createTreeView('servers', { treeDataProvider: this, canSelectMany: true });
         this.viewer.onDidChangeVisibility(this.changeViewer, this);
 
         this.runStateEnum
