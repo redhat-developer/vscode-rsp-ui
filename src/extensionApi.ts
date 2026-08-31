@@ -11,6 +11,7 @@ import { DebugInfoProvider } from './debug/debugInfoProvider';
 import { JavaDebugSession } from './debug/javaDebugSession';
 import { Protocol, RSPClient, ServerState, StatusSeverity } from 'rsp-client';
 import { DeployableStateNode, RSPProperties, RSPState, ServerExplorer, ServerStateNode } from './serverExplorer';
+import { exportServerDescriptor, importServerDescriptor } from './serverDescriptor';
 import { Utils } from './utils/utils';
 import * as vscode from 'vscode';
 import { RSPController, ServerInfo } from 'vscode-server-connector-api';
@@ -700,6 +701,41 @@ export class CommandHandler {
         }
         return Promise.reject('Runtime Server Protocol (RSP) Server is starting, please try again later.');
 
+    }
+
+    public async exportDescriptor(context?: ServerStateNode): Promise<void> {
+        if (context === undefined) {
+            const rsp = await this.selectRSP('Select RSP provider you want to retrieve servers');
+            if (!rsp || !rsp.id) return;
+            const serverId = await this.selectServer(rsp.id, 'Select server to export');
+            if (!serverId) return;
+            context = this.explorer.getServerStateById(rsp.id, serverId);
+        }
+
+        const client: RSPClient = this.explorer.getClientByRSP(context.rsp);
+        if (!client) {
+            return Promise.reject('Failed to contact the RSP server.');
+        }
+
+        sendTelemetry('server.exportDescriptor', { type: context.server.type.id });
+        return exportServerDescriptor(context.rsp, context.server, client);
+    }
+
+    public async importDescriptor(context?: RSPState): Promise<void> {
+        this.assertExplorerExists();
+        if (context === undefined) {
+            const rsp = await this.selectRSP('Select RSP provider to import server descriptor into');
+            if (!rsp || !rsp.id) return;
+            context = this.explorer.RSPServersStatus.get(rsp.id).state;
+        }
+
+        const client: RSPClient = this.explorer.getClientByRSP(context.type.id);
+        if (!client) {
+            return Promise.reject('Failed to contact the RSP server.');
+        }
+
+        sendTelemetry('server.importDescriptor', { rspType: context.type.id });
+        await importServerDescriptor(context.type.id, client, this.explorer);
     }
 
     public async runOnServer(uri: vscode.Uri, mode?: string): Promise<void> {

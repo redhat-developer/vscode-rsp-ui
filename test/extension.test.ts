@@ -145,6 +145,8 @@ suite('Extension Tests', () => {
                 'server.actions',
                 'server.editServer',
                 'server.debug.setProjectName',
+                'server.exportDescriptor',
+                'server.importDescriptor',
                 'server.application.run',
                 'server.application.debug',
                 'server.saveSelectedNode'
