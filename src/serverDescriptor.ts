@@ -7,7 +7,10 @@
 
 import { Protocol, RSPClient, StatusSeverity } from 'rsp-client';
 import { ServerExplorer } from './serverExplorer';
+import { myContext } from './extension';
 import * as vscode from 'vscode';
+import { IWizardPage, SEVERITY, ValidatorResponseItem, WebviewWizard, WizardDefinition, WizardPageFieldDefinition, WizardPageSectionDefinition } from '@redhat-developer/vscode-wizard';
+import { PerformFinishResponse } from '@redhat-developer/vscode-wizard/lib/IWizardWorkflowManager';
 
 const VARIABLE_PREFIX = '${rsp_import_export/';
 const VARIABLE_SUFFIX = '}';
@@ -150,7 +153,7 @@ export async function importServerDescriptor(
     rspId: string,
     client: RSPClient,
     explorer: ServerExplorer
-): Promise<Protocol.CreateServerResponse | undefined> {
+): Promise<void> {
     const files = await vscode.window.showOpenDialog({
         canSelectFiles: true,
         canSelectFolders: false,
@@ -179,59 +182,147 @@ export async function importServerDescriptor(
     }
 
     const variables = findVariables(attrs);
-    const variableValues = new Map<string, string>();
-
-    for (const varKey of variables) {
-        const isFileKey = /\.file\b/i.test(varKey) && !/\.dir\b/i.test(varKey);
-        const result = await vscode.window.showOpenDialog({
-            canSelectFiles: isFileKey,
-            canSelectFolders: !isFileKey,
-            canSelectMany: false,
-            title: `Select path for: ${varKey}`,
-            openLabel: `Select (${varKey})`
-        });
-
-        if (!result || result.length === 0) return;
-        variableValues.set(varKey, result[0].fsPath);
-    }
-
-    const resolved = resolveVariables(attrs, variableValues);
-
     const defaultName = explorer.getDefaultServerName(rspId, serverType);
-    const serverName = await vscode.window.showInputBox({
-        prompt: `Enter a name for the new ${serverType.visibleName} server`,
-        value: defaultName,
-        validateInput: (value) => {
-            if (!value || value.trim().length === 0) {
-                return 'Server name cannot be empty';
-            }
-            const existing = explorer.getServerStatesByRSP(rspId);
-            if (existing.find(s => s.server.id === value)) {
-                return 'A server with this name already exists';
-            }
-            return undefined;
-        }
+
+    const initialData: Map<string, string> = new Map<string, string>();
+    initialData.set('id', defaultName);
+
+    const fields: (WizardPageFieldDefinition | WizardPageSectionDefinition)[] = [];
+
+    fields.push({
+        id: 'id',
+        type: 'textbox',
+        label: 'Server Name*',
+        initialValue: defaultName
     });
 
-    if (!serverName) return;
+    if (variables.length > 0) {
+        const pathFields: WizardPageFieldDefinition[] = variables.map(varKey => {
+            const isFileKey = /\.file\b/i.test(varKey) && !/\.dir\b/i.test(varKey);
+            const field: WizardPageFieldDefinition = {
+                id: `var_${varKey}`,
+                type: 'file-picker',
+                label: `${varKey}*`,
+                description: `Local path for ${varKey}`,
+                initialValue: ''
+            };
+            if (!isFileKey) {
+                field.dialogOptions = {
+                    canSelectFiles: false,
+                    canSelectFolders: true,
+                    canSelectMany: false,
+                    openLabel: `Select folder for ${varKey}`
+                };
+            }
+            return field;
+        });
 
-    const serverAttrs: Record<string, any> = {};
-    for (const [key, value] of Object.entries(resolved)) {
-        if (key === TYPE_ID_KEY || key === 'id' || key === FORMAT_VERSION_KEY) continue;
-        serverAttrs[key] = value;
+        fields.push({
+            id: 'pathVariablesSection',
+            label: 'Local Paths',
+            description: 'These paths were detected as machine-specific in the descriptor. Select the local path for each.',
+            childFields: pathFields
+        } as WizardPageSectionDefinition);
     }
 
-    const createParams: Protocol.ServerAttributes = {
-        serverType: serverTypeId,
-        id: serverName,
-        attributes: serverAttrs
+    const def: WizardDefinition = {
+        title: `Import Server: ${serverType.visibleName}`,
+        description: `Create a new ${serverType.visibleName} server from a shared descriptor file.`,
+        pages: [
+            {
+                id: 'importPage1',
+                title: 'Import Server from Descriptor',
+                description: 'Provide a server name and fill in any machine-specific paths.',
+                fields,
+                validator: (parameters: any) => {
+                    const errors: ValidatorResponseItem[] = [];
+                    if (!parameters.id || parameters.id === '') {
+                        errors.push({
+                            template: { id: 'idValidation', content: 'Server name must not be empty.' },
+                            severity: SEVERITY.ERROR
+                        });
+                    } else {
+                        const existing = explorer.getServerStatesByRSP(rspId);
+                        if (existing.find(s => s.server.id === parameters.id)) {
+                            errors.push({
+                                template: { id: 'idValidation', content: 'A server with this name already exists.' },
+                                severity: SEVERITY.ERROR
+                            });
+                        }
+                    }
+                    for (const varKey of variables) {
+                        const fieldId = `var_${varKey}`;
+                        if (!parameters[fieldId] || parameters[fieldId] === '') {
+                            errors.push({
+                                template: { id: `${fieldId}Validation`, content: `${varKey} must not be empty.` },
+                                severity: SEVERITY.ERROR
+                            });
+                        }
+                    }
+                    return { items: errors };
+                }
+            }
+        ],
+        workflowManager: {
+            canFinish(_wizard: WebviewWizard, data: any): boolean {
+                if (!data.id || data.id === '') return false;
+                for (const varKey of variables) {
+                    if (!data[`var_${varKey}`] || data[`var_${varKey}`] === '') return false;
+                }
+                return true;
+            },
+            async performFinish(_wizard: WebviewWizard, data: any): Promise<PerformFinishResponse | null> {
+                try {
+                    const variableValues = new Map<string, string>();
+                    for (const varKey of variables) {
+                        variableValues.set(varKey, data[`var_${varKey}`]);
+                    }
+
+                    const resolved = resolveVariables(attrs, variableValues);
+
+                    const serverAttrs: Record<string, any> = {};
+                    for (const [key, value] of Object.entries(resolved)) {
+                        if (key === TYPE_ID_KEY || key === 'id' || key === FORMAT_VERSION_KEY) continue;
+                        serverAttrs[key] = value;
+                    }
+
+                    const createParams: Protocol.ServerAttributes = {
+                        serverType: serverTypeId,
+                        id: data.id,
+                        attributes: serverAttrs
+                    };
+
+                    const response = await client.getOutgoingHandler().createServer(createParams);
+                    if (!StatusSeverity.isOk(response.status)) {
+                        return {
+                            close: false,
+                            success: false,
+                            returnObject: {},
+                            templates: [{ id: 'description', content: response.status.message }]
+                        };
+                    }
+
+                    vscode.window.showInformationMessage(`Server "${data.id}" created from descriptor`);
+                    return null;
+                } catch (e) {
+                    return {
+                        close: false,
+                        success: false,
+                        returnObject: {},
+                        templates: [{ id: 'description', content: String(e) }]
+                    };
+                }
+            },
+            getNextPage(_page: IWizardPage, _data: any): IWizardPage | null {
+                return null;
+            },
+            getPreviousPage(_page: IWizardPage, _data: any): IWizardPage | null {
+                return null;
+            }
+        }
     };
 
-    const response = await client.getOutgoingHandler().createServer(createParams);
-    if (!StatusSeverity.isOk(response.status)) {
-        throw new Error(response.status.message);
-    }
-
-    vscode.window.showInformationMessage(`Server "${serverName}" created from descriptor`);
-    return response;
+    const wiz = new WebviewWizard('Import Server Wizard', 'ImportServerWizard',
+        myContext, def, initialData);
+    wiz.open();
 }
