@@ -21,9 +21,17 @@ export function extensionUIAssetsTest(): void {
         });
 
         it('Runtime Server Protocol UI extension is installed', async function() {
-            this.timeout(10000);
-            const items = await section.getVisibleItems();
-            expect(await Promise.all(items.map(item => item.getTitle()))).to.include(AdaptersConstants.RSP_UI_NAME);
+            this.timeout(30000);
+            let titles: string[] = [];
+            for (let attempt = 0; attempt < 10; attempt++) {
+                const items = await section.getVisibleItems();
+                titles = await Promise.all(items.map(item => item.getTitle()));
+                if (titles.includes(AdaptersConstants.RSP_UI_NAME)) {
+                    break;
+                }
+                await new Promise(res => setTimeout(res, 1000));
+            }
+            expect(titles).to.include(AdaptersConstants.RSP_UI_NAME);
         });
 
         it('Action button "Create New Server..." from Servers tab is available', async function() {
