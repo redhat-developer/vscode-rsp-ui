@@ -93,6 +93,11 @@ async function registerCommands(commandHandler: CommandHandler, context: vscode.
         vscode.commands.registerCommand('server.createServer', context => executeCommandAndLog('server.createServer',
             commandHandler.createServer, commandHandler, context, 'Unable to create the server: ')),
 
+        vscode.commands.registerCommand('server.exportDescriptor', context => executeCommand(
+            commandHandler.exportDescriptor, commandHandler, context, 'Unable to export server descriptor: ')),
+        vscode.commands.registerCommand('server.importDescriptor', context => executeCommand(
+            commandHandler.importDescriptor, commandHandler, context, 'Unable to import server descriptor: ')),
+
         // Do these two still exist? Can't seem to get them to show up
         vscode.commands.registerCommand('server.addLocation', context => executeCommandAndLog('server.addLocation',
             commandHandler.addLocation, commandHandler, context, 'Unable to detect any server: ')),

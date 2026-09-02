@@ -33,6 +33,8 @@
 		"onCommand:server.disconnectRSP",
 		"onCommand:server.stopRSP",
 		"onCommand:server.terminateRSP",
+		"onCommand:server.exportDescriptor",
+		"onCommand:server.importDescriptor",
 		"onCommand:server.start",
 		"onCommand:server.debug",
 		"onCommand:server.debug.setProjectName",
@@ -165,6 +167,16 @@
 				"category": "Servers"
 			},
 			{
+				"command": "server.exportDescriptor",
+				"title": "Export Server Descriptor...",
+				"category": "Servers"
+			},
+			{
+				"command": "server.importDescriptor",
+				"title": "Import Server from Descriptor...",
+				"category": "Servers"
+			},
+			{
 				"command": "server.application.run",
 				"title": "Run on Server",
 				"category": "Application"
@@ -226,6 +238,11 @@
 					"command": "server.createServer",
 					"when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/ && !listMultiSelection",
 					"group": "0_server-rspstartstop@3"
+				},
+				{
+					"command": "server.importDescriptor",
+					"when": "view == servers && viewItem =~ /^(RSPStarted|RSPConnected)/ && !listMultiSelection",
+					"group": "0_server-rspstartstop@4"
 				},
 				{
 					"command": "server.start",
@@ -308,9 +325,14 @@
 					"group": "6_server-info@2"
 				},
 				{
+					"command": "server.exportDescriptor",
+					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/ && !listMultiSelection",
+					"group": "6_server-info@3"
+				},
+				{
 					"command": "server.debug.setProjectName",
 					"when": "view == servers && viewItem =~ /^(Starting|Started|Debugging|Stopping|Stopped|Unknown)/",
-					"group": "6_server-info@3"
+					"group": "6_server-info@4"
 				}
 			],
 			"explorer/context": [
