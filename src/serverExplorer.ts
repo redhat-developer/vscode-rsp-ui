@@ -304,13 +304,14 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             filePickerType === FilePickerType.FILE ? 'File' : 'file or exploded';
         return this.createOpenDialogOptions(filePickerType,  `Select ${typeString} Deployment`);
     }
-    private createOpenDialogOptions(type: FilePickerType, label: string | undefined): OpenDialogOptions {
+    private createOpenDialogOptions(type: FilePickerType, label: string | undefined,
+        defaultPath?: string): OpenDialogOptions {
         // dialog behavior on different OS
         // Windows -> if both options (canSelectFiles and canSelectFolders) are true, fs only shows folders
         // Linux(fedora) -> if both options are true, fs shows both files and folders but files are unselectable
         // Mac OS -> if both options are true, it works correctly
         const ret : OpenDialogOptions = {
-            defaultUri: this.findDefaultFilePickerPath(),
+            defaultUri: defaultPath ? Uri.file(defaultPath) : this.findDefaultFilePickerPath(),
             canSelectFiles: (type === FilePickerType.FILE || type === FilePickerType.BOTH),
             canSelectMany: false,
             canSelectFolders: (type === FilePickerType.FOLDER || type === FilePickerType.BOTH),
@@ -444,7 +445,8 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
         // if( attr.type === 'int' || attr.type === 'string')  or other
         return 'textbox';
     }
-    private attrAsFieldDefinition(key: string, attr: Protocol.Attribute, required: boolean) : WizardPageFieldDefinition {
+    private attrAsFieldDefinition(key: string, attr: Protocol.Attribute, required: boolean,
+        serverHome?: string) : WizardPageFieldDefinition {
         const ret: WizardPageFieldDefinition = {
             id: key,
             label: key + (required ? '*' : ''),
@@ -452,9 +454,13 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
             type: this.attrTypeToFieldDefinitionType(attr),
             initialValue: attr.defaultVal
         };
+        if(attr.type === 'local_file') {
+            ret.dialogOptions = this.createOpenDialogOptions(FilePickerType.FILE,
+                undefined, serverHome);
+        }
         if(attr.type === 'local_folder') {
-            // Need to use options
-            ret.dialogOptions = this.createOpenDialogOptions(FilePickerType.FOLDER, undefined);
+            ret.dialogOptions = this.createOpenDialogOptions(FilePickerType.FOLDER,
+                undefined, serverHome);
         }
         return ret;
     }
@@ -505,7 +511,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
         for(const key in req.attributes) {
             const oneAttr: Protocol.Attribute = req.attributes[key];
-            const f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, true);
+            const f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, true, serverBean.location);
             if (key === 'server.home.dir' || key === 'server.home.file') {
                 f1.initialValue = serverBean.location;
                 f1.properties = {disabled: true};
@@ -516,7 +522,7 @@ export class ServerExplorer implements TreeDataProvider<RSPState | ServerStateNo
 
         for(const key in opt.attributes) {
             const oneAttr: Protocol.Attribute = opt.attributes[key];
-            const f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, false);
+            const f1: WizardPageFieldDefinition = this.attrAsFieldDefinition(key, oneAttr, false, serverBean.location);
             optionalFields.push(f1);
         }
 
