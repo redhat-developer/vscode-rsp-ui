@@ -48,6 +48,8 @@ This extension supports a number of commands for interacting with supported serv
    * `rsp-ui.rsp.java.home`: Specifies the path to a full JDK (version 11 or newer) which will be used to launch the Runtime Server Protocol (RSP) Server, as well as be the default java to launch any Java-based runtimes that the RSP will control.<br>On Windows, backslashes must be escaped, i.e.<br>`"rsp-ui.rsp.java.home":"C:\\Program Files\\Java\\jdk-11.0.13"`
    * `rsp-ui.enableStartServerOnActivation`: Specifies which RSP Server have to be automatically started during activation. If option is disabled, user will have to manually start the RSP Server through command palette or context menu
    * `rsp-ui.enableAsyncPublish`: enable/disable async publishing
+   * `rsp-ui.enableCustomServerLocation`: when enabled, server definitions are stored in the path specified by `rsp-ui.customServerLocation` instead of the RSP data directory
+   * `rsp-ui.customServerLocation`: path where server definitions are stored when `rsp-ui.enableCustomServerLocation` is enabled. If relative, resolved against the first workspace folder. If absolute, used as-is. Default: `.rsp/servers`
 
 ## Server Parameters
    To change Server Parameters, right-click on the server you want to edit and select `Edit Server`

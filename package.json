@@ -381,6 +381,16 @@
 					"default": false,
 					"description": "Enable asynchronous publishing."
 				},
+				"rsp-ui.enableCustomServerLocation": {
+					"type": "boolean",
+					"default": false,
+					"description": "Override the default server definitions storage location. When enabled, server definitions will be stored in the path specified by rsp-ui.customServerLocation instead of the RSP data directory."
+				},
+				"rsp-ui.customServerLocation": {
+					"type": "string",
+					"default": ".rsp/servers",
+					"description": "Path where server definitions are stored when rsp-ui.enableCustomServerLocation is enabled. If relative, resolved against the first workspace folder. If absolute, used as-is."
+				},
 				"rsp-ui.enableStartServerOnActivation": {
 					"type": "array",
 					"items": {
