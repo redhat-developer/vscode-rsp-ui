@@ -18,17 +18,6 @@ const config : Mocha.MochaOptions = {
     reporterOptions: {}
 };
 
-if (process.env.BUILD_ID && process.env.BUILD_NUMBER) {
-    const testReportPath = 'test-resources/test-report.xml';
-    console.log(`Creating test report at ${testReportPath}`);
-    config.reporter = 'mocha-jenkins-reporter';
-    config.reporterOptions = {
-        'junit_report_name': 'Tests',
-        'junit_report_path': testReportPath,
-        'junit_report_stack': 1
-    };
-}
-
 const mocha = new Mocha(config);
 
 // The test coverage approach is inspired by https://github.com/microsoft/vscode-js-debug/blob/master/src/test/testRunner.ts
